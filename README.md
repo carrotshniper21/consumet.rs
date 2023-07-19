@@ -13,8 +13,8 @@ tokio = { version = "1.29.1", features = ["full"] }
 To use the `FlixHQ` crate, you can follow this example:
 
 ```rust
-use pipebomb_extensions_rs::models::movie_parser::MovieParser;
-use pipebomb_extensions_rs::providers::movies;
+use consumet_api_rs::models::movie_parser::MovieParser;
+use consumet_api_rs::providers::movies;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
