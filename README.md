@@ -1,11 +1,5 @@
 # Usage
 
-### Cargo.toml
-```toml
-reqwest = "0.11.18"
-tokio = { version = "1.29.1", features = ["full"] }
-```
-
 ## Movies
 
 ### Flixhq
