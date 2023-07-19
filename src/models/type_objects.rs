@@ -1,0 +1,47 @@
+pub struct LibgenBookObject {
+    title: String,
+    authors: Vec<String>,
+    publisher: String,
+    year: String,
+    edition: String,
+    volume: String,
+    series: String,
+    isbn: Vec<String>,
+    link: String,
+    id: String,
+    language: String,
+    format: String,
+    size: String,
+    pages: String,
+    image: String,
+    description: String,
+    table_of_contents: String,
+    topic: String,
+    hashes: HashesObject,
+}
+
+pub struct HashesObject {
+    aich: String,
+    crc32: String,
+    edonkey: String,
+    md5: String,
+    sha1: String,
+    sha256: Vec<String>,
+    tth: String,
+}
+
+pub struct GetComicsComicsObject {
+    image: String,
+    title: String,
+    year: String,
+    size: String,
+    excerpt: String,
+    description: String,
+    download: String,
+    category: String,
+    ufile: String,
+    mega: String,
+    media_fire: String,
+    zippy_share: String,
+    read_online: String,
+}

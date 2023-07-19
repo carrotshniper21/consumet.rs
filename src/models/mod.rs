@@ -1,0 +1,13 @@
+pub mod anime_parser;
+pub mod base_parser;
+pub mod base_provider;
+pub mod base_types;
+pub mod book_parser;
+pub mod comic_parser;
+pub mod lightnovel_parser;
+pub mod manga_parser;
+pub mod movie_parser;
+pub mod news_parser;
+pub mod type_objects;
+pub mod types;
+pub mod video_extractor;
