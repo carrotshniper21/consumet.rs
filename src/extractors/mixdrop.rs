@@ -1,4 +1,4 @@
-use crate::models::types::{Bofa, IVideo};
+use crate::models::{Bofa, IVideo};
 use regex::Regex;
 use reqwest::Url;
 
@@ -11,7 +11,7 @@ pub struct MixDrop {
 impl MixDrop {
     const SERVER_NAME: &'static str = "MixDrop";
 
-    async fn extract(&mut self, video_url: Url) -> Result<MixDrop, Box<dyn std::error::Error>> {
+    async fn extract(&mut self, video_url: Url) -> anyhow::Result<MixDrop> {
         let data = reqwest::get(video_url).await?.text().await?;
 
         let re = Regex::new(r"(eval)(\(f.*?)(\n<\/script>)").unwrap();

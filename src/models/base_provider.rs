@@ -1,4 +1,4 @@
-use super::types::IProviderStats;
+use crate::models::IProviderStats;
 
 pub trait BaseProvider {
     fn name(&self) -> &str;

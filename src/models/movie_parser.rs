@@ -1,7 +1,7 @@
-use super::base_parser::BaseParser;
-use super::types::{ISearch, TvType};
+use crate::models::{BaseParser, ISearch, TvType, IMovieInfo};
 
 use async_trait::async_trait;
+
 pub enum IInfoType {
     IMovieInfo,
     IAnimeInfo,
@@ -19,17 +19,19 @@ pub trait MovieParser: BaseParser {
         query: String,
         page: Option<usize>,
     ) -> anyhow::Result<ISearch<Self::SearchResult>>;
-    // async fn fetch_media_info(
-    //     &self,
-    //     media_id: String,
-    //     media_type: String,
-    // ) -> Result<IInfoType, Box<dyn std::error::Error>>;
+
+    async fn fetch_media_info(
+        &self,
+        media_id: String
+    ) -> anyhow::Result<IMovieInfo>;
+
     // async fn fetch_episode_servers(
     //     &self,
     //     episode_id: String,
-    // ) -> Result<Vec<IEpisodeServer>, Box<dyn std::error::Error>>;
+    // ) -> anyhow::Result<Vec<IEpisodeServer>
+
     // async fn fetch_episode_sources(
     //     &self,
     //     episode_id: String,
-    // ) -> Result<ISource, Box<dyn std::error::Error>>;
+    // ) -> anyhow::Result<ISource>;
 }

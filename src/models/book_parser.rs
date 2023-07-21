@@ -1,3 +1,3 @@
-use super::base_parser::BaseParser;
+use crate::models::BaseParser;
 
-trait BookParser: BaseParser {}
+pub trait BookParser: BaseParser {}

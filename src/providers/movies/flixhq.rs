@@ -1,24 +1,17 @@
-use crate::models::base_parser::BaseParser;
-use crate::models::base_provider::BaseProvider;
-use crate::models::movie_parser::MovieParser;
-use crate::models::types::{IMovieResult, ISearch, TvType};
+use crate::models::{
+    BaseParser, BaseProvider, IMovieInfo, IMovieResult, ISearch, MovieParser, TvType,
+};
+
 use async_trait::async_trait;
 use scraper::{Html, Selector};
 
 pub struct FlixHQ;
 
 #[derive(Debug)]
-pub struct FlixHQSearchResult {
+pub struct FlixHQSearch {
     pub base: IMovieResult,
     pub seasons: Option<usize>,
-    pub description: String,
-    pub country: Vec<String>,
-    pub genre: Vec<String>,
-    pub production: Vec<String>,
-    pub casts: Vec<String>,
 }
-
-impl BaseParser for FlixHQ {}
 
 impl BaseProvider for FlixHQ {
     #[inline]
@@ -42,9 +35,11 @@ impl BaseProvider for FlixHQ {
     }
 }
 
+impl BaseParser for FlixHQ {}
+
 #[async_trait]
 impl MovieParser for FlixHQ {
-    type SearchResult = FlixHQSearchResult;
+    type SearchResult = FlixHQSearch;
 
     #[inline]
     fn supported_types(&self) -> &[TvType] {
@@ -61,7 +56,7 @@ impl MovieParser for FlixHQ {
         let url = format!("{}/search/{}?page={}", self.base_url(), query, page);
         let data = reqwest::Client::new().get(url).send().await?.text().await?;
 
-        let (next_page, total_page, ids) = {
+        let (next_page, total_page, id_season) = {
             let fragment = Html::parse_fragment(&data);
 
             // NOTE: don't use `?` for `Result<Selector, SelectorErrorKind>`
@@ -103,33 +98,51 @@ impl MovieParser for FlixHQ {
                 .unwrap_or(1);
 
             let id_selector = Selector::parse("div.film-poster > a").unwrap();
+            let seasons_selector =
+                Selector::parse("div.fd-infor > span.fdi-item:nth-child(1)").unwrap();
 
-            let ids = fragment
+            let id_season = fragment
                 .select(&item_selector)
                 .map(|element| {
-                    element
+                    let id = element
                         .select(&id_selector)
                         .next()
                         .and_then(|el| el.value().attr("href"))
                         .map(|href| href[1..].to_owned())
-                        .unwrap()
+                        .unwrap();
+
+                    let seasons_text = element
+                        .select(&seasons_selector)
+                        .next()
+                        .map(|el| el.text().collect::<Vec<_>>().join("").trim().to_owned())
+                        .unwrap();
+
+                    let seasons = if seasons_text.contains("SS") {
+                        match seasons_text.split("SS").nth(1) {
+                            None => Some(1usize),
+                            Some(t) => t.trim().parse::<usize>().ok(),
+                        }
+                    } else {
+                        None
+                    };
+
+                    (id, seasons)
                 })
                 .collect::<Vec<_>>();
 
-            (next_page, total_page, ids)
+            (next_page, total_page, id_season)
         };
 
-        // `Vec<impl Future<Output = Result<FlixHQSearchResult>>>`
-        let tasks = ids
-            .iter()
-            .map(|id| async move {
-                self.fetch(id.to_owned())
+        // NOTE: `Vec<impl Future<Output = Result<FlixHQSearch>>`
+        let tasks = id_season
+            .into_iter()
+            .map(|(id, seasons)| async move {
+                self.fetch(&id, seasons)
                     .await
                     .map_err(|err| anyhow::anyhow!("Err: Can't fetch {}, {}", id, err))
             })
             .collect::<Vec<_>>();
 
-        // `Vec<FlixHQSearchResult>`
         let results = futures::future::try_join_all(tasks).await?;
 
         Ok(ISearch {
@@ -140,11 +153,34 @@ impl MovieParser for FlixHQ {
             results,
         })
     }
+
+    async fn fetch_media_info(&self, media_id: String) -> anyhow::Result<IMovieInfo> {
+        if !media_id.starts_with(self.base_url()) {
+            let _ = format!("{}/{}", self.base_url(), media_id);
+        }
+
+        Ok(IMovieInfo {
+            cover: None,
+            recommendations: None,
+            genres: None,
+            description: None,
+            rating: None,
+            status: None,
+            duration: None,
+            production: None,
+            casts: None,
+            tags: None,
+            total_episodes: None,
+            seasons: None,
+            episodes: None,
+        })
+    }
 }
 
 impl FlixHQ {
-    async fn fetch(&self, id: String) -> anyhow::Result<FlixHQSearchResult> {
+    async fn fetch(&self, id: &str, seasons: Option<usize>) -> anyhow::Result<FlixHQSearch> {
         let url = format!("{}/{}", self.base_url(), id);
+
         let data = reqwest::Client::new()
             .get(&url)
             .send()
@@ -162,29 +198,6 @@ impl FlixHQ {
 
         // NOTE: don't use `?` for `Result<Selector, SelectorErrorKind>`
         // `SelectorErrorKind` can not be shared between threads safely
-
-        /*
-        let seasons_selector = Selector::parse(
-            "#content-episodes > div > div > div.slc-eps > div.sl-title > div.slt-seasons-dropdown > div.dropdown-menu",
-        )
-        .unwrap();
-        */
-
-        /*
-        let seasons = html
-            .select(&seasons_selector)
-            .next()
-            .map(|el| el.children().count());
-        */
-
-        let seasons_selector = Selector::parse("#content-episodes > div").unwrap();
-
-        let seasons = html
-            .select(&seasons_selector)
-            .next()
-            .map(|el| el.children().count());
-
-        println!("{:#?}", seasons);
 
         let image_selector = Selector::parse("div.m_i-d-poster > div > img").unwrap();
 
@@ -206,44 +219,6 @@ impl FlixHQ {
             .map(|el| el.text().collect::<Vec<_>>().join("").trim().to_owned())
             .ok_or(anyhow::anyhow!("Err: Can't get title"))?;
 
-        let description_selector = Selector::parse("#main-wrapper > div.movie_information > div > div.m_i-detail > div.m_i-d-content > div.description").unwrap();
-
-        let description = html
-            .select(&description_selector)
-            .next()
-            .map(|el| el.text().collect::<Vec<_>>().join("").trim().to_owned())
-            .ok_or(anyhow::anyhow!("Err: Can't get description"))?;
-
-        let country_selector =
-            Selector::parse("div.m_i-d-content > div.elements > div:nth-child(1)").unwrap();
-
-        let country: Vec<String> = html
-            .select(&country_selector)
-            .next()
-            .map(|el| el.text())
-            .ok_or(anyhow::anyhow!("Err: Can't get country"))?
-            .map(|country| {
-                let trimmed_country = country.trim().replace(',', "").replace("Country:", "");
-                trimmed_country
-            })
-            .filter(|trimmed_country| !trimmed_country.is_empty())
-            .collect();
-
-        let genre_selector =
-            Selector::parse("div.m_i-d-content > div.elements > div:nth-child(2)").unwrap();
-
-        let genre: Vec<String> = html
-            .select(&genre_selector)
-            .next()
-            .map(|el| el.text())
-            .ok_or(anyhow::anyhow!("Err: Can't get genres"))?
-            .map(|genre| {
-                let trimmed_genre = genre.trim().replace(',', "").replace("Casts:", "");
-                trimmed_genre
-            })
-            .filter(|trimmed_genre| !trimmed_genre.is_empty())
-            .collect();
-
         let release_date_selector =
             Selector::parse("div.m_i-d-content > div.elements > div:nth-child(3)").unwrap();
 
@@ -255,54 +230,87 @@ impl FlixHQ {
             .map(|text| text.trim().to_owned())
             .ok_or(anyhow::anyhow!("Err: Can't get release date"))?;
 
-        let production_selector =
-            Selector::parse("div.m_i-d-content > div.elements > div:nth-child(4)").unwrap();
-
-        let production: Vec<String> = html
-            .select(&production_selector)
-            .next()
-            .map(|el| el.text())
-            .ok_or(anyhow::anyhow!("Err: Can't get production"))?
-            .map(|production| {
-                let trimmed_production = production
-                    .trim()
-                    .replace(',', "")
-                    .replace("Production:", "");
-                trimmed_production
-            })
-            .filter(|trimmed_production| !trimmed_production.is_empty())
-            .collect();
-
-        let cast_selector =
-            Selector::parse("div.m_i-d-content > div.elements > div:nth-child(5)").unwrap();
-
-        let casts: Vec<String> = html
-            .select(&cast_selector)
-            .next()
-            .map(|el| el.text())
-            .ok_or(anyhow::anyhow!("Err: Can't get casts"))?
-            .map(|cast| {
-                let trimmed_cast = cast.trim().replace(',', "").replace("Casts:", "");
-                trimmed_cast
-            })
-            .filter(|trimmed_cast| !trimmed_cast.is_empty())
-            .collect();
-
-        Ok(FlixHQSearchResult {
+        Ok(FlixHQSearch {
             base: IMovieResult {
-                id,
+                id: id.to_owned(),
                 title,
                 url,
                 image,
                 release_date,
                 movie_type,
             },
-            seasons: None,
-            description,
-            country,
-            genre,
-            production,
-            casts,
+            seasons,
         })
     }
 }
+
+// let description_selector = Selector::parse("#main-wrapper > div.movie_information > div > div.m_i-detail > div.m_i-d-content > div.description").unwrap();
+
+// let description = html
+//     .select(&description_selector)
+//     .next()
+//     .map(|el| el.text().collect::<Vec<_>>().join("").trim().to_owned())
+//     .ok_or(anyhow::anyhow!("Err: Can't get description"))?;
+
+// let country_selector =
+//     Selector::parse("div.m_i-d-content > div.elements > div:nth-child(1)").unwrap();
+
+// let country: Vec<String> = html
+//     .select(&country_selector)
+//     .next()
+//     .map(|el| el.text())
+//     .ok_or(anyhow::anyhow!("Err: Can't get country"))?
+//     .map(|country| {
+//         let trimmed_country = country.trim().replace(',', "").replace("Country:", "");
+//         trimmed_country
+//     })
+//     .filter(|trimmed_country| !trimmed_country.is_empty())
+//     .collect();
+
+// let genre_selector =
+//     Selector::parse("div.m_i-d-content > div.elements > div:nth-child(2)").unwrap();
+
+// let genre: Vec<String> = html
+//     .select(&genre_selector)
+//     .next()
+//     .map(|el| el.text())
+//     .ok_or(anyhow::anyhow!("Err: Can't get genres"))?
+//     .map(|genre| {
+//         let trimmed_genre = genre.trim().replace(',', "").replace("Casts:", "");
+//         trimmed_genre
+//     })
+//     .filter(|trimmed_genre| !trimmed_genre.is_empty())
+//     .collect();
+
+// let production_selector =
+//     Selector::parse("div.m_i-d-content > div.elements > div:nth-child(4)").unwrap();
+
+// let production: Vec<String> = html
+//     .select(&production_selector)
+//     .next()
+//     .map(|el| el.text())
+//     .ok_or(anyhow::anyhow!("Err: Can't get production"))?
+//     .map(|production| {
+//         let trimmed_production = production
+//             .trim()
+//             .replace(',', "")
+//             .replace("Production:", "");
+//         trimmed_production
+//     })
+//     .filter(|trimmed_production| !trimmed_production.is_empty())
+//     .collect();
+
+// let cast_selector =
+//     Selector::parse("div.m_i-d-content > div.elements > div:nth-child(5)").unwrap();
+
+// let casts: Vec<String> = html
+//     .select(&cast_selector)
+//     .next()
+//     .map(|el| el.text())
+//     .ok_or(anyhow::anyhow!("Err: Can't get casts"))?
+//     .map(|cast| {
+//         let trimmed_cast = cast.trim().replace(',', "").replace("Casts:", "");
+//         trimmed_cast
+//     })
+//     .filter(|trimmed_cast| !trimmed_cast.is_empty())
+//     .collect();

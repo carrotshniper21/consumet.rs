@@ -1,3 +1,3 @@
-use super::base_parser::BaseParser;
+use crate::models::BaseParser;
 
-trait ComicParser: BaseParser {}
+pub trait ComicParser: BaseParser {}

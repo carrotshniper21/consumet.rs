@@ -1,3 +1,3 @@
-use super::base_provider::BaseProvider;
+use crate::models::BaseProvider;
 
 pub trait BaseParser: BaseProvider {}

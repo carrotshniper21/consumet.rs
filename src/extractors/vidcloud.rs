@@ -1,4 +1,4 @@
-use crate::models::types::{ISubtitle, IVideo};
+use crate::models::{ISubtitle, IVideo};
 use crate::utils::util_funcs::USER_AGENT;
 use reqwest::Url;
 use std::collections::HashMap;
@@ -18,7 +18,7 @@ impl VidCloud {
         &mut self,
         video_url: Url,
         is_alternative: Option<bool>,
-    ) -> Result<VidCloud, Box<dyn std::error::Error>> {
+    ) -> anyhow::Result<VidCloud> {
         let is_alternative = is_alternative.unwrap_or(false);
 
         let client = reqwest::Client::new();

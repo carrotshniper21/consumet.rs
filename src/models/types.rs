@@ -1,4 +1,4 @@
-use super::base_types::Hashes;
+use crate::models::Hashes;
 use std::collections::HashMap;
 
 #[derive(Clone)]
@@ -397,15 +397,15 @@ impl std::fmt::Display for TvType {
     }
 }
 
-struct IMovieEpisode {
-    id: String,
-    title: String,
-    url: Option<String>,
-    number: Option<u32>,
-    season: Option<u32>,
-    description: Option<String>,
-    image: Option<String>,
-    release_date: Option<String>,
+pub struct IMovieEpisode {
+    pub id: String,
+    pub title: String,
+    pub url: Option<String>,
+    pub number: Option<u32>,
+    pub season: Option<u32>,
+    pub description: Option<String>,
+    pub image: Option<String>,
+    pub release_date: Option<String>,
 }
 
 #[derive(Debug)]
@@ -459,17 +459,19 @@ pub struct IMovieSeason {
 }
 
 pub struct IMovieInfo {
-    genres: Option<Vec<String>>,
-    description: Option<String>,
-    rating: Option<u32>,
-    status: Option<MediaStatus>,
-    duration: Option<String>,
-    production: Option<String>,
-    casts: Option<Vec<String>>,
-    tags: Option<Vec<String>>,
-    total_episodes: Option<u32>,
-    seasons: Option<Vec<IMovieSeason>>,
-    episodes: Option<Vec<IMovieEpisode>>,
+    pub cover: Option<String>,
+    pub recommendations: Option<Vec<IMovieResult>>,
+    pub genres: Option<Vec<String>>,
+    pub description: Option<String>,
+    pub rating: Option<u32>,
+    pub status: Option<MediaStatus>,
+    pub duration: Option<String>,
+    pub production: Option<String>,
+    pub casts: Option<Vec<String>>,
+    pub tags: Option<Vec<String>>,
+    pub total_episodes: Option<u32>,
+    pub seasons: Option<Vec<IMovieSeason>>,
+    pub episodes: Option<Vec<IMovieEpisode>>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
