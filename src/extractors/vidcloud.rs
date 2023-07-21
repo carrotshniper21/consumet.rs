@@ -1,5 +1,5 @@
 use crate::models::types::{ISubtitle, IVideo};
-use crate::utils::utils::USER_AGENT;
+use crate::utils::util_funcs::USER_AGENT;
 use reqwest::Url;
 use std::collections::HashMap;
 
@@ -39,10 +39,7 @@ impl VidCloud {
             is_m3u8: None,
             is_dash: None,
             size: None,
-            other: {
-                let other = HashMap::new();
-                other
-            },
+            other: { HashMap::new() },
         });
 
         self.subtitles.push(ISubtitle {

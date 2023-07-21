@@ -22,7 +22,7 @@ impl MixDrop {
 
             let matches: Vec<String> = re
                 .find_iter(&formated)
-                .map(|m| m.as_str().split("=").nth(1).unwrap().replace("\"", ""))
+                .map(|m| m.as_str().split('=').nth(1).unwrap().replace('\"', ""))
                 .collect();
 
             let jazz = matches
@@ -61,10 +61,7 @@ impl MixDrop {
                 is_m3u8: None,
                 is_dash: None,
                 size: None,
-                other: {
-                    let other = HashMap::new();
-                    other
-                },
+                other: { HashMap::new() },
             });
 
             Ok(MixDrop {

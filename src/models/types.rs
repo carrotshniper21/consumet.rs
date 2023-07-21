@@ -413,9 +413,9 @@ pub struct IMovieResult {
     pub id: String,
     pub title: String,
     pub url: String,
-    pub image: Option<String>,
-    pub release_date: Option<String>,
-    pub movie_type: Option<TvType>,
+    pub image: String,
+    pub release_date: String,
+    pub movie_type: TvType,
 }
 
 pub struct INewsFeed {
