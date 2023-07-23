@@ -1,7 +1,5 @@
 use crate::models::BaseParser;
-use async_trait::async_trait;
 
-#[async_trait]
 pub trait LightNovelParser: BaseParser {
     async fn fetch_light_novel_info(
         &self,

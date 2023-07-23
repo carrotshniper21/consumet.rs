@@ -1,7 +1,28 @@
 use chrono::{DateTime, Datelike, Local, NaiveDateTime, Utc};
 
+/// The User-Agent used in HTTP requests in some parser implmentations
+/// ```
+/// use consumet_api_rs::utils::USER_AGENT;
+/// use reqwest::Client;
+///
+/// #[tokio::main]
+/// async fn main() -> anyhow::Result<()> {
+///     let client = Client::new();
+///
+///     let res = client
+///         .get("https://www.rust-lang.org")
+///         .header(header::USER_AGENT, USER_AGENT)
+///         .send()
+///         .await?
+///         .text()
+///         .await?;
+///
+///     Ok(())
+/// }
+/// ```
 pub const USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36";
 
+/// Days enum used for the get_day function
 pub enum Days {
     Sunday,
     Monday,
@@ -13,10 +34,42 @@ pub enum Days {
 }
 
 pub trait UtilFuncs {
+    /// Pass in a author string and get a Vector
+    /// ```
+    /// let author_string = "author1, author2";
+    /// let author_vec = split_author(author_string);
+    ///
+    /// assert_eq!(vec!["author1", "author2"], author_vec);
+    /// ```
     fn split_author(&self) -> Vec<String>;
+
+    /// Pass in a id string and get the floored version
+    /// ```
+    /// let id = "123456"
+    /// let floored_id = floor_id(id);
+    ///
+    /// assert_eq!("123000", floored_id);
+    /// ```
     fn floor_id(&self) -> i32;
+
+    /// Pass in a title and get the formatted version
+    /// ```
+    /// let title = "Remy   Clarke123 The Movie   ";
+    /// let formatted_title = format_ti;le(title);
+    ///
+    /// assert_eq!("Remy Clarke The Movie", formatted_title);
+    /// ```
     fn format_title(&self) -> String;
+
+    /// Pass in a String and get the first letter capitalized
+    /// ```
+    /// let to_be_capitalized = "remy Clarke";
+    /// let capitalized = capitalize_first_letter(to_be_capitalized);
+    ///
+    /// assert_eq!("Remy Clarke", capitalized);
+    /// ```
     fn capitalize_first_letter(&self) -> String;
+
     fn substring_before(&self, to_find: &str) -> Result<String, String>;
     fn substring_after(&self, to_find: &str) -> Result<String, String>;
     fn substring_before_last(&self, to_find: &str) -> Result<String, String>;
@@ -42,6 +95,11 @@ pub fn get_day(day: Days) -> i64 {
     Utc::now().timestamp() + (x as i64 * 86400)
 }
 
+/// Turns day numbers 0..6 into Unix Timestamps
+/// ```
+/// /// Assuming today is Monday
+/// let days = get_days(vec![0, 6]) // Output: vec![1679779200, 1679692800]
+/// ```
 pub fn get_days(days: Vec<Days>) -> Vec<i64> {
     let mut day_vec: Vec<i64> = vec![];
 
@@ -52,6 +110,12 @@ pub fn get_days(days: Vec<Days>) -> Vec<i64> {
     day_vec
 }
 
+/// Turns milliseconds into 24 Hour Format
+/// ```
+/// let milliseconds = 23409823;
+/// let duration = convert_duration(milliseconds); // Output: PT6H30M9S
+///
+/// ```
 pub fn convert_duration(milliseconds: i64) -> String {
     let timestamp = milliseconds * 1000;
     let naive = NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();

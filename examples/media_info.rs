@@ -5,9 +5,10 @@ use consumet_api_rs::providers::movies;
 async fn main() -> anyhow::Result<()> {
     println!(
         "{:#?}",
-        movies::FlixHQ.fetch_media_info("movie/watch-the-flash-97519".to_owned()).await?
+        movies::FlixHQ
+            .fetch_media_info("movie/watch-puss-in-boots-17289".to_owned())
+            .await?
     );
 
     Ok(())
 }
-

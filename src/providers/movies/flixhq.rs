@@ -1,9 +1,12 @@
-use crate::models::{
-    BaseParser, BaseProvider, IMovieInfo, IMovieResult, ISearch, MovieParser, TvType,
+use super::flixhq_html::{
+    parse_episode_html, parse_info_html, parse_page_html, parse_search_html, parse_season_html,
 };
+use std::future::Future;
 
-use async_trait::async_trait;
-use scraper::{Html, Selector};
+use crate::models::{
+    BaseParser, BaseProvider, IMovieEpisode, IMovieInfo, IMovieResult, IMovieSeason, ISearch,
+    MovieParser, TvType,
+};
 
 pub struct FlixHQ;
 
@@ -37,7 +40,6 @@ impl BaseProvider for FlixHQ {
 
 impl BaseParser for FlixHQ {}
 
-#[async_trait]
 impl MovieParser for FlixHQ {
     type SearchResult = IMovieResult;
     type MediaInfo = FlixHQInfo;
@@ -53,75 +55,23 @@ impl MovieParser for FlixHQ {
         page: Option<usize>,
     ) -> anyhow::Result<ISearch<Self::SearchResult>> {
         let page = page.unwrap_or(1);
+        let fetch = self.fetch_search_results();
 
         let url = format!("{}/search/{}?page={}", self.base_url(), query, page);
-        let data = reqwest::Client::new().get(url).send().await?.text().await?;
+        let page_html = reqwest::Client::new().get(url).send().await?.text().await?;
 
-        let (next_page, total_page, id) = {
-            let fragment = Html::parse_fragment(&data);
-
-            // NOTE: don't use `?` for `Result<Selector, SelectorErrorKind>`
-            // `SelectorErrorKind` can not be shared between threads safely
-
-            let next_page_selector = Selector::parse(
-                "div.pre-pagination:nth-child(3) > nav:nth-child(1) > ul:nth-child(1)",
-            )
-            .unwrap();
-
-            let next_page = fragment
-                .select(&next_page_selector)
-                .last()
-                .map(|element| !element.text().any(|text| text.trim() == "active"))
-                .unwrap_or(false);
-
-            let total_page_selector = Selector::parse(
-                "div.pre-pagination:nth-child(3) > nav:nth-child(1) > ul:nth-child(1)",
-            )
-            .unwrap();
-
-            let last_page_selector = Selector::parse("li.page-item:last-child a").unwrap();
-            let item_selector = Selector::parse(".film_list-wrap > div.flw-item").unwrap();
-
-            let total_page = fragment
-                .select(&total_page_selector)
-                .next()
-                .and_then(|total_page_element| {
-                    total_page_element.select(&last_page_selector).next()
-                })
-                .and_then(|last_page_element| last_page_element.value().attr("href"))
-                .map(|last_page_href| {
-                    last_page_href
-                        .rsplit('=')
-                        .next()
-                        .and_then(|last_page_str| last_page_str.parse().ok())
-                        .unwrap_or(1)
-                })
-                .unwrap_or(1);
-
-            let id_selector = Selector::parse("div.film-poster > a").unwrap();
-
-            let id = fragment
-                .select(&item_selector)
-                .map(|element| {
-                    element
-                        .select(&id_selector)
-                        .next()
-                        .and_then(|el| el.value().attr("href"))
-                        .map(|href| href[1..].to_owned())
-                        .unwrap()
-                })
-                .collect::<Vec<_>>();
-
-            (next_page, total_page, id)
-        };
+        let (next_page, total_page, id) = parse_page_html(page_html)?;
 
         // NOTE: `Vec<impl Future<Output = Result<IMovieResult>>`
         let tasks = id
             .into_iter()
-            .map(|id| async move {
-                self.fetch_search_results(&id)
-                    .await
-                    .map_err(|err| anyhow::anyhow!("Err: Can't fetch {}, {}", id, err))
+            .map(|id| {
+                let fetched = fetch(id.clone());
+                async move {
+                    Box::into_pin(fetched)
+                        .await
+                        .map_err(|err| anyhow::anyhow!("Err: Can't fetch {}, {}", id, err))
+                }
             })
             .collect::<Vec<_>>();
 
@@ -137,214 +87,120 @@ impl MovieParser for FlixHQ {
     }
 
     async fn fetch_media_info(&self, media_id: String) -> anyhow::Result<Self::MediaInfo> {
-        let results = self.fetch_info(&media_id).await?;
-
-        Ok(results)
+        self.fetch_info(media_id).await
     }
 }
 
 impl FlixHQ {
-    async fn fetch_search_results(&self, id: &str) -> anyhow::Result<IMovieResult> {
-        let url = format!("{}/{}", self.base_url(), id);
+    fn fetch_search_results(
+        &self,
+    ) -> impl Fn(String) -> Box<dyn Future<Output = anyhow::Result<IMovieResult>> + Send> {
+        let base_url = self.base_url().to_owned();
 
-        let data = reqwest::Client::new()
-            .get(&url)
-            .send()
-            .await?
-            .text()
-            .await?;
+        move |id| {
+            let base_url = base_url.clone();
 
-        let media_type = match id.split('/').next() {
-            Some("tv") => TvType::TvSeries,
-            Some("movie") => TvType::Movie,
-            _ => panic!("Err: Type {} not supported!", id),
-        };
+            Box::new(async move {
+                let url = format!("{}/{}", base_url, id);
 
-        let fragment = Html::parse_fragment(&data);
+                let media_html = reqwest::Client::new()
+                    .get(&url)
+                    .send()
+                    .await?
+                    .text()
+                    .await?;
 
-        // NOTE: don't use `?` for `Result<Selector, SelectorErrorKind>`
-        // `SelectorErrorKind` can not be shared between threads safely
-
-        let image_selector = Selector::parse("div.m_i-d-poster > div > img").unwrap();
-
-        let image = fragment
-            .select(&image_selector)
-            .next()
-            .and_then(|el| el.value().attr("src"))
-            .map(|t| t.to_owned())
-            .ok_or(anyhow::anyhow!("Err: Can't get image src"))?;
-
-        let title_selector = Selector::parse(
-            "#main-wrapper > div.movie_information > div > div.m_i-detail > div.m_i-d-content > h2",
-        )
-        .unwrap();
-
-        let title = fragment
-            .select(&title_selector)
-            .next()
-            .map(|el| el.text().collect::<Vec<_>>().join("").trim().to_owned())
-            .ok_or(anyhow::anyhow!("Err: Can't get title"))?;
-
-        let release_date_selector =
-            Selector::parse("div.m_i-d-content > div.elements > div:nth-child(3)").unwrap();
-
-        let release_date = fragment
-            .select(&release_date_selector)
-            .next()
-            .and_then(|el| el.last_child())
-            .and_then(|child| child.value().as_text())
-            .map(|text| text.trim().to_owned())
-            .ok_or(anyhow::anyhow!("Err: Can't get release date"))?;
-
-        let cover_selector = Selector::parse("div.w_b-cover").unwrap();
-
-        let cover = fragment
-            .select(&cover_selector)
-            .next()
-            .and_then(|cover_element| cover_element.value().attr("style"))
-            .map(|text| text.replace("background-image: url(", "").replace(')', ""))
-            .ok_or(anyhow::anyhow!("Err: Can't get cover"))?;
-
-        Ok(IMovieResult {
-            id: Some(id.to_owned()),
-            cover: Some(cover.to_owned()),
-            title: Some(title),
-            url: Some(url),
-            image: Some(image),
-            release_date: Some(release_date),
-            media_type: Some(media_type),
-        })
+                parse_search_html(media_html, id, url)
+            })
+        }
     }
 
-    async fn fetch_info(&self, media_id: &str) -> anyhow::Result<FlixHQInfo> {
-        let search_results = self.fetch_search_results(media_id).await?;
+    async fn fetch_info(&self, media_id: String) -> anyhow::Result<FlixHQInfo> {
+        let search_results = Box::into_pin(self.fetch_search_results()(media_id.clone())).await?;
 
-        let data = reqwest::Client::new()
+        let media_type = search_results.media_type.unwrap();
+        let is_seasons = matches!(media_type, TvType::TvSeries);
+
+        let info_html = reqwest::Client::new()
             .get(format!("{}/{}", self.base_url(), media_id))
             .send()
             .await?
             .text()
             .await?;
 
-        let fragment = Html::parse_fragment(&data);
+        let title = search_results.title.clone();
+        let info = parse_info_html(info_html, search_results)?;
 
-        let description_selector = Selector::parse("#main-wrapper > div.movie_information > div > div.m_i-detail > div.m_i-d-content > div.description").unwrap();
+        let seasons_and_episodes = if is_seasons {
+            let id = media_id.split('-').last().unwrap_or_default().to_owned();
 
-        let description = fragment
-            .select(&description_selector)
-            .next()
-            .map(|el| el.text().collect::<Vec<_>>().join("").trim().to_owned())
-            .ok_or(anyhow::anyhow!("Err: Can't get description"))?;
+            let season_html = reqwest::Client::new()
+                .get(format!("{}/ajax/v2/tv/seasons/{}", self.base_url(), id))
+                .send()
+                .await
+                .unwrap()
+                .text()
+                .await?;
 
-        let country_selector =
-            Selector::parse("div.m_i-d-content > div.elements > div:nth-child(1)").unwrap();
+            let season_ids = parse_season_html(season_html)?;
 
-        let country: Vec<String> = fragment
-            .select(&country_selector)
-            .next()
-            .map(|el| el.text())
-            .ok_or(anyhow::anyhow!("Err: Can't get country"))?
-            .map(|country| {
-                let trimmed_country = country.trim().replace(',', "").replace("Country:", "");
-                trimmed_country
-            })
-            .filter(|trimmed_country| !trimmed_country.is_empty())
-            .collect();
+            let mut episode_futures = vec![];
 
-        let genre_selector =
-            Selector::parse("div.m_i-d-content > div.elements > div:nth-child(2)").unwrap();
+            for (i, episode) in season_ids.iter().enumerate() {
+                let episode_future = async move {
+                    let episode_html = reqwest::Client::new()
+                        .get(format!(
+                            "{}/ajax/v2/season/episodes/{}",
+                            self.base_url(),
+                            &episode
+                        ))
+                        .send()
+                        .await
+                        .unwrap()
+                        .text()
+                        .await
+                        .unwrap();
 
-        let genre: Vec<String> = fragment
-            .select(&genre_selector)
-            .next()
-            .map(|el| el.text())
-            .ok_or(anyhow::anyhow!("Err: Can't get genres"))?
-            .map(|genre| {
-                let trimmed_genre = genre.trim().replace(',', "").replace("Casts:", "");
-                trimmed_genre
-            })
-            .filter(|trimmed_genre| !trimmed_genre.is_empty())
-            .collect();
+                    let episodes = parse_episode_html(self.base_url(), episode_html, i).unwrap();
 
-        let production_selector =
-            Selector::parse("div.m_i-d-content > div.elements > div:nth-child(4)").unwrap();
+                    episodes
+                };
 
-        let production: Vec<String> = fragment
-            .select(&production_selector)
-            .next()
-            .map(|el| el.text())
-            .ok_or(anyhow::anyhow!("Err: Can't get production"))?
-            .map(|production| {
-                let trimmed_production = production
-                    .trim()
-                    .replace(',', "")
-                    .replace("Production:", "");
-                trimmed_production
-            })
-            .filter(|trimmed_production| !trimmed_production.is_empty())
-            .collect();
+                episode_futures.push(episode_future);
+            }
 
-        let cast_selector =
-            Selector::parse("div.m_i-d-content > div.elements > div:nth-child(5)").unwrap();
+            futures::future::join_all(episode_futures).await
+        } else {
+            let id = media_id.split('-').last().unwrap_or_default().to_owned();
+            let episodes = IMovieEpisode {
+                url: Some(format!("https://flixhq.to/ajax/movie/episodes/{}", id)),
+                id,
+                title: format!("{} Movie", title.unwrap()),
+                number: None,
+                season: None,
+                description: None,
+                image: None,
+                release_date: None,
+            };
 
-        let casts: Vec<String> = fragment
-            .select(&cast_selector)
-            .next()
-            .map(|el| el.text())
-            .ok_or(anyhow::anyhow!("Err: Can't get casts"))?
-            .map(|cast| {
-                let trimmed_cast = cast.trim().replace(',', "").replace("Casts:", "");
-                trimmed_cast
-            })
-            .filter(|trimmed_cast| !trimmed_cast.is_empty())
-            .collect();
-
-        let tag_selector =
-            Selector::parse("div.m_i-d-content > div.elements > div:nth-child(6)").unwrap();
-
-        let tags: Vec<String> = fragment
-            .select(&tag_selector)
-            .next()
-            .map(|el| el.text())
-            .ok_or(anyhow::anyhow!("Err: Can't get tags"))?
-            .map(|tag| {
-                let trimmed_tag = tag.trim().replace(',', "").replace("Tags:", "");
-                trimmed_tag
-            })
-            .filter(|trimmed_tag| !trimmed_tag.is_empty())
-            .collect();
-
-        let rating_selector = Selector::parse("span.item:nth-child(2)").unwrap();
-
-        let rating = fragment
-            .select(&rating_selector)
-            .next()
-            .map(|el| el.text().collect::<Vec<_>>().join("").trim().to_owned())
-            .ok_or(anyhow::anyhow!("Err: Can't get rating"))?;
-
-        let duration_selector = Selector::parse("span.item:nth-child(3)").unwrap();
-
-        let duration = fragment
-            .select(&duration_selector)
-            .next()
-            .map(|el| el.text().collect::<Vec<_>>().join("").trim().to_owned())
-            .ok_or(anyhow::anyhow!("Err: Can't get duration"))?;
+            vec![vec![episodes]]
+        };
 
         Ok(FlixHQInfo {
-            base: search_results,
+            base: info.base,
             info: IMovieInfo {
-                genres: Some(genre),
-                description: Some(description),
-                rating: Some(rating),
-                status: None,
-                duration: Some(duration),
-                country: Some(country),
-                production: Some(production),
-                casts: Some(casts),
-                tags: Some(tags),
-                total_episodes: None,
-                seasons: None,
-                episodes: None,
+                total_episodes: seasons_and_episodes.last().map(|x| x.len()),
+                seasons: Some(IMovieSeason {
+                    season: seasons_and_episodes
+                        .last()
+                        .and_then(|x| x.last())
+                        .and_then(|y| y.season)
+                        .unwrap_or(0),
+                    image: None,
+                    episodes: Some(seasons_and_episodes.clone()),
+                }),
+                episodes: Some(seasons_and_episodes),
+                ..info.info
             },
         })
     }

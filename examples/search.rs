@@ -5,7 +5,7 @@ use consumet_api_rs::providers::movies;
 async fn main() -> anyhow::Result<()> {
     println!(
         "{:#?}",
-        movies::FlixHQ.search("puss".to_owned(), Some(1)).await?
+        movies::FlixHQ.search("puss".to_owned(), None).await?
     );
 
     Ok(())
