@@ -9,6 +9,7 @@ pub enum IInfoType {
 pub trait MovieParser: BaseParser {
     type SearchResult;
     type MediaInfo;
+    type ServerResult;
 
     /// The supported types of the provider (e.g. `&[TvType::TvSeries, TvType::Movie]`)
     fn supported_types(&self) -> &[TvType];
@@ -54,10 +55,11 @@ pub trait MovieParser: BaseParser {
 
     async fn fetch_media_info(&self, media_id: String) -> anyhow::Result<Self::MediaInfo>;
 
-    // async fn fetch_episode_servers(
-    //     &self,
-    //     episode_id: String,
-    // ) -> anyhow::Result<Vec<IEpisodeServer>
+    async fn fetch_episode_servers(
+        &self,
+        episode_id: String,
+        media_id: String
+    ) -> anyhow::Result<Vec<Self::ServerResult>>;
 
     // async fn fetch_episode_sources(
     //     &self,

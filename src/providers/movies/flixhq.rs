@@ -1,11 +1,12 @@
 use super::flixhq_html::{
     parse_episode_html, parse_info_html, parse_page_html, parse_search_html, parse_season_html,
+    parse_server_html,
 };
 use std::future::Future;
 
 use crate::models::{
-    BaseParser, BaseProvider, IMovieEpisode, IMovieInfo, IMovieResult, IMovieSeason, ISearch,
-    MovieParser, TvType,
+    BaseParser, BaseProvider, IEpisodeServer, IMovieEpisode, IMovieInfo, IMovieResult,
+    IMovieSeason, ISearch, MovieParser, TvType,
 };
 
 pub struct FlixHQ;
@@ -43,6 +44,7 @@ impl BaseParser for FlixHQ {}
 impl MovieParser for FlixHQ {
     type SearchResult = IMovieResult;
     type MediaInfo = FlixHQInfo;
+    type ServerResult = IEpisodeServer;
 
     #[inline]
     fn supported_types(&self) -> &[TvType] {
@@ -88,6 +90,14 @@ impl MovieParser for FlixHQ {
 
     async fn fetch_media_info(&self, media_id: String) -> anyhow::Result<Self::MediaInfo> {
         self.fetch_info(media_id).await
+    }
+
+    async fn fetch_episode_servers(
+        &self,
+        episode_id: String,
+        media_id: String,
+    ) -> anyhow::Result<Vec<Self::ServerResult>> {
+        self.fetch_servers(episode_id, media_id).await
     }
 }
 
@@ -203,5 +213,30 @@ impl FlixHQ {
                 ..info.info
             },
         })
+    }
+
+    async fn fetch_servers(
+        &self,
+        episode_id: String,
+        media_id: String,
+    ) -> anyhow::Result<Vec<IEpisodeServer>> {
+        let (episode_id, is_movie) = if !episode_id.starts_with(&format!("{}/ajax", self.base_url()))
+            && !media_id.contains("movie")
+        {
+            (format!("{}/ajax/v2/episode/servers/{}", self.base_url(), episode_id), false)
+        } else {
+            (format!("{}/ajax/movie/episodes/{}", self.base_url(), episode_id), true)
+        };
+
+        let server_html = reqwest::Client::new()
+            .get(episode_id)
+            .send()
+            .await?
+            .text()
+            .await?;
+
+        let servers = parse_server_html(server_html, self.base_url(), is_movie, media_id)?;
+
+        Ok(servers)
     }
 }

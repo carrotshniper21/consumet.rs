@@ -1,4 +1,4 @@
-use crate::models::{Bofa, IVideo};
+use crate::models::{Other, IVideo};
 use regex::Regex;
 use reqwest::Url;
 
@@ -46,7 +46,7 @@ impl MixDrop {
                 size: None,
                 other: {
                     let mut other = HashMap::new();
-                    other.insert("poster".to_owned(), Bofa::Poster(poster[0].clone()));
+                    other.insert("poster".to_owned(), Other::Poster(poster[0].clone()));
                     other
                 },
             });

@@ -2,7 +2,7 @@ use crate::models::Hashes;
 use std::collections::HashMap;
 
 #[derive(Clone)]
-pub enum Bofa {
+pub enum Other {
     Poster(String),
 }
 
@@ -133,9 +133,10 @@ pub struct IAnimeEpisode {
     release_date: Option<String>,
 }
 
+#[derive(Debug)]
 pub struct IEpisodeServer {
-    name: String,
-    url: String,
+    pub name: String,
+    pub url: String,
 }
 
 #[derive(Clone)]
@@ -157,7 +158,7 @@ pub struct IVideo {
      * size of the video in **bytes**
      */
     pub size: Option<u32>,
-    pub other: HashMap<String, Bofa>,
+    pub other: HashMap<String, Other>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
