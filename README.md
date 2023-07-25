@@ -74,7 +74,7 @@ async fn main() -> anyhow::Result<()> {
 The `movies::FlixHQ.fetch_episode_servers` function is used to fetch servers for movies with their id `98488` and their
 media id `movie/watch-the-venture-bros-radiant-is-the-blood-of-the-baboon-heart-98488`. But for shows the id field is the episode id instead.
 
-# Sources
+#### Sources
 ```rust
 use consumet_api_rs::models::{MovieParser, StreamingServers};
 use consumet_api_rs::providers::movies;
