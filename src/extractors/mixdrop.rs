@@ -1,9 +1,9 @@
 use crate::models::{Other, IVideo};
 use regex::Regex;
-use reqwest::Url;
 
 use std::collections::HashMap;
 
+#[derive(Debug)]
 pub struct MixDrop {
     pub sources: Vec<IVideo>,
 }
@@ -11,7 +11,7 @@ pub struct MixDrop {
 impl MixDrop {
     const SERVER_NAME: &'static str = "MixDrop";
 
-    async fn extract(&mut self, video_url: Url) -> anyhow::Result<MixDrop> {
+    pub async fn extract(&mut self, video_url: String) -> anyhow::Result<MixDrop> {
         let data = reqwest::get(video_url).await?.text().await?;
 
         let re = Regex::new(r"(eval)(\(f.*?)(\n<\/script>)").unwrap();
@@ -39,7 +39,7 @@ impl MixDrop {
             let (poster, source) = jazz.split_at(2);
 
             self.sources.push(IVideo {
-                url: source[0].clone(),
+                url: None,
                 quality: None,
                 is_m3u8: Some(source.contains(&".m3u8".to_owned())),
                 is_dash: None,
@@ -47,7 +47,7 @@ impl MixDrop {
                 other: {
                     let mut other = HashMap::new();
                     other.insert("poster".to_owned(), Other::Poster(poster[0].clone()));
-                    other
+                    Some(other)
                 },
             });
 
@@ -56,12 +56,12 @@ impl MixDrop {
             })
         } else {
             self.sources.push(IVideo {
-                url: String::new(),
+                url: None,
                 quality: None,
                 is_m3u8: None,
                 is_dash: None,
                 size: None,
-                other: { HashMap::new() },
+                other: None,
             });
 
             Ok(MixDrop {

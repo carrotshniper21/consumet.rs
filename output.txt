@@ -1,0 +1,79 @@
+ISource {
+    headers: Some(
+        "https://dokicloud.one/embed-4/Qg0MFth4MUJq?z=",
+    ),
+    intro: None,
+    subtitles: Some(
+        [
+            ISubtitle {
+                id: None,
+                url: Some(
+                    "https://cc.2cdns.com/9a/63/9a6334746b7e70c78bf06e365cd94d78/eng-2.vtt",
+                ),
+                lang: Some(
+                    "English - English (SDH)",
+                ),
+            },
+        ],
+    ),
+    sources: Some(
+        [
+            IVideo {
+                url: Some(
+                    "https://xis.fifteennet.com/_v10/08d0c53a53295c931ccf15b69e5ec717d34986adddc9533bbf73e074d68019abc5bc5f4561a0faa73118e94145f7ac15ffa57ea75c9be7ce572d0f80fac86637a9501b560fa0a9706c9857f66e050ea5f8b0115a86ae2a419d30ffcf9dae169b6530f1feb6115f31f8a7df0b2af2aeafea705cbd84bfb7264ef46a4c549db673df3e77be2fe613bf589ef1e866013fff/playlist.m3u8",
+                ),
+                quality: Some(
+                    "auto",
+                ),
+                is_m3u8: Some(
+                    true,
+                ),
+                is_dash: None,
+                size: None,
+                other: None,
+            },
+            IVideo {
+                url: Some(
+                    "https://xis.fifteennet.com/_v10/08d0c53a53295c931ccf15b69e5ec717d34986adddc9533bbf73e074d68019abc5bc5f4561a0faa73118e94145f7ac15ffa57ea75c9be7ce572d0f80fac86637a9501b560fa0a9706c9857f66e050ea5f8b0115a86ae2a419d30ffcf9dae169b6530f1feb6115f31f8a7df0b2af2aeafea705cbd84bfb7264ef46a4c549db673df3e77be2fe613bf589ef1e866013fff/1080/index.m3u8",
+                ),
+                quality: Some(
+                    "1080",
+                ),
+                is_m3u8: Some(
+                    true,
+                ),
+                is_dash: None,
+                size: None,
+                other: None,
+            },
+            IVideo {
+                url: Some(
+                    "https://xis.fifteennet.com/_v10/08d0c53a53295c931ccf15b69e5ec717d34986adddc9533bbf73e074d68019abc5bc5f4561a0faa73118e94145f7ac15ffa57ea75c9be7ce572d0f80fac86637a9501b560fa0a9706c9857f66e050ea5f8b0115a86ae2a419d30ffcf9dae169b6530f1feb6115f31f8a7df0b2af2aeafea705cbd84bfb7264ef46a4c549db673df3e77be2fe613bf589ef1e866013fff/720/index.m3u8",
+                ),
+                quality: Some(
+                    "720",
+                ),
+                is_m3u8: Some(
+                    true,
+                ),
+                is_dash: None,
+                size: None,
+                other: None,
+            },
+            IVideo {
+                url: Some(
+                    "https://xis.fifteennet.com/_v10/08d0c53a53295c931ccf15b69e5ec717d34986adddc9533bbf73e074d68019abc5bc5f4561a0faa73118e94145f7ac15ffa57ea75c9be7ce572d0f80fac86637a9501b560fa0a9706c9857f66e050ea5f8b0115a86ae2a419d30ffcf9dae169b6530f1feb6115f31f8a7df0b2af2aeafea705cbd84bfb7264ef46a4c549db673df3e77be2fe613bf589ef1e866013fff/360/index.m3u8",
+                ),
+                quality: Some(
+                    "360",
+                ),
+                is_m3u8: Some(
+                    true,
+                ),
+                is_dash: None,
+                size: None,
+                other: None,
+            },
+        ],
+    ),
+}

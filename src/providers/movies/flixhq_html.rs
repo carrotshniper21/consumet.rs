@@ -275,7 +275,7 @@ pub fn parse_episode_html(
     let mut episodes: Vec<IMovieEpisode> = Vec::new();
 
     for (id, title) in episode_ids.iter().zip(episode_titles.iter()) {
-        let url = format!("{}/ajax/episode/servers/{}", base_url, id);
+        let url = format!("{}/ajax/v2/episode/servers/{}", base_url, id);
 
         let episode = IMovieEpisode {
             id: id.clone(),

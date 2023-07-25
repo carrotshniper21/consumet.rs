@@ -2,14 +2,22 @@ use super::flixhq_html::{
     parse_episode_html, parse_info_html, parse_page_html, parse_search_html, parse_season_html,
     parse_server_html,
 };
-use std::future::Future;
-
 use crate::models::{
     BaseParser, BaseProvider, IEpisodeServer, IMovieEpisode, IMovieInfo, IMovieResult,
-    IMovieSeason, ISearch, MovieParser, TvType,
+    IMovieSeason, ISearch, ISource, MovieParser, StreamingServers, TvType,
 };
 
+use crate::extractors::VidCloud;
+
+use serde::Deserialize;
+use std::future::Future;
+
 pub struct FlixHQ;
+
+#[derive(Debug, Deserialize)]
+pub struct ServerInfo {
+    link: String,
+}
 
 #[derive(Debug)]
 pub struct FlixHQInfo {
@@ -45,6 +53,7 @@ impl MovieParser for FlixHQ {
     type SearchResult = IMovieResult;
     type MediaInfo = FlixHQInfo;
     type ServerResult = IEpisodeServer;
+    type SourceResult = ISource;
 
     #[inline]
     fn supported_types(&self) -> &[TvType] {
@@ -99,10 +108,19 @@ impl MovieParser for FlixHQ {
     ) -> anyhow::Result<Vec<Self::ServerResult>> {
         self.fetch_servers(episode_id, media_id).await
     }
+
+    async fn fetch_episode_sources(
+        &self,
+        episode_id: String,
+        media_id: String,
+        server: Option<StreamingServers>,
+    ) -> anyhow::Result<Self::SourceResult> {
+        self.fetch_sources(episode_id, media_id, server).await
+    }
 }
 
 impl FlixHQ {
-    fn fetch_search_results(
+    pub fn fetch_search_results(
         &self,
     ) -> impl Fn(String) -> Box<dyn Future<Output = anyhow::Result<IMovieResult>> + Send> {
         let base_url = self.base_url().to_owned();
@@ -125,7 +143,7 @@ impl FlixHQ {
         }
     }
 
-    async fn fetch_info(&self, media_id: String) -> anyhow::Result<FlixHQInfo> {
+    pub async fn fetch_info(&self, media_id: String) -> anyhow::Result<FlixHQInfo> {
         let search_results = Box::into_pin(self.fetch_search_results()(media_id.clone())).await?;
 
         let media_type = search_results.media_type.unwrap();
@@ -183,7 +201,7 @@ impl FlixHQ {
         } else {
             let id = media_id.split('-').last().unwrap_or_default().to_owned();
             let episodes = IMovieEpisode {
-                url: Some(format!("https://flixhq.to/ajax/movie/episodes/{}", id)),
+                url: Some(format!("{}/ajax/movie/episodes/{}", self.base_url(), id)),
                 id,
                 title: format!("{} Movie", title.unwrap()),
                 number: None,
@@ -215,17 +233,24 @@ impl FlixHQ {
         })
     }
 
-    async fn fetch_servers(
+    pub async fn fetch_servers(
         &self,
         episode_id: String,
         media_id: String,
     ) -> anyhow::Result<Vec<IEpisodeServer>> {
-        let (episode_id, is_movie) = if !episode_id.starts_with(&format!("{}/ajax", self.base_url()))
+        let (episode_id, is_movie) = if !episode_id
+            .starts_with(&format!("{}/ajax", self.base_url()))
             && !media_id.contains("movie")
         {
-            (format!("{}/ajax/v2/episode/servers/{}", self.base_url(), episode_id), false)
+            (
+                format!("{}/ajax/v2/episode/servers/{}", self.base_url(), episode_id),
+                false,
+            )
         } else {
-            (format!("{}/ajax/movie/episodes/{}", self.base_url(), episode_id), true)
+            (
+                format!("{}/ajax/movie/episodes/{}", self.base_url(), episode_id),
+                true,
+            )
         };
 
         let server_html = reqwest::Client::new()
@@ -238,5 +263,76 @@ impl FlixHQ {
         let servers = parse_server_html(server_html, self.base_url(), is_movie, media_id)?;
 
         Ok(servers)
+    }
+
+    pub async fn fetch_sources(
+        &self,
+        episode_id: String,
+        media_id: String,
+        server: Option<StreamingServers>,
+    ) -> anyhow::Result<ISource> {
+        let server = server.unwrap_or(StreamingServers::UpCloud);
+        let servers = self.fetch_servers(episode_id.clone(), media_id).await?;
+
+        let i = servers
+            .iter()
+            .position(|s| s.name == server.to_string())
+            .expect(&format!("Server {server} not found"));
+
+        let parts: Vec<&str> = servers[i].url.split('.').collect();
+        let server_id = parts.last().cloned().unwrap_or_default();
+
+        let server_json = reqwest::Client::new()
+            .get(format!("{}/ajax/get_link/{}", self.base_url(), server_id))
+            .send()
+            .await?
+            .text()
+            .await?;
+
+        let server_info: ServerInfo =
+            serde_json::from_str(&server_json).expect("Error parsing JSON");
+
+        if server_info.link.starts_with("http") {
+            match server {
+                StreamingServers::MixDrop => {
+                    todo!()
+                }
+                StreamingServers::VidCloud => {
+                    let mut vid_cloud = VidCloud {
+                        sources: Vec::new(),
+                        subtitles: Vec::new(),
+                    };
+
+                    vid_cloud
+                        .extract(server_info.link.clone(), Some(true))
+                        .await?;
+                    Ok(ISource {
+                        sources: Some(vid_cloud.sources),
+                        subtitles: Some(vid_cloud.subtitles),
+                        headers: Some(server_info.link),
+                        intro: None,
+                    })
+                }
+                StreamingServers::UpCloud => {
+                    let mut vid_cloud = VidCloud {
+                        sources: Vec::new(),
+                        subtitles: Vec::new(),
+                    };
+
+                    vid_cloud.extract(server_info.link.clone(), None).await?;
+                    Ok(ISource {
+                        sources: Some(vid_cloud.sources),
+                        subtitles: Some(vid_cloud.subtitles),
+                        headers: Some(server_info.link),
+                        intro: None,
+                    })
+                }
+                _ => {
+                    todo!()
+                }
+            }
+        } else {
+            panic!("Incorrect server url")
+        }
     }
 }

@@ -2,8 +2,8 @@ use chrono::{DateTime, Datelike, Local, NaiveDateTime, Utc};
 
 /// The User-Agent used in HTTP requests in some parser implmentations
 /// ```
-/// use consumet_api_rs::utils::USER_AGENT;
-/// use reqwest::Client;
+/// use consumet_api_rs::utils::util_funcs::USER_AGENT;
+/// use reqwest::{Client, header};
 ///
 /// #[tokio::main]
 /// async fn main() -> anyhow::Result<()> {
@@ -36,8 +36,10 @@ pub enum Days {
 pub trait UtilFuncs {
     /// Pass in a author string and get a Vector
     /// ```
+    /// use consumet_api_rs::utils::util_funcs::UtilFuncs;
+    ///
     /// let author_string = "author1, author2";
-    /// let author_vec = split_author(author_string);
+    /// let author_vec = author_string.split_author();
     ///
     /// assert_eq!(vec!["author1", "author2"], author_vec);
     /// ```
@@ -45,17 +47,21 @@ pub trait UtilFuncs {
 
     /// Pass in a id string and get the floored version
     /// ```
-    /// let id = "123456"
-    /// let floored_id = floor_id(id);
+    /// use consumet_api_rs::utils::util_funcs::UtilFuncs;
     ///
-    /// assert_eq!("123000", floored_id);
+    /// let id = "123456";
+    /// let floored_id = id.floor_id();
+    ///
+    /// assert_eq!(123000, floored_id);
     /// ```
     fn floor_id(&self) -> i32;
 
     /// Pass in a title and get the formatted version
     /// ```
-    /// let title = "Remy   Clarke123 The Movie   ";
-    /// let formatted_title = format_ti;le(title);
+    /// use consumet_api_rs::utils::util_funcs::UtilFuncs;
+    ///
+    /// let title = "Remy Clarke123 The Movie   ";
+    /// let formatted_title = title.format_title();
     ///
     /// assert_eq!("Remy Clarke The Movie", formatted_title);
     /// ```
@@ -63,8 +69,10 @@ pub trait UtilFuncs {
 
     /// Pass in a String and get the first letter capitalized
     /// ```
+    /// use consumet_api_rs::utils::util_funcs::UtilFuncs;
+    ///
     /// let to_be_capitalized = "remy Clarke";
-    /// let capitalized = capitalize_first_letter(to_be_capitalized);
+    /// let capitalized = to_be_capitalized.capitalize_first_letter();
     ///
     /// assert_eq!("Remy Clarke", capitalized);
     /// ```
@@ -97,8 +105,10 @@ pub fn get_day(day: Days) -> i64 {
 
 /// Turns day numbers 0..6 into Unix Timestamps
 /// ```
-/// /// Assuming today is Monday
-/// let days = get_days(vec![0, 6]) // Output: vec![1679779200, 1679692800]
+/// use consumet_api_rs::utils::util_funcs::{get_days, Days};
+///
+/// // Assuming today is 8/24/23
+/// let days = get_days(vec![Days::Sunday, Days::Saturday]); // Output: [1690723824, 1690637424]
 /// ```
 pub fn get_days(days: Vec<Days>) -> Vec<i64> {
     let mut day_vec: Vec<i64> = vec![];
@@ -112,9 +122,12 @@ pub fn get_days(days: Vec<Days>) -> Vec<i64> {
 
 /// Turns milliseconds into 24 Hour Format
 /// ```
-/// let milliseconds = 23409823;
-/// let duration = convert_duration(milliseconds); // Output: PT6H30M9S
+/// use consumet_api_rs::utils::util_funcs::convert_duration;
 ///
+/// let milliseconds = 23409823;
+/// let duration = convert_duration(milliseconds); 
+///
+/// assert_eq!(duration, "PT00H36M40S".to_owned());
 /// ```
 pub fn convert_duration(milliseconds: i64) -> String {
     let timestamp = milliseconds * 1000;
@@ -147,11 +160,13 @@ impl UtilFuncs for str {
 
     fn floor_id(&self) -> i32 {
         let mut imp = String::new();
-        for _ in 0..self.len().saturating_sub(3) {
-            imp.push(self.chars().nth(1).unwrap());
+        for (i, c) in self.chars().enumerate() {
+            if i < self.len() - 3 {
+                imp.push(c);
+            }
         }
-        let idv = imp.parse::<i32>().unwrap();
-        idv * 1000
+        let id_v: i32 = imp.parse().unwrap_or(0);
+        id_v * 1000
     }
 
     fn format_title(&self) -> String {

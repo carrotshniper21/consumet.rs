@@ -1,7 +1,8 @@
 use crate::models::Hashes;
 use std::collections::HashMap;
+use serde::Deserialize;
 
-#[derive(Clone)]
+#[derive(Clone, Debug, Deserialize)]
 pub enum Other {
     Poster(String),
 }
@@ -139,12 +140,12 @@ pub struct IEpisodeServer {
     pub url: String,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct IVideo {
     /**
      * The **MAIN URL** of the video provider that should take you to the video
      */
-    pub url: String,
+    pub url: Option<String>,
     /**
      * The Quality of the video should include the `p` suffix
      */
@@ -158,7 +159,7 @@ pub struct IVideo {
      * size of the video in **bytes**
      */
     pub size: Option<u32>,
-    pub other: HashMap<String, Other>,
+    pub other: Option<HashMap<String, Other>>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -177,20 +178,20 @@ pub enum StreamingServers {
 
 impl std::fmt::Display for StreamingServers {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let bofa = match self {
-            Self::GogoCDN => "gogocdn",
-            Self::StreamSB => "streamsb",
-            Self::MixDrop => "mixdrop",
-            Self::UpCloud => "upcloud",
-            Self::VidCloud => "vidcloud",
-            Self::StreamTape => "streamtape",
-            Self::VizCloud => "vizcloud",
-            Self::MyCloud => "mycloud",
-            Self::Filemoon => "filemoon",
-            Self::VidStreaming => "vidstreaming",
+        let server_names = match self {
+            Self::GogoCDN => "Dogocdn",
+            Self::StreamSB => "Streamsb",
+            Self::MixDrop => "Mixdrop",
+            Self::UpCloud => "UpCloud",
+            Self::VidCloud => "Vidcloud",
+            Self::StreamTape => "Streamtape",
+            Self::VizCloud => "Vizcloud",
+            Self::MyCloud => "Mycloud",
+            Self::Filemoon => "Filemoon",
+            Self::VidStreaming => "Vidstreaming",
         };
 
-        write!(f, "{}", bofa)
+        write!(f, "{}", server_names)
     }
 }
 
@@ -345,7 +346,7 @@ pub struct ZLibrary {
     pages: String,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct ISubtitle {
     /**
      * The id of the subtitle. **not** required
@@ -364,16 +365,18 @@ pub struct ISubtitle {
 /**
  * The start, and the end of the intro or opening in seconds.
  */
+#[derive(Debug)]
 pub struct Intro {
     start: u32,
     end: u32,
 }
 
+#[derive(Debug)]
 pub struct ISource {
-    headers: Option<String>,
-    intro: Option<Intro>,
-    subtitles: Option<Vec<ISubtitle>>,
-    sources: Vec<IVideo>,
+    pub headers: Option<String>,
+    pub intro: Option<Intro>,
+    pub subtitles: Option<Vec<ISubtitle>>,
+    pub sources: Option<Vec<IVideo>>,
 }
 
 /**

@@ -1,4 +1,4 @@
-use crate::models::{BaseParser, ISearch, TvType};
+use crate::models::{BaseParser, ISearch, TvType, StreamingServers};
 
 pub enum IInfoType {
     IMovieInfo,
@@ -10,6 +10,7 @@ pub trait MovieParser: BaseParser {
     type SearchResult;
     type MediaInfo;
     type ServerResult;
+    type SourceResult;
 
     /// The supported types of the provider (e.g. `&[TvType::TvSeries, TvType::Movie]`)
     fn supported_types(&self) -> &[TvType];
@@ -52,17 +53,39 @@ pub trait MovieParser: BaseParser {
     ///     Ok(())
     /// }
     /// ```
-
     async fn fetch_media_info(&self, media_id: String) -> anyhow::Result<Self::MediaInfo>;
 
+    /// Returns server info for provided episode id and media_id
+    /// ```
+    /// use consumet_api_rs::models::MovieParser;
+    /// use consumet_api_rs::providers::movies;
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> anyhow::Result<()> {
+    ///     println!(
+    ///         "{:#?}",
+    ///         movies::FlixHQ
+    ///             .fetch_episode_servers(
+    ///                 "98488".to_owned(),
+    ///                 "movie/watch-the-venture-bros-radiant-is-the-blood-of-the-baboon-heart-98488"
+    ///                .    to_owned()
+    ///             )
+    ///             .await?
+    ///     );
+
+    ///     Ok(())
+    /// }
+    /// ```
     async fn fetch_episode_servers(
         &self,
         episode_id: String,
-        media_id: String
+        media_id: String,
     ) -> anyhow::Result<Vec<Self::ServerResult>>;
 
-    // async fn fetch_episode_sources(
-    //     &self,
-    //     episode_id: String,
-    // ) -> anyhow::Result<ISource>;
+    async fn fetch_episode_sources(
+        &self,
+        episode_id: String,
+        media_id: String,
+        server: Option<StreamingServers>
+    ) -> anyhow::Result<Self::SourceResult>;
 }
