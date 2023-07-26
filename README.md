@@ -1,12 +1,12 @@
 <p align="center"><img src="https://consumet.org/images/consumetlogo.png" width="175"/></p>
 
-<h1 align="center"> consumet.ts </h1>
+<h1 align="center"> consumet-api-rs </h1>
 
-consumet.ts is a Node library which provides high-level APIs to get information about several entertainment mediums like books, movies, comics, anime, manga, etc.
+consumet-api-rs is a crates.io library which provides high-level APIs to get information about several entertainment mediums like books, movies, comics, anime, manga, etc.
 
 <p align="center">
     <a href="https://discord.gg/qTPfvMxzNH">
-      <img src="https://img.shields.io/discord/987492554486452315?color=7289da&label=discord&logo=discord&logoColor=7289da" alt="Discord">
+      <img src="https://img.shields.io/discord/987492554486452315?color=7289da&label=discord&logo=discord&logoColor=7289da" alt="Official Discord">
     </a>
 </p>
 
@@ -17,11 +17,7 @@ consumet.ts is a Node library which provides high-level APIs to get information 
   - [Usage](#usage)
 - [Documentation](#documentation)
 - [Ecosystem](#ecosystem)
-- [Provider Request](#provider-request)
-- [Contributing](#contributing)
 - [Support](#support)
-- [Contributors ✨](#contributors-)
-  - [Credits](#credits)
 - [License](#license)
 
 ## Quick Start
@@ -51,15 +47,8 @@ Do you want to know more? Head to the [`Getting Started`](https://github.com/car
 
 ## Documentation
 - [`Getting Started`](./docs/guides/getting-started.md)
-- [`Guides`](https://github.com/consumet/consumet.ts/tree/master/docs)
-- [`Anime`](./docs/guides/anime.md)
-- [`Manga`](./docs/guides/manga.md)
-- [`Books`](./docs/guides/books.md)
+- [`Guides`](https://github.com/carrotshniper21/consumet-api-rs/tree/main/docs)
 - [`Movies`](./docs/guides/movies.md)
-- [`Light Novels`](./docs/guides/light-novels.md)
-- [`Comics`](./docs/guides/comics.md)
-- [`Meta`](./docs/guides/meta.md)
-- [`News`](./docs/guides/news.md)
 
 ## Ecosystem
 - [Provider Status](https://github.com/consumet/providers-status/blob/main/README.md) - A list of providers and their status.
