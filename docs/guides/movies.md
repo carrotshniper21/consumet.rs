@@ -35,4 +35,4 @@ This list is in alphabetical order. (except the sub bullet points)
 
 - [FlixHQ](../providers/flixhq.md)
 
-<p align="end">(<a href="https://github.com/consumet/extensions/blob/master/docs">back to table of contents</a>)</p>
+<p align="end">(<a href="https://github.com/carrotshniper21/consumet-api-rs/blob/main/docs">back to table of contents</a>)</p>
