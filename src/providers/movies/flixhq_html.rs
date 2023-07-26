@@ -361,3 +361,107 @@ pub fn parse_server_html(
 
     Ok(servers)
 }
+
+pub fn parse_recent_movie_html(page_html: String) -> anyhow::Result<Vec<String>> {
+    let page_fragment = Html::parse_fragment(&page_html);
+
+    // NOTE: don't use `?` for `Result<Selector, SelectorErrorKind>`
+    // `SelectorErrorKind` can not be shared between threads safely
+
+    let item_selector = Selector::parse("#main-wrapper > div > section:nth-child(6) > div.block_area-content.block_area-list.film_list.film_list-grid > div > div.flw-item").unwrap();
+
+    let id_selector = Selector::parse("div.film-poster > a").unwrap();
+
+    let id = page_fragment
+        .select(&item_selector)
+        .map(|element| {
+            element
+                .select(&id_selector)
+                .next()
+                .and_then(|el| el.value().attr("href"))
+                .map(|href| href[1..].to_owned())
+                .unwrap()
+        })
+        .collect::<Vec<_>>();
+
+    
+    Ok(id)
+}
+
+pub fn parse_recent_shows_html(page_html: String) -> anyhow::Result<Vec<String>> {
+    let page_fragment = Html::parse_fragment(&page_html);
+
+    // NOTE: don't use `?` for `Result<Selector, SelectorErrorKind>`
+    // `SelectorErrorKind` can not be shared between threads safely
+
+    let item_selector = Selector::parse("#main-wrapper > div > section:nth-child(7) > div.block_area-content.block_area-list.film_list.film_list-grid > div > div.flw-item").unwrap();
+
+    let id_selector = Selector::parse("div.film-poster > a").unwrap();
+
+    let id = page_fragment
+        .select(&item_selector)
+        .map(|element| {
+            element
+                .select(&id_selector)
+                .next()
+                .and_then(|el| el.value().attr("href"))
+                .map(|href| href[1..].to_owned())
+                .unwrap()
+        })
+        .collect::<Vec<_>>();
+
+    
+    Ok(id)
+}
+
+pub fn parse_trending_movie_html(page_html: String) -> anyhow::Result<Vec<String>> {
+    let page_fragment = Html::parse_fragment(&page_html);
+
+    // NOTE: don't use `?` for `Result<Selector, SelectorErrorKind>`
+    // `SelectorErrorKind` can not be shared between threads safely
+
+    let item_selector = Selector::parse("div#trending-movies div.film_list-wrap div.flw-item").unwrap();
+
+    let id_selector = Selector::parse("div.film-poster > a").unwrap();
+
+    let id = page_fragment
+        .select(&item_selector)
+        .map(|element| {
+            element
+                .select(&id_selector)
+                .next()
+                .and_then(|el| el.value().attr("href"))
+                .map(|href| href[1..].to_owned())
+                .unwrap()
+        })
+        .collect::<Vec<_>>();
+
+    
+    Ok(id)
+}
+
+pub fn parse_trending_shows_html(page_html: String) -> anyhow::Result<Vec<String>> {
+    let page_fragment = Html::parse_fragment(&page_html);
+
+    // NOTE: don't use `?` for `Result<Selector, SelectorErrorKind>`
+    // `SelectorErrorKind` can not be shared between threads safely
+
+    let item_selector = Selector::parse("div#trending-tv div.film_list-wrap div.flw-item").unwrap();
+
+    let id_selector = Selector::parse("div.film-poster > a").unwrap();
+
+    let id = page_fragment
+        .select(&item_selector)
+        .map(|element| {
+            element
+                .select(&id_selector)
+                .next()
+                .and_then(|el| el.value().attr("href"))
+                .map(|href| href[1..].to_owned())
+                .unwrap()
+        })
+        .collect::<Vec<_>>();
+
+    
+    Ok(id)
+}

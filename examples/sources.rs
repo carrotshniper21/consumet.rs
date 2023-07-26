@@ -7,9 +7,9 @@ async fn main() -> anyhow::Result<()> {
         "{:#?}",
         movies::FlixHQ
             .fetch_episode_sources(
-                "1274950".to_owned(),
-                "tv/watch-yo-mtv-raps-82018".to_owned(),
-                Some(StreamingServers::UpCloud),
+                "121".to_owned(),
+                "movie/watch-the-nameless-121".to_owned(),
+                Some(StreamingServers::MixDrop),
             )
             .await?
     );

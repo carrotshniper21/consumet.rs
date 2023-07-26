@@ -181,7 +181,7 @@ impl std::fmt::Display for StreamingServers {
         let server_names = match self {
             Self::GogoCDN => "Dogocdn",
             Self::StreamSB => "Streamsb",
-            Self::MixDrop => "Mixdrop",
+            Self::MixDrop => "MixDrop",
             Self::UpCloud => "UpCloud",
             Self::VidCloud => "Vidcloud",
             Self::StreamTape => "Streamtape",

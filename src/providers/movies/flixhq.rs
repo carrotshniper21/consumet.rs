@@ -1,16 +1,15 @@
 use super::flixhq_html::{
-    parse_episode_html, parse_info_html, parse_page_html, parse_search_html, parse_season_html,
-    parse_server_html,
+    parse_episode_html, parse_info_html, parse_page_html, parse_recent_movie_html,
+    parse_recent_shows_html, parse_search_html, parse_season_html, parse_server_html, parse_trending_movie_html, parse_trending_shows_html,
 };
 use crate::models::{
     BaseParser, BaseProvider, IEpisodeServer, IMovieEpisode, IMovieInfo, IMovieResult,
     IMovieSeason, ISearch, ISource, MovieParser, StreamingServers, TvType,
 };
 
-use crate::extractors::VidCloud;
+use crate::extractors::{MixDrop, VidCloud};
 
 use serde::Deserialize;
-use std::future::Future;
 
 pub struct FlixHQ;
 
@@ -66,7 +65,6 @@ impl MovieParser for FlixHQ {
         page: Option<usize>,
     ) -> anyhow::Result<ISearch<Self::SearchResult>> {
         let page = page.unwrap_or(1);
-        let fetch = self.fetch_search_results();
 
         let url = format!("{}/search/{}?page={}", self.base_url(), query, page);
         let page_html = reqwest::Client::new().get(url).send().await?.text().await?;
@@ -74,19 +72,13 @@ impl MovieParser for FlixHQ {
         let (next_page, total_page, id) = parse_page_html(page_html)?;
 
         // NOTE: `Vec<impl Future<Output = Result<IMovieResult>>`
-        let tasks = id
-            .into_iter()
-            .map(|id| {
-                let fetched = fetch(id.clone());
-                async move {
-                    Box::into_pin(fetched)
-                        .await
-                        .map_err(|err| anyhow::anyhow!("Err: Can't fetch {}, {}", id, err))
-                }
-            })
-            .collect::<Vec<_>>();
+        let mut results = vec![];
 
-        let results = futures::future::try_join_all(tasks).await?;
+        for i in id.into_iter() {
+            let result = self.fetch_search_results(i).await?;
+
+            results.push(result);
+        }
 
         Ok(ISearch {
             current_page: Some(page),
@@ -120,31 +112,21 @@ impl MovieParser for FlixHQ {
 }
 
 impl FlixHQ {
-    pub fn fetch_search_results(
-        &self,
-    ) -> impl Fn(String) -> Box<dyn Future<Output = anyhow::Result<IMovieResult>> + Send> {
-        let base_url = self.base_url().to_owned();
+    pub async fn fetch_search_results(&self, id: String) -> anyhow::Result<IMovieResult> {
+        let url = format!("{}/{}", self.base_url(), id);
 
-        move |id| {
-            let base_url = base_url.clone();
+        let media_html = reqwest::Client::new()
+            .get(&url)
+            .send()
+            .await?
+            .text()
+            .await?;
 
-            Box::new(async move {
-                let url = format!("{}/{}", base_url, id);
-
-                let media_html = reqwest::Client::new()
-                    .get(&url)
-                    .send()
-                    .await?
-                    .text()
-                    .await?;
-
-                parse_search_html(media_html, id, url)
-            })
-        }
+        parse_search_html(media_html, id, url)
     }
 
     pub async fn fetch_info(&self, media_id: String) -> anyhow::Result<FlixHQInfo> {
-        let search_results = Box::into_pin(self.fetch_search_results()(media_id.clone())).await?;
+        let search_results = self.fetch_search_results(media_id.clone()).await?;
 
         let media_type = search_results.media_type.unwrap();
         let is_seasons = matches!(media_type, TvType::TvSeries);
@@ -156,10 +138,9 @@ impl FlixHQ {
             .text()
             .await?;
 
-        let title = search_results.title.clone();
         let info = parse_info_html(info_html, search_results)?;
 
-        let seasons_and_episodes = if is_seasons {
+        if is_seasons {
             let id = media_id.split('-').last().unwrap_or_default().to_owned();
 
             let season_html = reqwest::Client::new()
@@ -172,65 +153,55 @@ impl FlixHQ {
 
             let season_ids = parse_season_html(season_html)?;
 
-            let mut episode_futures = vec![];
+            let mut seasons_and_episodes: Vec<Vec<IMovieEpisode>> = vec![];
 
             for (i, episode) in season_ids.iter().enumerate() {
-                let episode_future = async move {
-                    let episode_html = reqwest::Client::new()
-                        .get(format!(
-                            "{}/ajax/v2/season/episodes/{}",
-                            self.base_url(),
-                            &episode
-                        ))
-                        .send()
-                        .await
-                        .unwrap()
-                        .text()
-                        .await
-                        .unwrap();
+                let episode_html = reqwest::Client::new()
+                    .get(format!(
+                        "{}/ajax/v2/season/episodes/{}",
+                        self.base_url(),
+                        &episode
+                    ))
+                    .send()
+                    .await
+                    .unwrap()
+                    .text()
+                    .await
+                    .unwrap();
 
-                    let episodes = parse_episode_html(self.base_url(), episode_html, i).unwrap();
+                let episodes = parse_episode_html(self.base_url(), episode_html, i).unwrap();
 
-                    episodes
-                };
-
-                episode_futures.push(episode_future);
+                seasons_and_episodes.push(episodes);
             }
 
-            futures::future::join_all(episode_futures).await
+            Ok(FlixHQInfo {
+                base: info.base,
+                info: IMovieInfo {
+                    total_episodes: seasons_and_episodes.last().map(|x| x.len()),
+                    seasons: Some(IMovieSeason {
+                        season: seasons_and_episodes
+                            .last()
+                            .and_then(|x| x.last())
+                            .and_then(|y| y.season)
+                            .unwrap_or(0),
+                        image: None,
+                        episodes: Some(seasons_and_episodes.clone()),
+                    }),
+                    episodes: Some(seasons_and_episodes),
+                    ..info.info
+                },
+            })
         } else {
-            let id = media_id.split('-').last().unwrap_or_default().to_owned();
-            let episodes = IMovieEpisode {
-                url: Some(format!("{}/ajax/movie/episodes/{}", self.base_url(), id)),
-                id,
-                title: format!("{} Movie", title.unwrap()),
-                number: None,
-                season: None,
-                description: None,
-                image: None,
-                release_date: None,
-            };
-
-            vec![vec![episodes]]
-        };
-
-        Ok(FlixHQInfo {
-            base: info.base,
-            info: IMovieInfo {
-                total_episodes: seasons_and_episodes.last().map(|x| x.len()),
-                seasons: Some(IMovieSeason {
-                    season: seasons_and_episodes
-                        .last()
-                        .and_then(|x| x.last())
-                        .and_then(|y| y.season)
-                        .unwrap_or(0),
-                    image: None,
-                    episodes: Some(seasons_and_episodes.clone()),
-                }),
-                episodes: Some(seasons_and_episodes),
-                ..info.info
-            },
-        })
+            Ok(FlixHQInfo {
+                base: info.base,
+                info: IMovieInfo {
+                    total_episodes: None,
+                    seasons: None,
+                    episodes: None,
+                    ..info.info
+                },
+            })
+        }
     }
 
     pub async fn fetch_servers(
@@ -295,7 +266,19 @@ impl FlixHQ {
         if server_info.link.starts_with("http") {
             match server {
                 StreamingServers::MixDrop => {
-                    todo!()
+                    let mut mix_drop = MixDrop {
+                        sources: Vec::new(),
+                        subtitles: Vec::new(),
+                    };
+
+                    mix_drop.extract(server_info.link.clone()).await?;
+
+                    Ok(ISource {
+                        sources: Some(mix_drop.sources),
+                        subtitles: Some(mix_drop.subtitles),
+                        headers: Some(server_info.link),
+                        intro: None,
+                    })
                 }
                 StreamingServers::VidCloud => {
                     let mut vid_cloud = VidCloud {
@@ -305,7 +288,9 @@ impl FlixHQ {
 
                     vid_cloud
                         .extract(server_info.link.clone(), Some(true))
-                        .await?;
+                        .await
+                        .expect("Failed to extract VidCloud sources!");
+
                     Ok(ISource {
                         sources: Some(vid_cloud.sources),
                         subtitles: Some(vid_cloud.subtitles),
@@ -319,7 +304,11 @@ impl FlixHQ {
                         subtitles: Vec::new(),
                     };
 
-                    vid_cloud.extract(server_info.link.clone(), None).await?;
+                    vid_cloud
+                        .extract(server_info.link.clone(), None)
+                        .await
+                        .expect("Failed to extract UpCloud sources!");
+
                     Ok(ISource {
                         sources: Some(vid_cloud.sources),
                         subtitles: Some(vid_cloud.subtitles),
@@ -328,11 +317,110 @@ impl FlixHQ {
                     })
                 }
                 _ => {
-                    todo!()
+                    let mut vid_cloud = VidCloud {
+                        sources: Vec::new(),
+                        subtitles: Vec::new(),
+                    };
+
+                    vid_cloud
+                        .extract(server_info.link.clone(), None)
+                        .await
+                        .expect("Failed to extract UpCloud sources!");
+
+                    Ok(ISource {
+                        sources: Some(vid_cloud.sources),
+                        subtitles: Some(vid_cloud.subtitles),
+                        headers: Some(server_info.link),
+                        intro: None,
+                    })
                 }
             }
         } else {
-            panic!("Incorrect server url")
+            panic!("Incorrect server Url. Try Again.")
         }
+    }
+
+    pub async fn fetch_recent_movies(&self) -> anyhow::Result<Vec<IMovieResult>> {
+        let recent_movie_html = reqwest::Client::new()
+            .get(format!("{}/home", self.base_url()))
+            .send()
+            .await?
+            .text()
+            .await?;
+
+        let id = parse_recent_movie_html(recent_movie_html)?;
+
+        let mut results = vec![];
+
+        for i in id.into_iter() {
+            let result = self.fetch_search_results(i).await?;
+
+            results.push(result);
+        }
+
+        Ok(results)
+    }
+
+    pub async fn fetch_recent_shows(&self) -> anyhow::Result<Vec<IMovieResult>> {
+        let recent_shows_html = reqwest::Client::new()
+            .get(format!("{}/home", self.base_url()))
+            .send()
+            .await?
+            .text()
+            .await?;
+
+        let id = parse_recent_shows_html(recent_shows_html)?;
+
+        let mut results = vec![];
+
+        for i in id.into_iter() {
+            let result = self.fetch_search_results(i).await?;
+
+            results.push(result);
+        }
+
+        Ok(results)
+    }
+
+    pub async fn fetch_trending_movies(&self) -> anyhow::Result<Vec<IMovieResult>> {
+        let trending_movies_html = reqwest::Client::new()
+            .get(format!("{}/home", self.base_url()))
+            .send()
+            .await?
+            .text()
+            .await?;
+
+        let id = parse_trending_movie_html(trending_movies_html)?;
+
+        let mut results = vec![];
+
+        for i in id.into_iter() {
+            let result = self.fetch_search_results(i).await?;
+
+            results.push(result);
+        }
+
+        Ok(results)
+    }
+
+    pub async fn fetch_trending_shows(&self) -> anyhow::Result<Vec<IMovieResult>> {
+        let trending_shows_html = reqwest::Client::new()
+            .get(format!("{}/home", self.base_url()))
+            .send()
+            .await?
+            .text()
+            .await?;
+
+        let id = parse_trending_shows_html(trending_shows_html)?;
+
+        let mut results = vec![];
+
+        for i in id.into_iter() {
+            let result = self.fetch_search_results(i).await?;
+
+            results.push(result);
+        }
+
+        Ok(results)
     }
 }
