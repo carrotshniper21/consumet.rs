@@ -11,6 +11,9 @@ consumet-api-rs is a crates.io library which provides high-level APIs to get inf
     <a href="https://discord.gg/qTPfvMxzNH">
       <img src="https://img.shields.io/discord/987492554486452315?color=7289da&label=discord&logo=discord&logoColor=7289da" alt="Official Discord">
     </a>
+    <a href="https://github.com/carrotshniper21/consumet-api-rs/blob/main/LICENSE">
+      <img src="https://img.shields.io/crates/l/consumet-api-rs.svg">
+    </a>
 </p>
 
 <h2> Table of Contents </h2>
