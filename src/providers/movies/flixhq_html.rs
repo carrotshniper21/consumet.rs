@@ -316,20 +316,20 @@ pub fn parse_server_html(
     let server_fragment = Html::parse_fragment(&server_html);
     let server_item_selector = Selector::parse("ul > li > a").unwrap();
 
-    let (server_ids, server_titles) = if is_movie {
+    let (server_ids, server_names) = if is_movie {
         let server_ids: Vec<String> = server_fragment
             .select(&server_item_selector)
             .filter_map(|element| element.value().attr("data-linkid"))
             .map(|data| data[..].to_owned())
             .collect();
 
-        let server_titles: Vec<String> = server_fragment
+        let server_names: Vec<String> = server_fragment
             .select(&server_item_selector)
             .filter_map(|element| element.value().attr("title"))
             .map(|data| data[..].to_owned())
             .collect();
 
-        (server_ids, server_titles)
+        (server_ids, server_names)
     } else {
         let server_ids: Vec<String> = server_fragment
             .select(&server_item_selector)
@@ -337,22 +337,22 @@ pub fn parse_server_html(
             .map(|data| data[..].to_owned())
             .collect();
 
-        let server_titles: Vec<String> = server_fragment
+        let server_names: Vec<String> = server_fragment
             .select(&server_item_selector)
             .filter_map(|element| element.value().attr("title"))
             .map(|data| data[..].to_owned().replace("Server ", ""))
             .collect();
 
-        (server_ids, server_titles)
+        (server_ids, server_names)
     };
 
     let mut servers: Vec<IEpisodeServer> = Vec::new();
 
-    for (id, title) in server_ids.iter().zip(server_titles.iter()) {
+    for (id, name) in server_ids.iter().zip(server_names.iter()) {
         let url = format!("{}/watch-{}.{}", base_url, media_id, id);
 
         let server = IEpisodeServer {
-            name: title.to_owned(),
+            name: name.to_owned(),
             url,
         };
 
