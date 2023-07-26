@@ -10,10 +10,10 @@ pub struct VidCloud {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Tracks {
-    file: String,
-    label: String,
-    kind: String,
-    default: bool,
+    file: Option<String>,
+    label: Option<String>,
+    kind: Option<String>,
+    default: Option<bool>,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -174,11 +174,11 @@ impl VidCloud {
             .iter()
             .map(|s| ISubtitle {
                 id: None,
-                url: Some(s.file.clone()),
-                lang: if s.label.is_empty() {
-                    Some("Default (maybe)".to_string())
+                url: s.file.clone(),
+                lang: if s.label.is_some() {
+                    s.label.clone()
                 } else {
-                    Some(s.label.clone())
+                    Some("Default (maybe)".to_string())
                 },
             })
             .collect();
