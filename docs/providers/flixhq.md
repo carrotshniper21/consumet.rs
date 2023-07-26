@@ -19,7 +19,7 @@ let flixhq = movies::FlixHQ;
 - [fetch\_trending\_shows](#fetch_trending_shows)
 
 ### search
-> Note: This method is a subclass of the [`BaseParser`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/base-parser.rs) trait. meaning it is available across most categories.
+> Note: This method is a subclass of the [`BaseParser`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/base_parser.rs) trait. meaning it is available across most categories.
 
 
 <h4>Parameters</h4>
