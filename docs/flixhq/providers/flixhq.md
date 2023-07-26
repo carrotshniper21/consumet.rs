@@ -323,7 +323,7 @@ output:
 ]
 ```
 
-<p align="end">(<a href="https://github.com/consumet/extensions/blob/master/docs/guides/movies.md#">back to movie providers list</a>)</p>
+<p align="end">(<a href="https://github.com/carrotshniper21/consumet-api-rs/blob/master/docs/guides/movies.md#">back to movie providers list</a>)</p>
 
 ### fetch_recent_movies
 
