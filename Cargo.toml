@@ -4,7 +4,7 @@ version = "0.1.4"
 edition = "2021"
 description = "Consumet API RIIR"
 license-file = "LICENSE"
-respository = "https://github.com/carrotshniper21/consumet-api-rs"
+repository = "https://github.com/carrotshniper21/consumet-api-rs"
 readme = "README.md"
 authors = ["eatmynerds <vipershniper07@gmail.com>"]
 
