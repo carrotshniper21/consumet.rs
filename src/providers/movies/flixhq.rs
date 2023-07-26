@@ -12,6 +12,7 @@ use crate::extractors::{MixDrop, VidCloud};
 
 use serde::Deserialize;
 
+/// Contains all the FlixHQ Info
 pub struct FlixHQ;
 
 #[derive(Debug, Deserialize)]
@@ -62,7 +63,6 @@ impl BaseParser for FlixHQ {
 
         let (next_page, total_page, id) = parse_page_html(page_html)?;
 
-        // NOTE: `Vec<impl Future<Output = Result<IMovieResult>>`
         let mut results = vec![];
 
         for i in id.into_iter() {
@@ -114,6 +114,9 @@ impl MovieParser for FlixHQ {
 }
 
 impl FlixHQ {
+    /// Returns a future which resolves into an movie result object (*[`impl Future<Output = Result<IMovieResult>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L452-L462)*)\
+    /// # Parameters
+    /// * `id` - the id of a movie or show
     pub async fn fetch_search_results(&self, id: String) -> anyhow::Result<IMovieResult> {
         let url = format!("{}/{}", self.base_url(), id);
 
@@ -127,6 +130,9 @@ impl FlixHQ {
         parse_search_html(media_html, id, url)
     }
 
+    /// Returns a future which resolves into an movie info object (including the episodes). (*[`impl Future<Output = Result<FlixHQInfo>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/providers/movies/flixhq.rs#L22-L26)*)\
+    /// # Parameters
+    /// * `media_id` - takes media id or url as a parameter. (*media id or url can be found in the media search results as shown on the above method*)
     pub async fn fetch_info(&self, media_id: String) -> anyhow::Result<FlixHQInfo> {
         let search_results = self.fetch_search_results(media_id.clone()).await?;
 
@@ -206,6 +212,10 @@ impl FlixHQ {
         }
     }
 
+    /// Returns a future which resolves into an vector of episode servers. (*[`impl Future<Output = Result<Vec<IEpisodeServer>>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L135-L146)*)\
+    /// # Parameters
+    /// * `episode_id` - take an episode id or url as a parameter. (*episode id or episode url can be found in the media info object*)
+    /// * `media_id` - takes media id as a parameter. (*media id can be found in the media info object*
     pub async fn fetch_servers(
         &self,
         episode_id: String,
@@ -238,6 +248,11 @@ impl FlixHQ {
         Ok(servers)
     }
 
+    /// Returns a future which resolves into an vector of episode sources and subtitles. (*[`impl Future<Output = Result<ISource>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L374-L379)*)\
+    /// # Parameters
+    /// * `episode_id` - takes episode id as a parameter. (*episode id can be found in the media info object*)
+    /// * `media_id` - takes media id as a parameter. (*media id can be found in the media info object*)
+    /// * `server (optional)` - [`StreamingServers`]
     pub async fn fetch_sources(
         &self,
         episode_id: String,
@@ -342,6 +357,9 @@ impl FlixHQ {
         }
     }
 
+    /// Returns a future which resolves into an vector of movie results  (*[`impl Future<Output = Result<Vec<IMovieResult>>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L452-L462)*)
+    /// # Parameters
+    /// * `None`
     pub async fn fetch_recent_movies(&self) -> anyhow::Result<Vec<IMovieResult>> {
         let recent_movie_html = reqwest::Client::new()
             .get(format!("{}/home", self.base_url()))
@@ -363,6 +381,9 @@ impl FlixHQ {
         Ok(results)
     }
 
+    /// Returns a future which resolves into an vector of tv shows results  (*[`impl Future<Output = Result<Vec<IMovieResult>>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L452-L462)*)
+    /// # Parameters
+    /// * `None`
     pub async fn fetch_recent_shows(&self) -> anyhow::Result<Vec<IMovieResult>> {
         let recent_shows_html = reqwest::Client::new()
             .get(format!("{}/home", self.base_url()))
@@ -384,6 +405,9 @@ impl FlixHQ {
         Ok(results)
     }
 
+    /// Returns a future which resolves into an vector of movie results  (*[`impl Future<Output = Result<Vec<IMovieResult>>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L452-L462)*)
+    /// # Parameters
+    /// * `None`
     pub async fn fetch_trending_movies(&self) -> anyhow::Result<Vec<IMovieResult>> {
         let trending_movies_html = reqwest::Client::new()
             .get(format!("{}/home", self.base_url()))
@@ -405,6 +429,9 @@ impl FlixHQ {
         Ok(results)
     }
 
+    /// Returns a future which resolves into an vector of tv shows results  (*[`impl Future<Output = Result<Vec<IMovieResult>>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L452-L462)*)
+    /// # Parameters
+    /// * `None`
     pub async fn fetch_trending_shows(&self) -> anyhow::Result<Vec<IMovieResult>> {
         let trending_shows_html = reqwest::Client::new()
             .get(format!("{}/home", self.base_url()))

@@ -8,7 +8,7 @@ use crate::models::BaseParser;
 /// let light_novel_provider = light_novels::<provider_name>;
 /// ```
 pub trait LightNovelParser: BaseParser {
-    /// Returns a future which resolves into an light novel info object (including the chapters or volumes). (*[`impl Future<Output = Result<ILightNovelInfo>>`]("https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L294-L302)*)
+    /// Returns a future which resolves into an light novel info object (including the chapters or volumes). (*[`impl Future<Output = Result<ILightNovelInfo>>`]("https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L324-L334)*)
     /// # Parameters
     /// * `light_novel_url` - id or url of the light novel. (*light novel id or url can be found in the light novel search results*)
     /// * `chapter_page` - chapter page number (*default: -1 meaning will fetch all chapters*)
@@ -23,7 +23,7 @@ pub trait LightNovelParser: BaseParser {
         chapter_page: Option<isize>,
     ) -> anyhow::Result<Box<dyn std::any::Any>>;
 
-    /// Returns a content object. (*[`impl Future<Output = Result<ILightNovelChapterContent>>`]("https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L289-L292)*)
+    /// Returns a content object. (*[`impl Future<Output = Result<ILightNovelChapterContent>>`]("https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L317-L322)*)
     /// # Parameters
     /// * `chapter_id` - chapter id. (*chapter id can be found in the light novel info object*)
     /// ```

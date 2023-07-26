@@ -33,7 +33,7 @@ pub trait BaseProvider {
     }
 
     #[inline]
-    /// Returns provider stats (*[`IProviderStats`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L10-L19)*)
+    /// Returns provider stats (*[`IProviderStats`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L11-L21)*)
     fn get_stats(&self) -> IProviderStats {
         IProviderStats {
             name: self.name(),

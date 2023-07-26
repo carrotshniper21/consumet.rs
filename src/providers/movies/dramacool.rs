@@ -4,6 +4,7 @@ use crate::models::{
     MovieParser, ProxyConfig, StreamingServers, TvType,
 };
 
+// Contains all the DramaCool Info
 pub struct DramaCool;
 
 impl BaseProvider for DramaCool {
