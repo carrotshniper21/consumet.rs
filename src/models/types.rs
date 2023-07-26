@@ -1,6 +1,6 @@
 use crate::models::Hashes;
-use std::collections::HashMap;
 use serde::Deserialize;
+use std::collections::HashMap;
 
 #[derive(Clone, Debug, Deserialize)]
 pub enum Other {
@@ -179,16 +179,16 @@ pub enum StreamingServers {
 impl std::fmt::Display for StreamingServers {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let server_names = match self {
-            Self::GogoCDN => "Dogocdn",
-            Self::StreamSB => "Streamsb",
+            Self::GogoCDN => "GogoCDN",
+            Self::StreamSB => "StreamSB",
             Self::MixDrop => "MixDrop",
             Self::UpCloud => "UpCloud",
-            Self::VidCloud => "Vidcloud",
-            Self::StreamTape => "Streamtape",
-            Self::VizCloud => "Vizcloud",
-            Self::MyCloud => "Mycloud",
-            Self::Filemoon => "Filemoon",
-            Self::VidStreaming => "Vidstreaming",
+            Self::VidCloud => "VidCloud",
+            Self::StreamTape => "StreamTape",
+            Self::VizCloud => "VizCloud",
+            Self::MyCloud => "MyCloud",
+            Self::Filemoon => "FileMoon",
+            Self::VidStreaming => "VidStreaming",
         };
 
         write!(f, "{}", server_names)
@@ -569,6 +569,7 @@ impl std::fmt::Display for Topics {
     }
 }
 
+#[derive(Debug)]
 pub struct ProxyConfig {
     /**
      * The proxy URL
@@ -579,4 +580,5 @@ pub struct ProxyConfig {
      * X-API-Key header value (if any)
      **/
     key: Option<String>,
+    rotate_interval: usize,
 }
