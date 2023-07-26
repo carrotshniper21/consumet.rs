@@ -1,98 +1,76 @@
-# Compile This With Nightly!
+<p align="center"><img src="https://consumet.org/images/consumetlogo.png" width="175"/></p>
 
-# Usage
+<h1 align="center"> consumet.ts </h1>
 
-## Movies
+consumet.ts is a Node library which provides high-level APIs to get information about several entertainment mediums like books, movies, comics, anime, manga, etc.
 
-### Flixhq
+<p align="center">
+    <a href="https://discord.gg/qTPfvMxzNH">
+      <img src="https://img.shields.io/discord/987492554486452315?color=7289da&label=discord&logo=discord&logoColor=7289da" alt="Discord">
+    </a>
+</p>
 
-To use the `FlixHQ` crate, you can follow this example:
+<h2> Table of Contents </h2>
 
-#### Searching
+- [Quick Start](#quick-start)
+  - [Installation](#installation)
+  - [Usage](#usage)
+- [Documentation](#documentation)
+- [Ecosystem](#ecosystem)
+- [Provider Request](#provider-request)
+- [Contributing](#contributing)
+- [Support](#support)
+- [Contributors ✨](#contributors-)
+  - [Credits](#credits)
+- [License](#license)
 
-```rust
+## Quick Start
+
+### Installation
+
+To use consumet-api-rs in your project, run:
+```bash
+cargo install consumet-api-rs
+```
+
+### Usage
+
+**Example** - searching for a movie using the flixhq provider.
+```rs
 use consumet_api_rs::models::MovieParser;
 use consumet_api_rs::providers::movies;
 
-#[tokio::main]
-async fn main() -> anyhow::Result<()> {
-    println!(
-        "{:#?}",
-        movies::FlixHQ.search("hi".to_owned(), Some(1)).await?
-    );
-
-    Ok(())
-}
+// Create a new instance of the FlixHQ provider
+let flixhq = movies::FlixHQ;
+// Search for a movie. In this case, "Vincenzo"
+let data = flixhq.search("Vincenzo").await?;
+println!("{:#?}", data);
 ```
 
-The `movies::FlixHQ.search` function is used to search for movies with the example search query `hi` and an optional
-page number `1`.
+Do you want to know more? Head to the [`Getting Started`](https://github.com/carrotshniper21/consumet-api-rs/tree/main/docs/guides/getting-started.md).
 
-#### Info
+## Documentation
+- [`Getting Started`](./docs/guides/getting-started.md)
+- [`Guides`](https://github.com/consumet/consumet.ts/tree/master/docs)
+- [`Anime`](./docs/guides/anime.md)
+- [`Manga`](./docs/guides/manga.md)
+- [`Books`](./docs/guides/books.md)
+- [`Movies`](./docs/guides/movies.md)
+- [`Light Novels`](./docs/guides/light-novels.md)
+- [`Comics`](./docs/guides/comics.md)
+- [`Meta`](./docs/guides/meta.md)
+- [`News`](./docs/guides/news.md)
 
-```rust
-use consumet_api_rs::models::MovieParser;
-use consumet_api_rs::providers::movies;
+## Ecosystem
+- [Provider Status](https://github.com/consumet/providers-status/blob/main/README.md) - A list of providers and their status.
+- [Discord Server](https://discord.gg/qTPfvMxzNH) - Join the official discord server and chat with the maintainers.
 
-#[tokio::main]
-async fn main() -> anyhow::Result<()> {
-    println!(
-        "{:#?}",
-        movies::FlixHQ.fetch_media_info("tv/watch-yo-mtv-raps-82018".to_owned()).await?
-    );
+## Support
+You can contact the maintainer of consumet-api-rs via discord `eatmynerds`, or [join the official discord server](https://discord.gg/qTPfvMxzNH) (Recommended).
 
-    Ok(())
-}
-```
+<a href="https://discord.gg/qTPfvMxzNH">
+   <img src="https://discordapp.com/api/guilds/987492554486452315/widget.png?style=banner2">
+</a>
 
-The `movies::FlixHQ.fetch_media_info` function is used to fetch info for movies with their corresponding id for
-example: `tv/watch-yo-mtv-raps-82018`.
-
-#### Servers
-
-```rust
-use consumet_api_rs::models::MovieParser;
-use consumet_api_rs::providers::movies;
-
-#[tokio::main]
-async fn main() -> anyhow::Result<()> {
-    println!(
-        "{:#?}",
-        movies::FlixHQ
-            .fetch_episode_servers(
-                "98488".to_owned(),
-                "movie/watch-the-venture-bros-radiant-is-the-blood-of-the-baboon-heart-98488"
-                    .to_owned()
-            )
-            .await?
-    );
-
-    Ok(())
-}
-```
-
-The `movies::FlixHQ.fetch_episode_servers` function is used to fetch servers for movies with their id `98488` and their
-media id `movie/watch-the-venture-bros-radiant-is-the-blood-of-the-baboon-heart-98488`. But for shows the id field is the episode id instead.
-
-#### Sources
-```rust
-use consumet_api_rs::models::{MovieParser, StreamingServers};
-use consumet_api_rs::providers::movies;
-
-#[tokio::main]
-async fn main() -> anyhow::Result<()> {
-    println!(
-        "{:#?}",
-        movies::FlixHQ
-            .fetch_episode_sources(
-                "1274950".to_owned(),
-                "tv/watch-yo-mtv-raps-82018".to_owned(),
-                Some(StreamingServers::UpCloud),
-            )
-            .await?
-    );
-
-    Ok(())
-}
-```
-The `movies::FlixHQ.fetch_episode_sources` function is used to fetch sources for shows with their episode_id: `1274950` for films this would be the id. And the media id `movie/watch-the-venture-bros-radiant-is-the-blood-of-the-baboon-heart-98488`. But for shows the id field is the episode id instead. And the third paramter is the preferred server which can be `None` which defaults to UpCloud
+## License
+Licensed under [APACHE](./LICENSE).
