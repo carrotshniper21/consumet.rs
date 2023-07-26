@@ -61,7 +61,7 @@ Do you want to know more? Head to the [`Getting Started`](https://github.com/car
 - [Discord Server](https://discord.gg/qTPfvMxzNH) - Join the official discord server and chat with the maintainers.
 
 ## Support
-You can contact the maintainer of consumet-api-rs via discord `eatmynerds`, or [join the official discord server](https://discord.gg/qTPfvMxzNH) (Recommended).
+You can contact the maintainer of consumet-api-rs via [email](mailto:vipershniper07@gmail.com), or [join the official discord server](https://discord.gg/qTPfvMxzNH) (Recommended).
 
 <a href="https://discord.gg/qTPfvMxzNH">
    <img src="https://discordapp.com/api/guilds/987492554486452315/widget.png?style=banner2">
