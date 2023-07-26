@@ -1,8 +1,9 @@
 use crate::models::IVideo;
 
+/// Contains the Decrypted Sources
 #[derive(Debug)]
 pub struct StreamTape {
-    sources: Vec<IVideo>,
+    pub sources: Vec<IVideo>,
 }
 
 impl StreamTape {

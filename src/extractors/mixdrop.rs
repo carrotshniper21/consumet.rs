@@ -1,5 +1,6 @@
 use crate::models::{ISubtitle, IVideo};
 
+/// Contains both the Decrypted Sources and Subtitles
 #[derive(Debug)]
 pub struct MixDrop {
     pub sources: Vec<IVideo>,

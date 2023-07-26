@@ -28,23 +28,24 @@ impl BaseProvider for DramaCool {
     }
 }
 
-impl BaseParser for DramaCool {}
-
-impl MovieParser for DramaCool {
-    type SearchResult = String;
-    type MediaInfo = String;
-    type ServerResult = String;
-    type SourceResult = String;
-
-    fn supported_types(&self) -> &[TvType] {
-        todo!()
-    }
+impl BaseParser for DramaCool {
+    type BaseSearchResult = ISearch<IMovieResult>;
 
     async fn search(
         &self,
         query: String,
         page: Option<usize>,
-    ) -> anyhow::Result<ISearch<Self::SearchResult>> {
+    ) -> anyhow::Result<Self::BaseSearchResult> {
+        todo!()
+    }
+}
+
+impl MovieParser for DramaCool {
+    type MediaInfo = String;
+    type ServerResult = String;
+    type SourceResult = String;
+
+    fn supported_types(&self) -> &[TvType] {
         todo!()
     }
 

@@ -1,13 +1,14 @@
 use crate::models::{BaseParser, ISearch, TvType, StreamingServers};
 
-pub enum IInfoType {
-    IMovieInfo,
-    IAnimeInfo,
-}
-
-/// A trait providing movie parsing methods to implment on
+/// A trait providing movie parsing methods to implement on
+/// ```
+/// use consumet_api_rs::models::MovieParser;
+/// use consumet_api_rs::providers::movies;
+/// 
+/// // <provider_name> is the name of the provider you want to use. 
+/// let movie_provider = movies::<provider_name>;
+/// ```
 pub trait MovieParser: BaseParser {
-    type SearchResult;
     type MediaInfo;
     type ServerResult;
     type SourceResult;
@@ -15,66 +16,24 @@ pub trait MovieParser: BaseParser {
     /// The supported types of the provider (e.g. `&[TvType::TvSeries, TvType::Movie]`)
     fn supported_types(&self) -> &[TvType];
 
-    /// Returns a search result from the provided query and page number
+    /// Returns a future which resolves into an anime info object (including the episodes). (*[`impl Future<Output = Result<IMovieInfo>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L468-L482)*)\
+    /// # Parameters
+    /// * `media_id` - takes media id or url as a parameter. (*media id or url can be found in the media search results as shown on the above method*) 
     /// ```
-    /// use consumet_api_rs::models::MovieParser;
-    /// use consumet_api_rs::providers::movies;
-    ///
-    /// #[tokio::main]
-    /// async fn main() -> anyhow::Result<()> {
-    ///     println!(
-    ///         "{:#?}",
-    ///          movies::FlixHQ.search("puss".to_owned(), Some(1)).await?
-    ///     );
-    ///
-    ///     Ok(())
-    /// }
-    /// ```
-    async fn search(
-        &self,
-        query: String,
-        page: Option<usize>,
-    ) -> anyhow::Result<ISearch<Self::SearchResult>>;
-
-    /// Returns more info for the provided media id
-    /// ```
-    /// use consumet_api_rs::models::MovieParser;
-    /// use consumet_api_rs::providers::movies;
-    ///
-    /// #[tokio::main]
-    /// async fn main() -> anyhow::Result<()> {
-    ///     println!(
-    ///         "{:#?}",
-    ///         movies::FlixHQ
-    ///             .fetch_media_info("tv/watch-phineas-and-ferb-39100".to_owned())
-    ///             .await?
-    ///     );
-    ///
-    ///     Ok(())
-    /// }
+    /// let movie_provider = movie::<provider_name>;
+    /// let data = movie_provider.fetch_media_info(<media_id>).await?;
+    /// println!("{:#?}", data);
     /// ```
     async fn fetch_media_info(&self, media_id: String) -> anyhow::Result<Self::MediaInfo>;
 
-    /// Returns server info for provided episode id and media_id
+    /// Returns a future which resolves into an vector of episode servers. (*[`impl Future<Output = Result<Vec<IEpisodeServer>>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L137-L141)*)\
+    /// # Parameters
+    /// * `episode_id` - take an episode id or url as a parameter. (*episode id or episode url can be found in the media info object*)
+    /// * `media_id` - takes media id as a parameter. (*media id can be found in the media info object*
     /// ```
-    /// use consumet_api_rs::models::MovieParser;
-    /// use consumet_api_rs::providers::movies;
-    ///
-    /// #[tokio::main]
-    /// async fn main() -> anyhow::Result<()> {
-    ///     println!(
-    ///         "{:#?}",
-    ///         movies::FlixHQ
-    ///             .fetch_episode_servers(
-    ///                 "98488".to_owned(),
-    ///                 "movie/watch-the-venture-bros-radiant-is-the-blood-of-the-baboon-heart-98488"
-    ///                .    to_owned()
-    ///             )
-    ///             .await?
-    ///     );
-
-    ///     Ok(())
-    /// }
+    /// let movie_provider = movie::<provider_name>;
+    /// let data = movie_provider.fetch_episode_servers(<episode_id>, <media_id>).await??;
+    /// println!("{:#?}", data);
     /// ```
     async fn fetch_episode_servers(
         &self,
@@ -82,6 +41,16 @@ pub trait MovieParser: BaseParser {
         media_id: String,
     ) -> anyhow::Result<Vec<Self::ServerResult>>;
 
+    /// Returns a future which resolves into an vector of episode sources and subtitles. (*[`impl Future<Output = Result<ISource>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L374-L380)*)\
+    /// # Parameters
+    /// * `episode_id` - takes episode id as a parameter. (*episode id can be found in the media info object*)
+    /// * `media_id` - takes media id as a parameter. (*media id can be found in the media info object*)
+    /// * `server (optional)` - [`StreamingServers`]
+    /// ```
+    /// let movie_provider = movie::<provider_name>;
+    /// let data = movie_provider.fetch_episode_sources(<episode_id>, <media_id>, None).await?;
+    /// println!("{:#?}", data);
+    /// ```
     async fn fetch_episode_sources(
         &self,
         episode_id: String,

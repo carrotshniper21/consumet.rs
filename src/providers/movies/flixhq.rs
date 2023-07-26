@@ -1,6 +1,7 @@
 use super::flixhq_html::{
     parse_episode_html, parse_info_html, parse_page_html, parse_recent_movie_html,
-    parse_recent_shows_html, parse_search_html, parse_season_html, parse_server_html, parse_trending_movie_html, parse_trending_shows_html,
+    parse_recent_shows_html, parse_search_html, parse_season_html, parse_server_html,
+    parse_trending_movie_html, parse_trending_shows_html,
 };
 use crate::models::{
     BaseParser, BaseProvider, IEpisodeServer, IMovieEpisode, IMovieInfo, IMovieResult,
@@ -46,24 +47,14 @@ impl BaseProvider for FlixHQ {
     }
 }
 
-impl BaseParser for FlixHQ {}
-
-impl MovieParser for FlixHQ {
-    type SearchResult = IMovieResult;
-    type MediaInfo = FlixHQInfo;
-    type ServerResult = IEpisodeServer;
-    type SourceResult = ISource;
-
-    #[inline]
-    fn supported_types(&self) -> &[TvType] {
-        &[TvType::Movie, TvType::TvSeries]
-    }
+impl BaseParser for FlixHQ {
+    type BaseSearchResult = ISearch<IMovieResult>;
 
     async fn search(
         &self,
         query: String,
         page: Option<usize>,
-    ) -> anyhow::Result<ISearch<Self::SearchResult>> {
+    ) -> anyhow::Result<Self::BaseSearchResult> {
         let page = page.unwrap_or(1);
 
         let url = format!("{}/search/{}?page={}", self.base_url(), query, page);
@@ -87,6 +78,17 @@ impl MovieParser for FlixHQ {
             total_results: results.len(),
             results,
         })
+    }
+}
+
+impl MovieParser for FlixHQ {
+    type MediaInfo = FlixHQInfo;
+    type ServerResult = IEpisodeServer;
+    type SourceResult = ISource;
+
+    #[inline]
+    fn supported_types(&self) -> &[TvType] {
+        &[TvType::Movie, TvType::TvSeries]
     }
 
     async fn fetch_media_info(&self, media_id: String) -> anyhow::Result<Self::MediaInfo> {

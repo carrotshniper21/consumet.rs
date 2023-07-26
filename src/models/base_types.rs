@@ -1,3 +1,6 @@
+
+#[derive(Debug)]
+/// Book Info struct
 pub struct Book {
     title: String,
     authors: Vec<String>,
@@ -12,6 +15,9 @@ pub struct Book {
     link: String,
 }
 
+
+#[derive(Debug)]
+/// Hash struct
 pub struct Hashes {
     aich: String,
     crc32: String,

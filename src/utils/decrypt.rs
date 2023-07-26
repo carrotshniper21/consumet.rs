@@ -2,6 +2,14 @@ use openssl::symm::{decrypt, Cipher};
 
 const KEY_SIZE: u8 = 48;
 
+/// Decrypt Encoded Url Sources
+/// # Parameters
+/// * `encrypted_url` - The AES-256-CBC Encrypted url.
+/// * `secret` - the decryption key as bytes.
+/// ```
+/// let decypted = decrypt::decrypt_url(encrypted_url, &key.into_bytes());
+/// println!("{}", decrypted);
+/// ```
 pub fn decrypt_url(
     encrypted_url: String,
     secret: &Vec<u8>,

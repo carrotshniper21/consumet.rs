@@ -1,18 +1,20 @@
-use reqwest::Url;
-
 use crate::models::{ISubtitle, IVideo};
 
+/// Contains all the possible variants of what a extractor can return (so far)
 pub enum Inum {
     IVideo(Vec<IVideo>),
     ISource,
     ISubtitle(Vec<ISubtitle>),
 }
 
+/// Trait that contains methods for extractors to use
 pub trait VideoExtractor<T> {
     /// # Arguments
     /// * `servername` - A string slice that holds the name of the server
     const SERVER_NAME: &'static str;
 
-    /// Extracts the video from the videoUrl based on the implmentation
-    async fn extract(&mut self, video_url: Url, args: T) -> anyhow::Result<Inum>;
+    /// Extracts the sources from the video_url
+    /// # Parameters
+    /// * `video_url` - A string that contains the server embed url
+    async fn extract(&mut self, video_url: String, args: T) -> anyhow::Result<Inum>;
 }

@@ -1,5 +1,13 @@
 use std::collections::HashMap;
 
+/// Parse post info and turn it into a formatted version
+/// # Parameters
+/// * `post` - the post string slice
+/// ```
+/// let post1 = "Year 2023 Size 10GB Some sample description text here";
+/// let result1 = parse_post_info(post1);
+/// println!("{:?}", result1);
+/// ```
 pub fn parse_post_info(post: &str) -> HashMap<String, String> {
     let mut result = HashMap::new();
     let mut year = String::new();

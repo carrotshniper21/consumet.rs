@@ -2,38 +2,43 @@ use crate::models::{ISubtitle, IVideo};
 use crate::utils::{decrypt, util_funcs::USER_AGENT};
 use serde::{Deserialize, Serialize};
 
+/// Contains both the Decrypted Sources and Subtitles
 #[derive(Debug, Deserialize)]
 pub struct VidCloud {
     pub sources: Vec<IVideo>,
     pub subtitles: Vec<ISubtitle>,
 }
 
+/// Contains the Subtitles for the Sources
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Tracks {
-    file: Option<String>,
-    label: Option<String>,
-    kind: Option<String>,
-    default: Option<bool>,
+    pub file: Option<String>,
+    pub label: Option<String>,
+    pub kind: Option<String>,
+    pub default: Option<bool>,
 }
 
+/// Contains the Decrypted Sources File
 #[derive(Debug, Deserialize, Clone)]
 pub struct Video {
-    file: Option<String>,
-    r#type: Option<String>,
+    pub file: Option<String>,
+    pub r#type: Option<String>,
 }
 
+/// Sources Enum for when its being decrypted
 #[derive(Debug, Clone)]
 pub enum File {
     EncryptedURL(String),
     DecryptedURL(Vec<Video>),
 }
 
+/// Contains the Encrypted Sources
 #[derive(Debug, Deserialize)]
 pub struct Sources {
-    sources: Option<serde_json::Value>,
-    tracks: Option<Vec<Tracks>>,
-    encrypted: bool,
-    server: u8,
+    pub sources: Option<serde_json::Value>,
+    pub tracks: Option<Vec<Tracks>>,
+    pub encrypted: bool,
+    pub server: u8,
 }
 
 const HOST: &str = "https://dokicloud.one";

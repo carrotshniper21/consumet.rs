@@ -2,11 +2,13 @@ use crate::models::Hashes;
 use serde::Deserialize;
 use std::collections::HashMap;
 
+/// Used to get other fields in structs
 #[derive(Clone, Debug, Deserialize)]
 pub enum Other {
     Poster(String),
 }
 
+/// Contains Provider Statistics
 #[derive(Clone, Copy, Debug)]
 pub struct IProviderStats<'a> {
     pub name: &'a str,
@@ -18,49 +20,60 @@ pub struct IProviderStats<'a> {
     pub is_working: bool,
 }
 
+/// Contains Title Info
+#[derive(Debug)]
 pub struct ITitle {
-    romaji: Option<String>,
-    english: Option<String>,
-    native: Option<String>,
-    user_preferred: Option<String>,
+    pub romaji: Option<String>,
+    pub english: Option<String>,
+    pub native: Option<String>,
+    pub user_preferred: Option<String>,
 }
 
+/// Contains Anime Search Results
+#[derive(Debug)]
 pub struct IAnimeResult {
-    id: String,
-    title: ITitle,
-    url: Option<String>,
-    image: Option<String>,
-    cover: Option<String>,
-    status: Option<MediaStatus>,
-    rating: Option<u32>,
-    show_type: Option<MediaFormat>,
-    release_date: Option<String>,
+    pub id: String,
+    pub title: ITitle,
+    pub url: Option<String>,
+    pub image: Option<String>,
+    pub cover: Option<String>,
+    pub status: Option<MediaStatus>,
+    pub rating: Option<u32>,
+    pub show_type: Option<MediaFormat>,
+    pub release_date: Option<String>,
 }
 
+/// Contains Search Results
 #[derive(Debug)]
 pub struct ISearch<T> {
     pub current_page: Option<usize>,
     pub has_next_page: Option<bool>,
     pub total_pages: usize,
-    /**
-     * total results must include results from all pages
-     */
     pub total_results: usize,
     pub results: Vec<T>,
 }
 
+/// Contains Trailer
+#[derive(Debug)]
 pub struct Trailer {
-    id: String,
-    site: Option<String>,
-    thumbnail: Option<String>,
+    pub id: String,
+    pub site: Option<String>,
+    pub thumbnail: Option<String>,
 }
 
+/// Contains Date Time
+#[derive(Debug)]
 pub struct FuzzyDate {
-    year: Option<u32>,
-    month: Option<u32>,
-    day: Option<u32>,
+    pub year: Option<u32>,
+    pub month: Option<u32>,
+    pub day: Option<u32>,
 }
 
+/// Used to get the Format of the chosen media
+/// ```
+/// let format = MediaFormat::<format>;
+/// println!("{}", format);
+/// ``` 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum MediaFormat {
     Tv,
@@ -94,74 +107,67 @@ impl std::fmt::Display for MediaFormat {
     }
 }
 
+/// Contains Anime Info
+#[derive(Debug)]
 pub struct IAnimeInfo {
-    mal_id: Option<u32>,
-    genres: Option<Vec<String>>,
-    description: Option<String>,
-    status: Option<MediaStatus>,
-    total_episodes: Option<u32>,
-    sub_or_dub: Option<SubOrSub>,
-    synonyms: Option<Vec<String>>,
-    /**
-     * two letter representation of country: e.g JP for japan
-     */
-    country_of_origin: Option<String>,
-    is_adult: Option<bool>,
-    is_licensed: Option<bool>,
-    /**
-     * `FALL`, `WINTER`, `SPRING`, `SUMMER`
-     */
-    season: Option<String>,
-    studios: Option<Vec<String>>,
-    color: Option<String>,
-    cover: Option<String>,
-    trailer: Option<Trailer>,
-    episodes: Option<Vec<IAnimeEpisode>>,
-    start_date: Option<FuzzyDate>,
-    end_date: Option<FuzzyDate>,
-    recommendations: Option<IAnimeResult>,
-    relations: Option<Vec<IAnimeResult>>,
+    pub mal_id: Option<u32>,
+    pub genres: Option<Vec<String>>,
+    pub description: Option<String>,
+    pub status: Option<MediaStatus>,
+    pub total_episodes: Option<u32>,
+    pub sub_or_dub: Option<SubOrSub>,
+    pub synonyms: Option<Vec<String>>,
+    pub country_of_origin: Option<String>,
+    pub is_adult: Option<bool>,
+    pub is_licensed: Option<bool>,
+    pub season: Option<String>,
+    pub studios: Option<Vec<String>>,
+    pub color: Option<String>,
+    pub cover: Option<String>,
+    pub trailer: Option<Trailer>,
+    pub episodes: Option<Vec<IAnimeEpisode>>,
+    pub start_date: Option<FuzzyDate>,
+    pub end_date: Option<FuzzyDate>,
+    pub recommendations: Option<IAnimeResult>,
+    pub relations: Option<Vec<IAnimeResult>>,
 }
 
+/// Contains Anime Episode Info
+#[derive(Debug)]
 pub struct IAnimeEpisode {
-    id: String,
-    u32: u32,
-    title: Option<String>,
-    description: Option<String>,
-    is_filler: Option<bool>,
-    url: Option<String>,
-    image: Option<String>,
-    release_date: Option<String>,
+    pub id: String,
+    pub u32: u32,
+    pub title: Option<String>,
+    pub description: Option<String>,
+    pub is_filler: Option<bool>,
+    pub url: Option<String>,
+    pub image: Option<String>,
+    pub release_date: Option<String>,
 }
 
+/// Contains Episode Server Info
 #[derive(Debug)]
 pub struct IEpisodeServer {
     pub name: String,
     pub url: String,
 }
 
+/// Contains Video Sources
 #[derive(Clone, Debug, Deserialize)]
 pub struct IVideo {
-    /**
-     * The **MAIN URL** of the video provider that should take you to the video
-     */
     pub url: Option<String>,
-    /**
-     * The Quality of the video should include the `p` suffix
-     */
     pub quality: Option<String>,
-    /**
-     * make sure to set this to `true` if the video is hls
-     */
     pub is_m3u8: Option<bool>,
     pub is_dash: Option<bool>,
-    /**
-     * size of the video in **bytes**
-     */
     pub size: Option<u32>,
     pub other: Option<HashMap<String, Other>>,
 }
 
+/// Used to get the video url for the server chosen
+/// ```
+/// let server = StreamingServers::<server>;
+/// println!("{}", server);
+/// ``` 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum StreamingServers {
     GogoCDN,
@@ -195,6 +201,11 @@ impl std::fmt::Display for StreamingServers {
     }
 }
 
+/// Used to check the status of the provided media
+/// ```
+/// let status = MediaStatus::<status>;
+/// println!("{}", status);
+/// ``` 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum MediaStatus {
     OnGoing,
@@ -220,6 +231,11 @@ impl std::fmt::Display for MediaStatus {
     }
 }
 
+/// Used to check if something is Sub, Dub or Both
+/// ```
+/// let sub_or_dub = SubOrDub::<sub_or_dub>;
+/// println!("{}", sub_or_dub);
+/// ``` 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SubOrSub {
     Sub,
@@ -239,138 +255,155 @@ impl std::fmt::Display for SubOrSub {
     }
 }
 
+/// Contains Manga Search Result Info
+#[derive(Debug)]
 pub struct IMangaResult {
-    id: String,
-    title: String,
-    alt_titles: Option<Vec<String>>,
-    image: Option<String>,
-    description: Option<String>,
-    status: Option<MediaStatus>,
-    release_date: Option<u32>,
+    pub id: String,
+    pub title: String,
+    pub alt_titles: Option<Vec<String>>,
+    pub image: Option<String>,
+    pub description: Option<String>,
+    pub status: Option<MediaStatus>,
+    pub release_date: Option<u32>,
 }
 
+/// Contains Manga Chapter Info
+#[derive(Debug)]
 pub struct IMangaChapter {
-    id: String,
-    title: String,
-    volume: Option<u32>,
-    pages: Option<u32>,
-    release_date: Option<String>,
+    pub id: String,
+    pub title: String,
+    pub volume: Option<u32>,
+    pub pages: Option<u32>,
+    pub release_date: Option<String>,
 }
 
+/// Contains Manga Info
+#[derive(Debug)]
 pub struct IMangaInfo {
-    mal_id: Option<u32>,
-    authors: Option<Vec<String>>,
-    genres: Option<Vec<String>>,
-    links: Option<Vec<String>>,
-    characters: Option<Vec<Box<dyn std::any::Any>>>,
-    recommendations: Option<Vec<IMangaResult>>,
-    chapters: Option<Vec<IMangaChapter>>,
+    pub mal_id: Option<u32>,
+    pub authors: Option<Vec<String>>,
+    pub genres: Option<Vec<String>>,
+    pub links: Option<Vec<String>>,
+    pub characters: Option<Vec<Box<dyn std::any::Any>>>,
+    pub recommendations: Option<Vec<IMangaResult>>,
+    pub chapters: Option<Vec<IMangaChapter>>,
 }
 
+/// Contains Manga Chapter Pages
+#[derive(Debug)]
 pub struct IMangaChapterPage {
-    img: String,
-    page: u32,
+    pub img: String,
+    pub page: u32,
 }
 
+/// Contains Light Novel Search Results
+#[derive(Debug)]
 pub struct ILightNovelResult {
-    id: String,
-    title: String,
-    url: String,
-    image: Option<String>,
+    pub id: String,
+    pub title: String,
+    pub url: String,
+    pub image: Option<String>,
 }
 
+/// Contains Light Novel Chapter Info
+#[derive(Debug)]
 pub struct ILightNovelChapter {
-    id: String,
-    title: String,
-    volume: Option<u32>,
-    url: Option<String>,
+    pub id: String,
+    pub title: String,
+    pub volume: Option<u32>,
+    pub url: Option<String>,
 }
 
+/// Contains Light Novel Chapter Content
+#[derive(Debug)]
 pub struct ILightNovelChapterContent {
-    text: String,
-    html: Option<String>,
+    pub text: String,
+    pub html: Option<String>,
 }
 
+/// Contains Light Novel Info
+#[derive(Debug)]
 pub struct ILightNovelInfo {
-    authors: Option<Vec<String>>,
-    genres: Option<Vec<String>>,
-    description: Option<String>,
-    chapters: Option<Vec<ILightNovelChapter>>,
-    status: Option<MediaStatus>,
-    views: Option<u32>,
-    rating: Option<u32>,
+    pub authors: Option<Vec<String>>,
+    pub genres: Option<Vec<String>>,
+    pub description: Option<String>,
+    pub chapters: Option<Vec<ILightNovelChapter>>,
+    pub status: Option<MediaStatus>,
+    pub views: Option<u32>,
+    pub rating: Option<u32>,
 }
 
+/// Contains Book Search Results Info
+#[derive(Debug)]
 pub struct LibgenBook {
-    id: String,
-    language: String,
-    format: String,
-    size: String,
-    pages: String,
-    table_of_contents: String,
-    topic: String,
-    hashes: Hashes,
+    pub id: String,
+    pub language: String,
+    pub format: String,
+    pub size: String,
+    pub pages: String,
+    pub table_of_contents: String,
+    pub topic: String,
+    pub hashes: Hashes,
 }
 
+/// Contains Book Search Results
+#[derive(Debug)]
 pub struct LibgenResult {
-    result: Vec<LibgenBook>,
-    has_next_page: bool,
+    pub result: Vec<LibgenBook>,
+    pub has_next_page: bool,
 }
 
+/// Contains Comics Info
+#[derive(Debug)]
 pub struct GetComicsComics {
-    image: String,
-    title: String,
-    year: String,
-    size: String,
-    excerpt: String,
-    category: String,
-    description: String,
-    download: String,
-    ufile: String,
-    mega: String,
-    mediafire: String,
-    zippyshare: String,
-    read_online: String,
+    pub image: String,
+    pub title: String,
+    pub year: String,
+    pub size: String,
+    pub excerpt: String,
+    pub category: String,
+    pub description: String,
+    pub download: String,
+    pub ufile: String,
+    pub mega: String,
+    pub mediafire: String,
+    pub zippyshare: String,
+    pub read_online: String,
 }
 
+/// Contains Comic Results
+#[derive(Debug)]
 pub struct ComicRes {
-    containers: Vec<GetComicsComics>,
-    has_next_page: bool,
+    pub containers: Vec<GetComicsComics>,
+    pub has_next_page: bool,
 }
 
+/// Contains Book Info
+#[derive(Debug)]
 pub struct ZLibrary {
-    book_rating: String,
-    book_quality: String,
-    language: String,
-    size: String,
-    pages: String,
+    pub book_rating: String,
+    pub book_quality: String,
+    pub language: String,
+    pub size: String,
+    pub pages: String,
 }
 
+/// Contains Subtitle Info
 #[derive(Clone, Debug, Deserialize)]
 pub struct ISubtitle {
-    /**
-     * The id of the subtitle. **not** required
-     */
     pub id: Option<String>,
-    /**
-     * The **url** that should take you to the subtitle **directly**.
-     */
     pub url: Option<String>,
-    /**
-     * The language of the subtitle
-     */
     pub lang: Option<String>,
 }
 
-/**
- * The start, and the end of the intro or opening in seconds.
- */
+/// The start, and the end of the intro or opening in seconds.
 #[derive(Debug)]
 pub struct Intro {
-    start: u32,
-    end: u32,
+    pub start: u32,
+    pub end: u32,
 }
 
+/// Contains Source Info
 #[derive(Debug)]
 pub struct ISource {
     pub headers: Option<String>,
@@ -379,9 +412,11 @@ pub struct ISource {
     pub sources: Option<Vec<IVideo>>,
 }
 
-/**
- * Used **only** for movie/tvshow providers
- */
+/// Used **only** for movie/tvshow providers
+/// ```
+/// let media_type = TvType::<media_type>;
+/// println!("{}", media_type);
+/// ``` 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum TvType {
     TvSeries,
@@ -401,6 +436,7 @@ impl std::fmt::Display for TvType {
     }
 }
 
+/// Contains Movie Episode Info
 #[derive(Debug, Clone)]
 pub struct IMovieEpisode {
     pub id: String,
@@ -413,6 +449,7 @@ pub struct IMovieEpisode {
     pub release_date: Option<String>,
 }
 
+/// Contains Movie Result Info
 #[derive(Debug)]
 pub struct IMovieResult {
     pub id: Option<String>,
@@ -424,40 +461,49 @@ pub struct IMovieResult {
     pub media_type: Option<TvType>,
 }
 
+/// Contains News Feed Info
+#[derive(Debug)]
 pub struct INewsFeed {
     /** topics of the feed */
-    topics: Vec<Topics>,
+    pub topics: Vec<Topics>,
     /** preview of the news feed */
-    preview: INewsFeedPreview,
+    pub preview: INewsFeedPreview,
 }
 
+/// Contains News Info
+#[derive(Debug)]
 pub struct INewsInfo {
     /** intro of the news */
-    intro: String,
+    pub intro: String,
     /** description of the news */
-    description: String,
+    pub description: String,
 }
 
+/// Contains More News Info
+#[derive(Debug)]
 pub struct INews {
     /** id of the news */
-    id: String,
+    pub id: String,
     /** title of the news */
-    title: String,
+    pub title: String,
     /** time at which the news was uploaded */
-    uploaded_at: String,
+    pub uploaded_at: String,
     /** thumbnail image URL of the news */
-    thumbnail: String,
+    pub thumbnail: String,
     /** URL of the news */
-    url: String,
+    pub url: String,
 }
 
+/// Contains News Feed Preview info
+#[derive(Debug)]
 pub struct INewsFeedPreview {
     /** intro of the feed */
-    intro: String,
+    pub intro: String,
     /** some contents of the feed */
-    full: String,
+    pub full: String,
 }
 
+/// Contains Movie Seasons
 #[derive(Debug)]
 pub struct IMovieSeason {
     pub season: usize,
@@ -465,6 +511,7 @@ pub struct IMovieSeason {
     pub episodes: Option<Vec<Vec<IMovieEpisode>>>,
 }
 
+/// Contains Movie Info
 #[derive(Debug)]
 pub struct IMovieInfo {
     pub genres: Option<Vec<String>>,
@@ -481,6 +528,11 @@ pub struct IMovieInfo {
     pub episodes: Option<Vec<Vec<IMovieEpisode>>>,
 }
 
+///  Contains all the possible Genres
+/// ```
+/// let genre = Genres::<genre>;
+/// println!("{}", genre);
+/// ```
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Genres {
     Action,
@@ -532,6 +584,11 @@ impl std::fmt::Display for Genres {
     }
 }
 
+///  Contains all the possible Topics
+/// ```
+/// let topic = Topics::<topic>;
+/// println!("{}", topic);
+/// ```
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Topics {
     Anime,
@@ -551,34 +608,33 @@ pub enum Topics {
 impl std::fmt::Display for Topics {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let bofa = match self {
-            Self::Anime => "anime",
-            Self::Animation => "animation",
-            Self::Manga => "manga",
-            Self::Games => "games",
-            Self::Novels => "novels",
-            Self::LiveAction => "live-action",
-            Self::Covid19 => "covid-19",
-            Self::Industry => "industry",
-            Self::Music => "music",
-            Self::People => "people",
-            Self::Merch => "merch",
-            Self::Events => "events",
+            Self::Anime => "Anime",
+            Self::Animation => "Animation",
+            Self::Manga => "Manga",
+            Self::Games => "Games",
+            Self::Novels => "Novels",
+            Self::LiveAction => "LiveAction",
+            Self::Covid19 => "Covid19",
+            Self::Industry => "Industry",
+            Self::Music => "Music",
+            Self::People => "People",
+            Self::Merch => "Merch",
+            Self::Events => "Events",
         };
 
         write!(f, "{}", bofa)
     }
 }
 
+/// Optional Proxy Configuration
 #[derive(Debug)]
 pub struct ProxyConfig {
-    /**
-     * The proxy URL
-     * @example https://proxy.com
-     **/
-    url: String,
-    /**
-     * X-API-Key header value (if any)
-     **/
-    key: Option<String>,
-    rotate_interval: usize,
+    /// The proxy URL
+    /// <https://proxy.com>
+    pub url: String,
+
+    /// X-API-Key header value (if any)
+    pub key: Option<String>,
+
+    pub rotate_interval: usize,
 }

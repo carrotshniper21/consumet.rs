@@ -1,7 +1,7 @@
 <h1>FlixHQ</h1>
 
 ```rs
-use consumet_api_rs::models::MovieParser;
+use consumet_api_rs::models::{MovieParser, BaseParser};
 use consumet_api_rs::providers::movies;
 
 let flixhq = movies::FlixHQ;

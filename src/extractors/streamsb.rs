@@ -1,9 +1,10 @@
 use crate::models::IVideo;
 use crate::utils::util_funcs::USER_AGENT;
 
+/// Contains the Decrypted Sources
 #[derive(Debug)]
 pub struct StreamSB {
-    sources: Vec<IVideo>,
+    pub sources: Vec<IVideo>,
 }
 
 const HOST: &str = "https://streamsss.net/sources50";

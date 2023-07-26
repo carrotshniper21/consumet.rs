@@ -33,6 +33,7 @@ pub enum Days {
     Saturday,
 }
 
+/// Utility Functions for some parsers
 pub trait UtilFuncs {
     /// Pass in a author string and get a Vector
     /// ```
@@ -78,12 +79,52 @@ pub trait UtilFuncs {
     /// ```
     fn capitalize_first_letter(&self) -> String;
 
+    /// Pass in a String and to_find and get the substring before it
+    /// ```
+    /// use consumet_api_rs::utils::util_funcs::substring_before;
+    ///
+    /// let substring = "remy Clarke";
+    /// let found = substring.substring_before("Clarke").expect("Unable to find substring!");
+    ///
+    /// assert_eq!("remy", found);
+    /// ```
     fn substring_before(&self, to_find: &str) -> Result<String, String>;
+
+    /// Pass in a String and to_find and get the substring after it
+    /// ```
+    /// use consumet_api_rs::utils::util_funcs::substring_after;
+    ///
+    /// let substring = "remy Clarke";
+    /// let found = substring.substring_before("remy").expect("Unable to find substring!");
+    ///
+    /// assert_eq!("Clarke", found);
+    /// ```
     fn substring_after(&self, to_find: &str) -> Result<String, String>;
+
+    /// Pass in a String and to_find and get the substring before the last occurrence of it
+    /// ```
+    /// use consumet_api_rs::utils::util_funcs::substring_before_last;
+    ///
+    /// let substring = "remy Clarke remy";
+    /// let found = substring.substring_before_last("remy").expect("Unable to find substring!");
+    ///
+    /// assert_eq!("remy Clarke", found);
+    /// ```
     fn substring_before_last(&self, to_find: &str) -> Result<String, String>;
+
+    /// Pass in a String and to_find and get the substring after the last occurrence of it
+    /// ```
+    /// use consumet_api_rs::utils::util_funcs::substring_after_last;
+    ///
+    /// let substring = "remy Clarke remy Clarke";
+    /// let found = substring.substring_after_last("remy").expect("Unable to find substring!");
+    ///
+    /// assert_eq!("Clarke", found);
+    /// ```
     fn substring_after_last(&self, to_find: &str) -> Result<String, String>;
 }
 
+/// Turns day numbers 0..6 into Unix Timestamps
 pub fn get_day(day: Days) -> i64 {
     let day_index = match day {
         Days::Sunday => 0,
@@ -103,7 +144,7 @@ pub fn get_day(day: Days) -> i64 {
     Utc::now().timestamp() + (x as i64 * 86400)
 }
 
-/// Turns day numbers 0..6 into Unix Timestamps
+/// Wrapper for the get_day function
 /// ```
 /// use consumet_api_rs::utils::util_funcs::{get_days, Days};
 ///
@@ -125,7 +166,7 @@ pub fn get_days(days: Vec<Days>) -> Vec<i64> {
 /// use consumet_api_rs::utils::util_funcs::convert_duration;
 ///
 /// let milliseconds = 23409823;
-/// let duration = convert_duration(milliseconds); 
+/// let duration = convert_duration(milliseconds);
 ///
 /// assert_eq!(duration, "PT00H36M40S".to_owned());
 /// ```

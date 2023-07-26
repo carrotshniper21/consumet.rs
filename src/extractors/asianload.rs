@@ -1,5 +1,6 @@
 use crate::models::{IVideo, ISubtitle};
 
+/// Contains both the Decrypted Sources and Subtitles
 #[derive(Debug)]
 pub struct AsianLoad {
     pub sources: Vec<IVideo>,
