@@ -52,9 +52,9 @@ println!("{:#?}", data);
 Do you want to know more? Head to the [`Getting Started`](https://github.com/carrotshniper21/consumet-api-rs/tree/main/docs/guides/getting-started.md).
 
 ## Documentation
-- [`Getting Started`](./docs/guides/getting-started.md)
+- [`Getting Started`](https://github.com/carrotshniper21/consumet-api-rs/tree/main/docs/guides/getting-started.md)
 - [`Guides`](https://github.com/carrotshniper21/consumet-api-rs/tree/main/docs)
-- [`Movies`](./docs/guides/movies.md)
+- [`Movies`](https://github.com/carrotshniper21/consumet-api-rs/tree/main/docs/guides/movies.md)
 
 ## Ecosystem
 - [Provider Status](https://github.com/consumet/providers-status/blob/main/README.md) - A list of providers and their status.
