@@ -20,7 +20,7 @@ pub fn parse_page_html(page_html: String) -> anyhow::Result<(bool, usize, Vec<St
 
     let id_selector = page_fragment.find("div.block div.tab-content ul.list-episode-item li a");
     let ids: Vec<String> =
-        id_selector.map(|_, element| element.get_attribute("href").unwrap().to_string());
+        id_selector.map(|_, element| element.get_attribute("href").unwrap().to_string().split_off(1));
 
     Ok((next_page, total_page, ids))
 }
@@ -38,7 +38,7 @@ pub fn parse_search_html(
     let image = image_selector.attr("src").unwrap().to_string();
 
     let release_date_selector =
-        page_fragment.find(r#"div.details > div.info > p:contains("Released")"#);
+        page_fragment.find(r#"div.details div.info p:contains("Released:")"#);
     let release_date = release_date_selector
         .text()
         .replace("Released:", "")
