@@ -39,13 +39,13 @@ cargo install consumet-api-rs
 
 **Example** - searching for a movie using the flixhq provider.
 ```rs
-use consumet_api_rs::models::MovieParser;
+use consumet_api_rs::models::BaseParser;
 use consumet_api_rs::providers::movies;
 
 // Create a new instance of the FlixHQ provider
 let flixhq = movies::FlixHQ;
 // Search for a movie. In this case, "Vincenzo"
-let data = flixhq.search("Vincenzo").await?;
+let data = flixhq.search("Vincenzo".to_owned(), None).await.unwrap();
 println!("{:#?}", data);
 ```
 
