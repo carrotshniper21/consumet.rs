@@ -65,8 +65,6 @@ impl BaseParser for FlixHQ {
 
         let (next_page, total_page, id) = parse_page_html(page_html)?;
 
-        println!("{:#?}", id);
-
         let mut results = vec![];
 
         for i in id.into_iter() {
@@ -75,18 +73,13 @@ impl BaseParser for FlixHQ {
             results.push(result);
         }
 
-        println!(
-            "{:#?}",
-            ISearch {
-                current_page: Some(page),
-                has_next_page: Some(next_page),
-                total_pages: total_page,
-                total_results: results.len(),
-                results,
-            }
-        );
-
-        todo!()
+        Ok(ISearch {
+            current_page: Some(page),
+            has_next_page: Some(next_page),
+            total_pages: total_page,
+            total_results: results.len(),
+            results,
+        })
     }
 }
 

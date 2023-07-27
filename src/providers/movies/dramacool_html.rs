@@ -1,6 +1,6 @@
-use visdom::Vis;
-
 use crate::models::IMovieResult;
+
+use visdom::Vis;
 
 pub fn parse_page_html(page_html: String) -> anyhow::Result<(bool, usize, Vec<String>)> {
     let page_fragment = Vis::load(&page_html).unwrap();
@@ -18,11 +18,11 @@ pub fn parse_page_html(page_html: String) -> anyhow::Result<(bool, usize, Vec<St
         .and_then(|total_page| total_page.parse().ok())
         .unwrap_or(1);
 
-    let mut id_vec: Vec<String> = vec![];
     let id_selector = page_fragment.find("div.block div.tab-content ul.list-episode-item li a");
-    id_selector.map(|i, element| id_vec.push(element.get_attribute("href").unwrap().to_string()));
+    let ids: Vec<String> =
+        id_selector.map(|_, element| element.get_attribute("href").unwrap().to_string());
 
-    Ok((next_page, total_page, id_vec))
+    Ok((next_page, total_page, ids))
 }
 
 pub fn parse_search_html(

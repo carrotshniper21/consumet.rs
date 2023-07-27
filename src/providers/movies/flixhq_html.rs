@@ -1,7 +1,5 @@
 use super::FlixHQInfo;
 use crate::models::{IEpisodeServer, IMovieEpisode, IMovieInfo, IMovieResult, TvType};
-
-use scraper::{Html, Selector};
 use visdom::Vis;
 
 pub fn parse_page_html(page_html: String) -> anyhow::Result<(bool, usize, Vec<String>)> {
@@ -24,19 +22,16 @@ pub fn parse_page_html(page_html: String) -> anyhow::Result<(bool, usize, Vec<St
         .and_then(|total_page| total_page.parse().ok())
         .unwrap_or(1);
 
-    let mut id_vec: Vec<String> = vec![];
     let id_selector = page_fragment.find("div.film-poster > a");
-    id_selector.map(|_, element| {
-        id_vec.push(
-            element
-                .get_attribute("href")
-                .unwrap()
-                .to_string()
-                .split_off(1),
-        )
+    let ids: Vec<String> = id_selector.map(|_, element| {
+        element
+            .get_attribute("href")
+            .unwrap()
+            .to_string()
+            .split_off(1)
     });
 
-    Ok((next_page, total_page, id_vec))
+    Ok((next_page, total_page, ids))
 }
 
 pub fn parse_search_html(
@@ -108,109 +103,70 @@ pub fn parse_info_html(
     let country_selector =
         media_fragment.find("div.m_i-d-content > div.elements > div:nth-child(1)");
 
-    // let country: Vec<String> = media_fragment
-    //     .select(&country_selector)
-    //     .next()
-    //     .map(|el| el.text())
-    //     .ok_or(anyhow::anyhow!("Err: Can't get country"))?
-    //     .map(|country| {
-    //         let trimmed_country = country.trim().replace(',', "").replace("Country:", "");
-    //         trimmed_country
-    //     })
-    //     .filter(|trimmed_country| !trimmed_country.is_empty())
-    //     .collect();
+    let country: Vec<String> = country_selector
+        .text()
+        .replace("Country:", "")
+        .split(',')
+        .map(|s| s.trim().to_owned())
+        .collect();
 
-    // let genre_selector =
-    //     Selector::parse("div.m_i-d-content > div.elements > div:nth-child(2)").unwrap();
+    let genre_selector = media_fragment.find("div.m_i-d-content > div.elements > div:nth-child(2)");
 
-    // let genre: Vec<String> = media_fragment
-    //     .select(&genre_selector)
-    //     .next()
-    //     .map(|el| el.text())
-    //     .ok_or(anyhow::anyhow!("Err: Can't get genres"))?
-    //     .map(|genre| {
-    //         let trimmed_genre = genre.trim().replace(',', "").replace("Genre:", "");
-    //         trimmed_genre
-    //     })
-    //     .filter(|trimmed_genre| !trimmed_genre.is_empty())
-    //     .collect();
+    let genre: Vec<String> = genre_selector
+        .text()
+        .replace("Genre:", "")
+        .split(",")
+        .map(|s| s.trim().to_owned())
+        .collect();
 
-    // let production_selector =
-    //     Selector::parse("div.m_i-d-content > div.elements > div:nth-child(4)").unwrap();
+    let production_selector =
+        media_fragment.find("div.m_i-d-content > div.elements > div:nth-child(4)");
 
-    // let production: Vec<String> = media_fragment
-    //     .select(&production_selector)
-    //     .next()
-    //     .map(|el| el.text())
-    //     .ok_or(anyhow::anyhow!("Err: Can't get production"))?
-    //     .map(|production| {
-    //         let trimmed_production = production
-    //             .trim()
-    //             .replace(',', "")
-    //             .replace("Production:", "");
-    //         trimmed_production
-    //     })
-    //     .filter(|trimmed_production| !trimmed_production.is_empty())
-    //     .collect();
+    let production: Vec<String> = production_selector
+        .text()
+        .replace("Production:", "")
+        .split(",")
+        .map(|s| s.trim().to_owned())
+        .collect();
 
-    // let cast_selector =
-    //     Selector::parse("div.m_i-d-content > div.elements > div:nth-child(5)").unwrap();
+    let cast_selector = media_fragment.find("div.m_i-d-content > div.elements > div:nth-child(5)");
 
-    // let casts: Vec<String> = media_fragment
-    //     .select(&cast_selector)
-    //     .next()
-    //     .map(|el| el.text())
-    //     .ok_or(anyhow::anyhow!("Err: Can't get casts"))?
-    //     .map(|cast| {
-    //         let trimmed_cast = cast.trim().replace(',', "").replace("Casts:", "");
-    //         trimmed_cast
-    //     })
-    //     .filter(|trimmed_cast| !trimmed_cast.is_empty())
-    //     .collect();
+    let casts: Vec<String> = cast_selector
+        .text()
+        .replace("Casts:", "")
+        .split(",")
+        .map(|s| s.trim().to_owned())
+        .collect();
 
-    // let tag_selector =
-    //     Selector::parse("div.m_i-d-content > div.elements > div:nth-child(6)").unwrap();
+    let tag_selector = media_fragment.find("div.m_i-d-content > div.elements > div:nth-child(6)");
 
-    // let tags: Vec<String> = media_fragment
-    //     .select(&tag_selector)
-    //     .next()
-    //     .map(|el| el.text())
-    //     .ok_or(anyhow::anyhow!("Err: Can't get tags"))?
-    //     .map(|tag| {
-    //         let trimmed_tag = tag.trim().replace(',', "").replace("Tags:", "");
-    //         trimmed_tag
-    //     })
-    //     .filter(|trimmed_tag| !trimmed_tag.is_empty())
-    //     .collect();
+    let tags: Vec<String> = tag_selector
+        .text()
+        .replace("Tags:", "")
+        .split(",")
+        .map(|s| s.trim().to_owned())
+        .collect();
 
-    // let rating_selector = Selector::parse("span.item:nth-child(2)").unwrap();
+    let rating_selector = media_fragment.find("span.item:nth-child(2)");
 
-    // let rating = media_fragment
-    //     .select(&rating_selector)
-    //     .next()
-    //     .map(|el| el.text().collect::<Vec<_>>().join("").trim().to_owned())
-    //     .ok_or(anyhow::anyhow!("Err: Can't get rating"))?;
+    let rating = rating_selector.text().trim().to_owned();
 
-    // let duration_selector = Selector::parse("span.item:nth-child(3)").unwrap();
+    let duration_selector = media_fragment.find("span.item:nth-child(3)");
 
-    // let duration = media_fragment
-    //     .select(&duration_selector)
-    //     .next()
-    //     .map(|el| el.text().collect::<Vec<_>>().join("").trim().to_owned())
-    //     .ok_or(anyhow::anyhow!("Err: Can't get duration"))?;
+    let duration = duration_selector.text().trim().to_owned();
 
     Ok(FlixHQInfo {
         base: search_results,
         info: IMovieInfo {
-            genres: None,
+            genres: Some(genre),
             description: Some(description),
-            rating: None,
+            rating: Some(rating),
             status: None,
-            duration: None,
-            country: None,
-            production: None,
-            casts: None,
-            tags: None,
+            duration: Some(duration),
+            country: Some(country),
+            production: Some(production),
+            casts: Some(casts),
+            tags: Some(tags),
             total_episodes: None,
             seasons: None,
             episodes: None,
@@ -223,20 +179,14 @@ pub fn parse_episode_html(
     episode_html: String,
     i: usize,
 ) -> anyhow::Result<Vec<IMovieEpisode>> {
-    let episode_fragment = Html::parse_fragment(&episode_html);
-    let episode_item_selector = Selector::parse("ul > li > a").unwrap();
+    let episode_fragment = Vis::load(&episode_html).unwrap();
+    let episode_item_selector = episode_fragment.find("ul > li > a");
 
-    let episode_ids: Vec<String> = episode_fragment
-        .select(&episode_item_selector)
-        .filter_map(|element| element.value().attr("data-id"))
-        .map(|data| data[..].to_owned())
-        .collect();
+    let episode_ids: Vec<String> = episode_item_selector
+        .map(|_, element| element.get_attribute("data-id").unwrap().to_string());
 
-    let episode_titles: Vec<String> = episode_fragment
-        .select(&episode_item_selector)
-        .filter_map(|element| element.value().attr("title"))
-        .map(|data| data[..].to_owned())
-        .collect();
+    let episode_titles: Vec<String> =
+        episode_item_selector.map(|_, element| element.get_attribute("title").unwrap().to_string());
 
     let mut episodes: Vec<IMovieEpisode> = Vec::new();
 
@@ -261,14 +211,11 @@ pub fn parse_episode_html(
 }
 
 pub fn parse_season_html(season_html: String) -> anyhow::Result<Vec<String>> {
-    let season_fragment = Html::parse_fragment(&season_html);
+    let season_fragment = Vis::load(&season_html).unwrap();
 
-    let season_item_selector = Selector::parse(".dropdown-menu > a").unwrap();
-    let season_ids: Vec<String> = season_fragment
-        .select(&season_item_selector)
-        .filter_map(|element| element.value().attr("data-id"))
-        .map(|data| data[..].to_owned())
-        .collect();
+    let season_item_selector = season_fragment.find(".dropdown-menu > a");
+    let season_ids: Vec<String> = season_item_selector
+        .map(|_, element| element.get_attribute("data-id").unwrap().to_string());
 
     Ok(season_ids)
 }
@@ -279,35 +226,28 @@ pub fn parse_server_html(
     is_movie: bool,
     media_id: String,
 ) -> anyhow::Result<Vec<IEpisodeServer>> {
-    let server_fragment = Html::parse_fragment(&server_html);
-    let server_item_selector = Selector::parse("ul > li > a").unwrap();
+    let server_fragment = Vis::load(&server_html).unwrap();
+    let server_item_selector = server_fragment.find("ul > li > a");
 
     let (server_ids, server_names) = if is_movie {
-        let server_ids: Vec<String> = server_fragment
-            .select(&server_item_selector)
-            .filter_map(|element| element.value().attr("data-linkid"))
-            .map(|data| data[..].to_owned())
-            .collect();
+        let server_ids: Vec<String> = server_item_selector
+            .map(|_, element| element.get_attribute("data-linkid").unwrap().to_string());
 
-        let server_names: Vec<String> = server_fragment
-            .select(&server_item_selector)
-            .filter_map(|element| element.value().attr("title"))
-            .map(|data| data[..].to_owned())
-            .collect();
+        let server_names: Vec<String> = server_item_selector
+            .map(|_, element| element.get_attribute("title").unwrap().to_string());
 
         (server_ids, server_names)
     } else {
-        let server_ids: Vec<String> = server_fragment
-            .select(&server_item_selector)
-            .filter_map(|element| element.value().attr("data-id"))
-            .map(|data| data[..].to_owned())
-            .collect();
+        let server_ids: Vec<String> = server_item_selector
+            .map(|_, element| element.get_attribute("data-id").unwrap().to_string());
 
-        let server_names: Vec<String> = server_fragment
-            .select(&server_item_selector)
-            .filter_map(|element| element.value().attr("title"))
-            .map(|data| data[..].to_owned().replace("Server ", ""))
-            .collect();
+        let server_names: Vec<String> = server_item_selector.map(|_, element| {
+            element
+                .get_attribute("title")
+                .unwrap()
+                .to_string()
+                .replace("Server ", "")
+        });
 
         (server_ids, server_names)
     };
@@ -329,102 +269,67 @@ pub fn parse_server_html(
 }
 
 pub fn parse_recent_movie_html(page_html: String) -> anyhow::Result<Vec<String>> {
-    let page_fragment = Html::parse_fragment(&page_html);
+    let page_fragment = Vis::load(&page_html).unwrap();
 
-    // NOTE: don't use `?` for `Result<Selector, SelectorErrorKind>`
-    // `SelectorErrorKind` can not be shared between threads safely
+    let id_selector = page_fragment.find("#main-wrapper > div > section:nth-child(6) > div.block_area-content.block_area-list.film_list.film_list-grid > div > div.flw-item > div.film-poster > a");
 
-    let item_selector = Selector::parse("#main-wrapper > div > section:nth-child(6) > div.block_area-content.block_area-list.film_list.film_list-grid > div > div.flw-item").unwrap();
+    let ids: Vec<String> = id_selector.map(|_, element| {
+        element
+            .get_attribute("href")
+            .unwrap()
+            .to_string()
+            .split_off(1)
+    });
 
-    let id_selector = Selector::parse("div.film-poster > a").unwrap();
-
-    let id = page_fragment
-        .select(&item_selector)
-        .map(|element| {
-            element
-                .select(&id_selector)
-                .next()
-                .and_then(|el| el.value().attr("href"))
-                .map(|href| href[1..].to_owned())
-                .unwrap()
-        })
-        .collect::<Vec<_>>();
-
-    Ok(id)
+    Ok(ids)
 }
 
 pub fn parse_recent_shows_html(page_html: String) -> anyhow::Result<Vec<String>> {
-    let page_fragment = Html::parse_fragment(&page_html);
+    let page_fragment = Vis::load(&page_html).unwrap();
 
-    // NOTE: don't use `?` for `Result<Selector, SelectorErrorKind>`
-    // `SelectorErrorKind` can not be shared between threads safely
+    let id_selector = page_fragment.find("#main-wrapper > div > section:nth-child(7) > div.block_area-content.block_area-list.film_list.film_list-grid > div > div.flw-item > div.film-poster > a");
 
-    let item_selector = Selector::parse("#main-wrapper > div > section:nth-child(7) > div.block_area-content.block_area-list.film_list.film_list-grid > div > div.flw-item").unwrap();
+    let ids: Vec<String> = id_selector.map(|_, element| {
+        element
+            .get_attribute("href")
+            .unwrap()
+            .to_string()
+            .split_off(1)
+    });
 
-    let id_selector = Selector::parse("div.film-poster > a").unwrap();
-
-    let id = page_fragment
-        .select(&item_selector)
-        .map(|element| {
-            element
-                .select(&id_selector)
-                .next()
-                .and_then(|el| el.value().attr("href"))
-                .map(|href| href[1..].to_owned())
-                .unwrap()
-        })
-        .collect::<Vec<_>>();
-
-    Ok(id)
+    Ok(ids)
 }
 
 pub fn parse_trending_movie_html(page_html: String) -> anyhow::Result<Vec<String>> {
-    let page_fragment = Html::parse_fragment(&page_html);
+    let page_fragment = Vis::load(&page_html).unwrap();
 
-    // NOTE: don't use `?` for `Result<Selector, SelectorErrorKind>`
-    // `SelectorErrorKind` can not be shared between threads safely
+    let id_selector =
+        page_fragment.find("div#trending-movies div.film_list-wrap div.flw-item div.film-poster a");
 
-    let item_selector =
-        Selector::parse("div#trending-movies div.film_list-wrap div.flw-item").unwrap();
+    let ids: Vec<String> = id_selector.map(|_, element| {
+        element
+            .get_attribute("href")
+            .unwrap()
+            .to_string()
+            .split_off(1)
+    });
 
-    let id_selector = Selector::parse("div.film-poster > a").unwrap();
-
-    let id = page_fragment
-        .select(&item_selector)
-        .map(|element| {
-            element
-                .select(&id_selector)
-                .next()
-                .and_then(|el| el.value().attr("href"))
-                .map(|href| href[1..].to_owned())
-                .unwrap()
-        })
-        .collect::<Vec<_>>();
-
-    Ok(id)
+    Ok(ids)
 }
 
 pub fn parse_trending_shows_html(page_html: String) -> anyhow::Result<Vec<String>> {
-    let page_fragment = Html::parse_fragment(&page_html);
+    let page_fragment = Vis::load(&page_html).unwrap();
 
-    // NOTE: don't use `?` for `Result<Selector, SelectorErrorKind>`
-    // `SelectorErrorKind` can not be shared between threads safely
+    let id_selector =
+        page_fragment.find("div#trending-tv div.film_list-wrap div.flw-item div.film-poster a");
 
-    let item_selector = Selector::parse("div#trending-tv div.film_list-wrap div.flw-item").unwrap();
+    let ids: Vec<String> = id_selector.map(|_, element| {
+        element
+            .get_attribute("href")
+            .unwrap()
+            .to_string()
+            .split_off(1)
+    });
 
-    let id_selector = Selector::parse("div.film-poster > a").unwrap();
-
-    let id = page_fragment
-        .select(&item_selector)
-        .map(|element| {
-            element
-                .select(&id_selector)
-                .next()
-                .and_then(|el| el.value().attr("href"))
-                .map(|href| href[1..].to_owned())
-                .unwrap()
-        })
-        .collect::<Vec<_>>();
-
-    Ok(id)
+    Ok(ids)
 }
