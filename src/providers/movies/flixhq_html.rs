@@ -71,7 +71,7 @@ pub fn parse_search_html(
         .expect("Can't get cover style")
         .to_string()
         .replace("background-image: url(", "")
-        .replace(')', "'");
+        .replace(')', "");
 
     let media_type = match id.split('/').next() {
         Some("tv") => TvType::TvSeries,
