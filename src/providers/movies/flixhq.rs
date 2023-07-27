@@ -16,7 +16,7 @@ use serde::Deserialize;
 pub struct FlixHQ;
 
 #[derive(Debug, Deserialize)]
-pub struct ServerInfo {
+pub struct FlixHQServerInfo {
     link: String,
 }
 
@@ -279,7 +279,7 @@ impl FlixHQ {
             .text()
             .await?;
 
-        let server_info: ServerInfo =
+        let server_info: FlixHQServerInfo =
             serde_json::from_str(&server_json).expect("Error parsing JSON");
 
         if server_info.link.starts_with("http") {

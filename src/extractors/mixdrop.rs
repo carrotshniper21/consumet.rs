@@ -28,7 +28,7 @@ impl MixDrop {
 
         Ok(MixDrop {
             sources: self.sources.clone(),
-            subtitles: self.subtitles.clone()
+            subtitles: self.subtitles.clone(),
         })
     }
 }

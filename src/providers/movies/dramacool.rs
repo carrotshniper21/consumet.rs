@@ -1,4 +1,4 @@
-use super::dramacool_html::{parse_page_html, parse_search_html};
+use super::dramacool_html::{parse_info_html, parse_page_html, parse_search_html};
 use crate::models::{
     BaseParser, BaseProvider, IEpisodeServer, IMovieInfo, IMovieResult, ISearch, ISource,
     MovieParser, ProxyConfig, StreamingServers, TvType,
@@ -6,8 +6,21 @@ use crate::models::{
 
 use crate::extractors::{AsianLoad, MixDrop, StreamSB, StreamTape};
 
+use serde::Deserialize;
+
 // Contains all the DramaCool Info
 pub struct DramaCool;
+
+#[derive(Debug, Deserialize)]
+pub struct DramaCoolServerInfo {
+    link: String,
+}
+
+#[derive(Debug)]
+pub struct DramaCoolInfo {
+    pub base: IMovieResult,
+    pub info: IMovieInfo,
+}
 
 impl BaseProvider for DramaCool {
     #[inline]
@@ -72,7 +85,7 @@ impl BaseParser for DramaCool {
 }
 
 impl MovieParser for DramaCool {
-    type MediaInfo = String;
+    type MediaInfo = DramaCoolInfo;
     type ServerResult = String;
     type SourceResult = String;
 
@@ -81,7 +94,7 @@ impl MovieParser for DramaCool {
     }
 
     async fn fetch_media_info(&self, media_id: String) -> anyhow::Result<Self::MediaInfo> {
-        todo!()
+        self.fetch_info(media_id).await
     }
 
     async fn fetch_episode_servers(
@@ -117,5 +130,20 @@ impl DramaCool {
             .await?;
 
         parse_search_html(media_html, id, url)
+    }
+
+    pub async fn fetch_info(&self, media_id: String) -> anyhow::Result<DramaCoolInfo> {
+        let search_results = self.fetch_search_results(media_id.clone()).await?;
+
+        let info_html = reqwest::Client::new()
+            .get(format!("{}/{}", self.base_url(), media_id))
+            .send()
+            .await?
+            .text()
+            .await?;
+
+        let info = parse_info_html(info_html, search_results)?;
+
+        todo!()
     }
 }

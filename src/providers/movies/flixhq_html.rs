@@ -83,6 +83,7 @@ pub fn parse_search_html(
         id: Some(id),
         cover: Some(cover),
         title: Some(title),
+        other_names: None,
         url: Some(url),
         image: Some(image),
         release_date: Some(release_date),

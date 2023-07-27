@@ -1,10 +1,10 @@
-use crate::models::{IVideo, ISubtitle};
+use crate::models::{ISubtitle, IVideo};
 
 /// Contains both the Decrypted Sources and Subtitles
 #[derive(Debug)]
 pub struct AsianLoad {
     pub sources: Vec<IVideo>,
-    pub subtitles: Vec<ISubtitle>
+    pub subtitles: Vec<ISubtitle>,
 }
 
 impl AsianLoad {
@@ -28,7 +28,7 @@ impl AsianLoad {
 
         Ok(AsianLoad {
             sources: self.sources.clone(),
-            subtitles: self.subtitles.clone()
+            subtitles: self.subtitles.clone(),
         })
     }
 }

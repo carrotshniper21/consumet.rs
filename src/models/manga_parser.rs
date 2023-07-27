@@ -5,7 +5,7 @@ use crate::models::{BaseParser, IMangaChapterPage, IMangaInfo};
 /// use consumet_api_rs::models::MangaParser;
 /// use consumet_api_rs::providers::manga;
 ///
-/// // <provider_name> is the name of the provider you want to use. 
+/// // <provider_name> is the name of the provider you want to use.
 /// let manga_provider = manga::<provider_name>;
 /// ```
 pub trait MangaParser: BaseParser {

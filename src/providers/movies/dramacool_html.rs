@@ -1,4 +1,5 @@
-use crate::models::IMovieResult;
+use super::DramaCoolInfo;
+use crate::models::{IMovieInfo, IMovieResult};
 
 use visdom::Vis;
 
@@ -19,8 +20,13 @@ pub fn parse_page_html(page_html: String) -> anyhow::Result<(bool, usize, Vec<St
         .unwrap_or(1);
 
     let id_selector = page_fragment.find("div.block div.tab-content ul.list-episode-item li a");
-    let ids: Vec<String> =
-        id_selector.map(|_, element| element.get_attribute("href").unwrap().to_string().split_off(1));
+    let ids: Vec<String> = id_selector.map(|_, element| {
+        element
+            .get_attribute("href")
+            .unwrap()
+            .to_string()
+            .split_off(1)
+    });
 
     Ok((next_page, total_page, ids))
 }
@@ -45,13 +51,42 @@ pub fn parse_search_html(
         .trim()
         .to_owned();
 
+    let other_name_selector = page_fragment.find(".other_name > a");
+    let other_names: Vec<String> =
+        other_name_selector.map(|_, element| element.text().trim().to_owned());
+
     Ok(IMovieResult {
         id: Some(id),
         cover: None,
         title: Some(title),
+        other_names: Some(other_names),
         url: Some(url),
         image: Some(image),
         release_date: Some(release_date),
         media_type: None,
+    })
+}
+
+pub fn parse_info_html(
+    media_html: String,
+    search_results: IMovieResult,
+) -> anyhow::Result<DramaCoolInfo> {
+
+    Ok(DramaCoolInfo {
+        base: search_results,
+        info: IMovieInfo {
+            genres: None,
+            description: None,
+            rating: None,
+            status: None,
+            duration: None,
+            country: None,
+            production: None,
+            casts: None,
+            tags: None,
+            total_episodes: None,
+            seasons: None,
+            episodes: None,
+        },
     })
 }

@@ -5,7 +5,7 @@ use crate::models::{BaseParser, IAnimeInfo, IEpisodeServer, ISource};
 /// use consumet_api_rs::models::AnimeParser;
 /// use consumet_api_rs::providers::anime;
 ///
-/// // <provider_name> is the name of the provider you want to use. 
+/// // <provider_name> is the name of the provider you want to use.
 /// let anime_provider = anime::<provider_name>;
 /// ```
 pub trait AnimeParser: BaseParser {

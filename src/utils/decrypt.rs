@@ -10,10 +10,7 @@ const KEY_SIZE: u8 = 48;
 /// let decypted = decrypt::decrypt_url(encrypted_url, &key.into_bytes());
 /// println!("{}", decrypted);
 /// ```
-pub fn decrypt_url(
-    encrypted_url: String,
-    secret: &Vec<u8>,
-) -> anyhow::Result<String> {
+pub fn decrypt_url(encrypted_url: String, secret: &Vec<u8>) -> anyhow::Result<String> {
     let raw_url =
         openssl::base64::decode_block(encrypted_url.as_str()).expect("Base64 decryption failed.");
 

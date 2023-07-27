@@ -73,7 +73,7 @@ pub struct FuzzyDate {
 /// ```
 /// let format = MediaFormat::<format>;
 /// println!("{}", format);
-/// ``` 
+/// ```
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum MediaFormat {
     Tv,
@@ -167,7 +167,7 @@ pub struct IVideo {
 /// ```
 /// let server = StreamingServers::<server>;
 /// println!("{}", server);
-/// ``` 
+/// ```
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum StreamingServers {
     GogoCDN,
@@ -205,7 +205,7 @@ impl std::fmt::Display for StreamingServers {
 /// ```
 /// let status = MediaStatus::<status>;
 /// println!("{}", status);
-/// ``` 
+/// ```
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum MediaStatus {
     OnGoing,
@@ -235,7 +235,7 @@ impl std::fmt::Display for MediaStatus {
 /// ```
 /// let sub_or_dub = SubOrDub::<sub_or_dub>;
 /// println!("{}", sub_or_dub);
-/// ``` 
+/// ```
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SubOrSub {
     Sub,
@@ -416,7 +416,7 @@ pub struct ISource {
 /// ```
 /// let media_type = TvType::<media_type>;
 /// println!("{}", media_type);
-/// ``` 
+/// ```
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum TvType {
     TvSeries,
@@ -455,6 +455,7 @@ pub struct IMovieResult {
     pub id: Option<String>,
     pub cover: Option<String>,
     pub title: Option<String>,
+    pub other_names: Option<Vec<String>>,
     pub url: Option<String>,
     pub image: Option<String>,
     pub release_date: Option<String>,

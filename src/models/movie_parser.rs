@@ -1,11 +1,11 @@
-use crate::models::{BaseParser, ISearch, TvType, StreamingServers};
+use crate::models::{BaseParser, ISearch, StreamingServers, TvType};
 
 /// A trait providing movie parsing methods to implement on
 /// ```
 /// use consumet_api_rs::models::MovieParser;
 /// use consumet_api_rs::providers::movies;
-/// 
-/// // <provider_name> is the name of the provider you want to use. 
+///
+/// // <provider_name> is the name of the provider you want to use.
 /// let movie_provider = movies::<provider_name>;
 /// ```
 pub trait MovieParser: BaseParser {
@@ -18,7 +18,7 @@ pub trait MovieParser: BaseParser {
 
     /// Returns a future which resolves into an anime info object (including the episodes). (*[`impl Future<Output = Result<IMovieInfo>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L514-L529)*)\
     /// # Parameters
-    /// * `media_id` - takes media id or url as a parameter. (*media id or url can be found in the media search results as shown on the above method*) 
+    /// * `media_id` - takes media id or url as a parameter. (*media id or url can be found in the media search results as shown on the above method*)
     /// ```
     /// let movie_provider = movie::<provider_name>;
     /// let data = movie_provider.fetch_media_info(<media_id>).await?;
@@ -55,6 +55,6 @@ pub trait MovieParser: BaseParser {
         &self,
         episode_id: String,
         media_id: String,
-        server: Option<StreamingServers>
+        server: Option<StreamingServers>,
     ) -> anyhow::Result<Self::SourceResult>;
 }

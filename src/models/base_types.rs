@@ -1,4 +1,3 @@
-
 #[derive(Debug)]
 /// Book Info struct
 pub struct Book {
@@ -14,7 +13,6 @@ pub struct Book {
     description: String,
     link: String,
 }
-
 
 #[derive(Debug)]
 /// Hash struct
