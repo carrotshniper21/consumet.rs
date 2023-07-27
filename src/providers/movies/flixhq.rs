@@ -58,10 +58,14 @@ impl BaseParser for FlixHQ {
     ) -> anyhow::Result<Self::BaseSearchResult> {
         let page = page.unwrap_or(1);
 
-        let url = format!("{}/search/{}?page={}", self.base_url(), query, page);
+        let re = regex::Regex::new(r"[\W_]+").unwrap();
+        let result_query = re.replace_all(&query, "-");
+        let url = format!("{}/search/{}?page={}", self.base_url(), result_query, page);
         let page_html = reqwest::Client::new().get(url).send().await?.text().await?;
 
         let (next_page, total_page, id) = parse_page_html(page_html)?;
+
+        println!("{:#?}", id);
 
         let mut results = vec![];
 
@@ -71,13 +75,18 @@ impl BaseParser for FlixHQ {
             results.push(result);
         }
 
-        Ok(ISearch {
-            current_page: Some(page),
-            has_next_page: Some(next_page),
-            total_pages: total_page,
-            total_results: results.len(),
-            results,
-        })
+        println!(
+            "{:#?}",
+            ISearch {
+                current_page: Some(page),
+                has_next_page: Some(next_page),
+                total_pages: total_page,
+                total_results: results.len(),
+                results,
+            }
+        );
+
+        todo!()
     }
 }
 
