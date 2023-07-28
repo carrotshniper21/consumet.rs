@@ -21,7 +21,7 @@ pub struct IProviderStats<'a> {
 }
 
 /// Contains Title Info
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct ITitle {
     pub romaji: Option<String>,
     pub english: Option<String>,
@@ -30,7 +30,7 @@ pub struct ITitle {
 }
 
 /// Contains Anime Search Results
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct IAnimeResult {
     pub id: String,
     pub title: ITitle,
@@ -44,7 +44,7 @@ pub struct IAnimeResult {
 }
 
 /// Contains Search Results
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct ISearch<T> {
     pub current_page: Option<usize>,
     pub has_next_page: Option<bool>,
@@ -54,7 +54,7 @@ pub struct ISearch<T> {
 }
 
 /// Contains Trailer
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct Trailer {
     pub id: String,
     pub site: Option<String>,
@@ -62,7 +62,7 @@ pub struct Trailer {
 }
 
 /// Contains Date Time
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct FuzzyDate {
     pub year: Option<u32>,
     pub month: Option<u32>,
@@ -74,7 +74,7 @@ pub struct FuzzyDate {
 /// let format = MediaFormat::<format>;
 /// println!("{}", format);
 /// ```
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
 pub enum MediaFormat {
     Tv,
     TvShort,
@@ -108,7 +108,7 @@ impl std::fmt::Display for MediaFormat {
 }
 
 /// Contains Anime Info
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct IAnimeInfo {
     pub mal_id: Option<u32>,
     pub genres: Option<Vec<String>>,
@@ -133,7 +133,7 @@ pub struct IAnimeInfo {
 }
 
 /// Contains Anime Episode Info
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct IAnimeEpisode {
     pub id: String,
     pub u32: u32,
@@ -146,7 +146,7 @@ pub struct IAnimeEpisode {
 }
 
 /// Contains Episode Server Info
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct IEpisodeServer {
     pub name: String,
     pub url: String,
@@ -206,7 +206,7 @@ impl std::fmt::Display for StreamingServers {
 /// let status = MediaStatus::<status>;
 /// println!("{}", status);
 /// ```
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
 pub enum MediaStatus {
     OnGoing,
     Completed,
@@ -236,7 +236,7 @@ impl std::fmt::Display for MediaStatus {
 /// let sub_or_dub = SubOrDub::<sub_or_dub>;
 /// println!("{}", sub_or_dub);
 /// ```
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
 pub enum SubOrSub {
     Sub,
     Dub,
@@ -256,7 +256,7 @@ impl std::fmt::Display for SubOrSub {
 }
 
 /// Contains Manga Search Result Info
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct IMangaResult {
     pub id: String,
     pub title: String,
@@ -268,7 +268,7 @@ pub struct IMangaResult {
 }
 
 /// Contains Manga Chapter Info
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct IMangaChapter {
     pub id: String,
     pub title: String,
@@ -278,26 +278,26 @@ pub struct IMangaChapter {
 }
 
 /// Contains Manga Info
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct IMangaInfo {
     pub mal_id: Option<u32>,
     pub authors: Option<Vec<String>>,
     pub genres: Option<Vec<String>>,
     pub links: Option<Vec<String>>,
-    pub characters: Option<Vec<Box<dyn std::any::Any>>>,
+    pub characters: Option<Vec<String>>,
     pub recommendations: Option<Vec<IMangaResult>>,
     pub chapters: Option<Vec<IMangaChapter>>,
 }
 
 /// Contains Manga Chapter Pages
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct IMangaChapterPage {
     pub img: String,
     pub page: u32,
 }
 
 /// Contains Light Novel Search Results
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct ILightNovelResult {
     pub id: String,
     pub title: String,
@@ -306,7 +306,7 @@ pub struct ILightNovelResult {
 }
 
 /// Contains Light Novel Chapter Info
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct ILightNovelChapter {
     pub id: String,
     pub title: String,
@@ -315,14 +315,14 @@ pub struct ILightNovelChapter {
 }
 
 /// Contains Light Novel Chapter Content
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct ILightNovelChapterContent {
     pub text: String,
     pub html: Option<String>,
 }
 
 /// Contains Light Novel Info
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct ILightNovelInfo {
     pub authors: Option<Vec<String>>,
     pub genres: Option<Vec<String>>,
@@ -334,7 +334,7 @@ pub struct ILightNovelInfo {
 }
 
 /// Contains Book Search Results Info
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct LibgenBook {
     pub id: String,
     pub language: String,
@@ -347,14 +347,14 @@ pub struct LibgenBook {
 }
 
 /// Contains Book Search Results
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct LibgenResult {
     pub result: Vec<LibgenBook>,
     pub has_next_page: bool,
 }
 
 /// Contains Comics Info
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct GetComicsComics {
     pub image: String,
     pub title: String,
@@ -372,14 +372,14 @@ pub struct GetComicsComics {
 }
 
 /// Contains Comic Results
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct ComicRes {
     pub containers: Vec<GetComicsComics>,
     pub has_next_page: bool,
 }
 
 /// Contains Book Info
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct ZLibrary {
     pub book_rating: String,
     pub book_quality: String,
@@ -397,14 +397,14 @@ pub struct ISubtitle {
 }
 
 /// The start, and the end of the intro or opening in seconds.
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct Intro {
     pub start: u32,
     pub end: u32,
 }
 
 /// Contains Source Info
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct ISource {
     pub headers: Option<String>,
     pub intro: Option<Intro>,
@@ -417,7 +417,7 @@ pub struct ISource {
 /// let media_type = TvType::<media_type>;
 /// println!("{}", media_type);
 /// ```
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Deserialize)]
 pub enum TvType {
     TvSeries,
     Movie,
@@ -437,7 +437,7 @@ impl std::fmt::Display for TvType {
 }
 
 /// Contains Movie Episode Info
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct IMovieEpisode {
     pub id: Option<String>,
     pub title: Option<String>,
@@ -450,7 +450,7 @@ pub struct IMovieEpisode {
 }
 
 /// Contains Movie Result Info
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct IMovieResult {
     pub id: Option<String>,
     pub cover: Option<String>,
@@ -463,7 +463,7 @@ pub struct IMovieResult {
 }
 
 /// Contains News Feed Info
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct INewsFeed {
     /** topics of the feed */
     pub topics: Vec<Topics>,
@@ -472,7 +472,7 @@ pub struct INewsFeed {
 }
 
 /// Contains News Info
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct INewsInfo {
     /** intro of the news */
     pub intro: String,
@@ -481,7 +481,7 @@ pub struct INewsInfo {
 }
 
 /// Contains More News Info
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct INews {
     /** id of the news */
     pub id: String,
@@ -496,7 +496,7 @@ pub struct INews {
 }
 
 /// Contains News Feed Preview info
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct INewsFeedPreview {
     /** intro of the feed */
     pub intro: String,
@@ -505,7 +505,7 @@ pub struct INewsFeedPreview {
 }
 
 /// Contains Movie Seasons
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct IMovieSeason {
     pub season: Option<usize>,
     pub image: Option<String>,
@@ -513,7 +513,7 @@ pub struct IMovieSeason {
 }
 
 /// Contains Movie Info
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct IMovieInfo {
     pub genres: Option<Vec<String>>,
     pub description: Option<String>,
@@ -590,7 +590,7 @@ impl std::fmt::Display for Genres {
 /// let topic = Topics::<topic>;
 /// println!("{}", topic);
 /// ```
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
 pub enum Topics {
     Anime,
     Animation,
@@ -628,7 +628,7 @@ impl std::fmt::Display for Topics {
 }
 
 /// Optional Proxy Configuration
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct ProxyConfig {
     /// The proxy URL
     /// <https://proxy.com>

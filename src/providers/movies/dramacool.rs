@@ -144,9 +144,6 @@ impl DramaCool {
 
         let info = parse_info_html(info_html, search_results)?;
 
-        Ok(DramaCoolInfo {
-            base: info.base,
-            info: info.info,
-        })
+        Ok(info)
     }
 }

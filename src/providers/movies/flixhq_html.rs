@@ -116,7 +116,7 @@ pub fn parse_info_html(
     let genre: Vec<String> = genre_selector
         .text()
         .replace("Genre:", "")
-        .split(",")
+        .split(',')
         .map(|s| s.trim().to_owned())
         .collect();
 
@@ -126,7 +126,7 @@ pub fn parse_info_html(
     let production: Vec<String> = production_selector
         .text()
         .replace("Production:", "")
-        .split(",")
+        .split(',')
         .map(|s| s.trim().to_owned())
         .collect();
 
@@ -135,7 +135,7 @@ pub fn parse_info_html(
     let casts: Vec<String> = cast_selector
         .text()
         .replace("Casts:", "")
-        .split(",")
+        .split(',')
         .map(|s| s.trim().to_owned())
         .collect();
 
@@ -144,7 +144,7 @@ pub fn parse_info_html(
     let tags: Vec<String> = tag_selector
         .text()
         .replace("Tags:", "")
-        .split(",")
+        .split(',')
         .map(|s| s.trim().to_owned())
         .collect();
 

@@ -1,5 +1,7 @@
+use serde::Deserialize;
+
 /// Libgen Book Object
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct LibgenBookObject {
     pub title: String,
     pub authors: Vec<String>,
@@ -23,7 +25,7 @@ pub struct LibgenBookObject {
 }
 
 /// Hash Object
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct HashesObject {
     pub aich: String,
     pub crc32: String,
@@ -35,7 +37,7 @@ pub struct HashesObject {
 }
 
 /// Comic Object
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub struct GetComicsComicsObject {
     pub image: String,
     pub title: String,

@@ -26,7 +26,7 @@ pub struct Video {
 }
 
 /// Sources Enum for when its being decrypted
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize)]
 pub enum File {
     EncryptedURL(String),
     DecryptedURL(Vec<Video>),
