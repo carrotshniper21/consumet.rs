@@ -1,7 +1,7 @@
 use super::dramacool_html::{parse_info_html, parse_page_html, parse_search_html};
 use crate::models::{
-    BaseParser, BaseProvider, IEpisodeServer, IMovieInfo, IMovieResult, ISearch, ISource,
-    MovieParser, ProxyConfig, StreamingServers, TvType,
+    BaseParser, BaseProvider, IEpisodeServer, IMovieEpisode, IMovieInfo, IMovieResult, ISearch,
+    ISource, MovieParser, ProxyConfig, StreamingServers, TvType,
 };
 
 use crate::extractors::{AsianLoad, MixDrop, StreamSB, StreamTape};
@@ -144,6 +144,9 @@ impl DramaCool {
 
         let info = parse_info_html(info_html, search_results)?;
 
-        todo!()
+        Ok(DramaCoolInfo {
+            base: info.base,
+            info: info.info,
+        })
     }
 }

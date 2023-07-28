@@ -95,14 +95,14 @@ pub fn parse_info_html(
     info_html: String,
     search_results: IMovieResult,
 ) -> anyhow::Result<FlixHQInfo> {
-    let media_fragment = Vis::load(&info_html).unwrap();
+    let info_fragment = Vis::load(&info_html).unwrap();
 
-    let description_selector = media_fragment.find("#main-wrapper > div.movie_information > div > div.m_i-detail > div.m_i-d-content > div.description");
+    let description_selector = info_fragment.find("#main-wrapper > div.movie_information > div > div.m_i-detail > div.m_i-d-content > div.description");
 
     let description = description_selector.text().trim().to_owned();
 
     let country_selector =
-        media_fragment.find("div.m_i-d-content > div.elements > div:nth-child(1)");
+        info_fragment.find("div.m_i-d-content > div.elements > div:nth-child(1)");
 
     let country: Vec<String> = country_selector
         .text()
@@ -111,7 +111,7 @@ pub fn parse_info_html(
         .map(|s| s.trim().to_owned())
         .collect();
 
-    let genre_selector = media_fragment.find("div.m_i-d-content > div.elements > div:nth-child(2)");
+    let genre_selector = info_fragment.find("div.m_i-d-content > div.elements > div:nth-child(2)");
 
     let genre: Vec<String> = genre_selector
         .text()
@@ -121,7 +121,7 @@ pub fn parse_info_html(
         .collect();
 
     let production_selector =
-        media_fragment.find("div.m_i-d-content > div.elements > div:nth-child(4)");
+        info_fragment.find("div.m_i-d-content > div.elements > div:nth-child(4)");
 
     let production: Vec<String> = production_selector
         .text()
@@ -130,7 +130,7 @@ pub fn parse_info_html(
         .map(|s| s.trim().to_owned())
         .collect();
 
-    let cast_selector = media_fragment.find("div.m_i-d-content > div.elements > div:nth-child(5)");
+    let cast_selector = info_fragment.find("div.m_i-d-content > div.elements > div:nth-child(5)");
 
     let casts: Vec<String> = cast_selector
         .text()
@@ -139,7 +139,7 @@ pub fn parse_info_html(
         .map(|s| s.trim().to_owned())
         .collect();
 
-    let tag_selector = media_fragment.find("div.m_i-d-content > div.elements > div:nth-child(6)");
+    let tag_selector = info_fragment.find("div.m_i-d-content > div.elements > div:nth-child(6)");
 
     let tags: Vec<String> = tag_selector
         .text()
@@ -148,11 +148,11 @@ pub fn parse_info_html(
         .map(|s| s.trim().to_owned())
         .collect();
 
-    let rating_selector = media_fragment.find("span.item:nth-child(2)");
+    let rating_selector = info_fragment.find("span.item:nth-child(2)");
 
     let rating = rating_selector.text().trim().to_owned();
 
-    let duration_selector = media_fragment.find("span.item:nth-child(3)");
+    let duration_selector = info_fragment.find("span.item:nth-child(3)");
 
     let duration = duration_selector.text().trim().to_owned();
 
@@ -181,13 +181,13 @@ pub fn parse_episode_html(
     i: usize,
 ) -> anyhow::Result<Vec<IMovieEpisode>> {
     let episode_fragment = Vis::load(&episode_html).unwrap();
-    let episode_item_selector = episode_fragment.find("ul > li > a");
+    let episode_selector = episode_fragment.find("ul > li > a");
 
-    let episode_ids: Vec<String> = episode_item_selector
+    let episode_ids: Vec<String> = episode_selector
         .map(|_, element| element.get_attribute("data-id").unwrap().to_string());
 
     let episode_titles: Vec<String> =
-        episode_item_selector.map(|_, element| element.get_attribute("title").unwrap().to_string());
+        episode_selector.map(|_, element| element.get_attribute("title").unwrap().to_string());
 
     let mut episodes: Vec<IMovieEpisode> = Vec::new();
 
@@ -195,8 +195,8 @@ pub fn parse_episode_html(
         let url = format!("{}/ajax/v2/episode/servers/{}", base_url, id);
 
         let episode = IMovieEpisode {
-            id: id.clone(),
-            title: title.clone(),
+            id: Some(id.clone()),
+            title: Some(title.clone()),
             season: Some(i + 1),
             url: Some(url),
             number: None,

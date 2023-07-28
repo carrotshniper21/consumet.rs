@@ -1,5 +1,5 @@
 use super::DramaCoolInfo;
-use crate::models::{IMovieInfo, IMovieResult};
+use crate::models::{IMovieEpisode, IMovieInfo, IMovieResult, MediaStatus, IMovieSeason};
 
 use visdom::Vis;
 
@@ -68,25 +68,66 @@ pub fn parse_search_html(
 }
 
 pub fn parse_info_html(
-    media_html: String,
+    info: String,
     search_results: IMovieResult,
 ) -> anyhow::Result<DramaCoolInfo> {
+    let info_fragment = Vis::load(&info).unwrap();
+
+    let decription_selector = info_fragment.find("div.details div.info p:nth-child(4)");
+
+    let description = decription_selector.text().trim().to_owned();
+
+    let status_selector = info_fragment.find(r#"div.details div.info p:contains("Status:")"#);
+    let status = status_selector.text().replace("Status:", "");
+
+    let media_status = match status.trim() {
+        "OnGoing" => MediaStatus::OnGoing,
+        "Completed" => MediaStatus::Completed,
+        "Hiatus" => MediaStatus::Hiatus,
+        "Cancelled" => MediaStatus::Cancelled,
+        "NotYetAired" => MediaStatus::NotYetAired,
+        "Unknown" => MediaStatus::Unknown,
+        _ => panic!("Status {} not found!", status),
+    };
+
+    let episode_selector =
+        info_fragment.find("div.content-left > div.block-tab > div > div > ul > li'");
+    let mut episodes: Vec<Vec<IMovieEpisode>> = vec![];
+
+    for episode in episode_selector {
+        let episode = IMovieEpisode {
+            id: None,
+            title: None,
+            season: None,
+            url: None,
+            number: None,
+            description: None,
+            image: None,
+            release_date: None,
+        };
+
+        episodes.push(vec![episode]);
+    }
 
     Ok(DramaCoolInfo {
         base: search_results,
         info: IMovieInfo {
             genres: None,
-            description: None,
+            description: Some(description),
             rating: None,
-            status: None,
+            status: Some(media_status),
             duration: None,
             country: None,
             production: None,
             casts: None,
             tags: None,
-            total_episodes: None,
-            seasons: None,
-            episodes: None,
+            total_episodes: Some(episodes.len()),
+            seasons: Some(IMovieSeason {
+                season: None,
+                image: None,
+                episodes: Some(episodes.clone()) 
+            }),
+            episodes: Some(episodes),
         },
     })
 }

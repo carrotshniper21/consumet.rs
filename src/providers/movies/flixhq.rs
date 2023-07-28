@@ -189,11 +189,13 @@ impl FlixHQ {
                 info: IMovieInfo {
                     total_episodes: seasons_and_episodes.last().map(|x| x.len()),
                     seasons: Some(IMovieSeason {
-                        season: seasons_and_episodes
-                            .last()
-                            .and_then(|x| x.last())
-                            .and_then(|y| y.season)
-                            .unwrap_or(0),
+                        season: Some(
+                            seasons_and_episodes
+                                .last()
+                                .and_then(|x| x.last())
+                                .and_then(|y| y.season)
+                                .unwrap_or(0),
+                        ),
                         image: None,
                         episodes: Some(seasons_and_episodes.clone()),
                     }),

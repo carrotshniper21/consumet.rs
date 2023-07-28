@@ -439,8 +439,8 @@ impl std::fmt::Display for TvType {
 /// Contains Movie Episode Info
 #[derive(Debug, Clone)]
 pub struct IMovieEpisode {
-    pub id: String,
-    pub title: String,
+    pub id: Option<String>,
+    pub title: Option<String>,
     pub url: Option<String>,
     pub number: Option<u32>,
     pub season: Option<usize>,
@@ -507,7 +507,7 @@ pub struct INewsFeedPreview {
 /// Contains Movie Seasons
 #[derive(Debug)]
 pub struct IMovieSeason {
-    pub season: usize,
+    pub season: Option<usize>,
     pub image: Option<String>,
     pub episodes: Option<Vec<Vec<IMovieEpisode>>>,
 }
