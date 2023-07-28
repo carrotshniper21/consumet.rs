@@ -4,6 +4,8 @@
 
 consumet-api-rs is a crates.io library which provides high-level APIs to get information about several entertainment mediums like books, movies, comics, anime, manga, etc.
 
+Checkout the original [`consumet.ts`](https://github.com/consumet/consumet.ts/)
+
 <p align="center">
     <a href="https://crates.io/crates/consumet-api-rs">
         <img src="https://img.shields.io/crates/v/consumet-api-rs.svg">
