@@ -6,6 +6,10 @@ consumet-api-rs is a crates.io library which provides high-level APIs to get inf
 
 Checkout the original [`consumet.ts`](https://github.com/consumet/consumet.ts/)
 
+Credits to the beautiful people who wrote the original api consumet
+
+[![](https://contrib.rocks/image?repo=consumet/consumet.ts)](https://github.com/consumet/consumet.ts/graphs/contributors)
+
 <p align="center">
     <a href="https://crates.io/crates/consumet-api-rs">
         <img src="https://img.shields.io/crates/v/consumet-api-rs.svg">
