@@ -110,7 +110,7 @@ impl VidCloud {
                 encrypted_url_temp.retain(|x| *x != '\0');
 
                 let encrypted_url = encrypted_url_temp.into_iter().collect::<String>();
-                let decrypted_str = decrypt::decrypt_url(encrypted_url, &key.into_bytes())
+                let decrypted_str = decrypt::decrypt_url(&encrypted_url, &key.into_bytes())
                     .expect("Unable to decrypt URL");
 
                 let decrypted: Vec<Video> =

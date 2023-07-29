@@ -1,6 +1,10 @@
 use openssl::symm::{decrypt, Cipher};
 
-const KEY_SIZE: u8 = 48;
+#[derive(Debug)]
+pub enum EncryptionError {
+    OpenSSLError(openssl::error::ErrorStack),
+    ParsingError,
+}
 
 /// Decrypt Encoded Url Sources
 /// # Parameters
@@ -10,36 +14,31 @@ const KEY_SIZE: u8 = 48;
 /// let decypted = decrypt::decrypt_url(encrypted_url, &key.into_bytes());
 /// println!("{}", decrypted);
 /// ```
-pub fn decrypt_url(encrypted_url: String, secret: &Vec<u8>) -> anyhow::Result<String> {
-    let raw_url =
-        openssl::base64::decode_block(encrypted_url.as_str()).expect("Base64 decryption failed.");
+pub fn decrypt_url(encrypted_url: &str, key: &[u8]) -> Result<String, EncryptionError> {
+    let decoded_ciphertext = openssl::base64::decode_block(encrypted_url)
+        .map_err(EncryptionError::OpenSSLError)?;
 
-    let salt_key = &raw_url[8..16].to_vec();
+    assert_eq!(&decoded_ciphertext[0..8], "Salted__".as_bytes());
 
-    fn md5(key: Vec<u8>, secret: &Vec<u8>, salt: &Vec<u8>) -> Vec<u8> {
-        let mut vector: Vec<u8> = vec![];
-        vector.extend(key);
-        vector.extend(secret);
-        vector.extend(salt);
-        md5::compute(vector).to_vec()
-    }
-
-    let mut key = md5(vec![], secret, salt_key);
-    let mut current_key: Vec<u8> = key.clone();
-
-    while current_key.len() < (KEY_SIZE as usize) {
-        key = md5(key, secret, salt_key);
-        current_key.extend(&key);
-    }
-
-    let cipher = Cipher::aes_256_cbc();
-
-    let decrypted_url = decrypt(
+    let cipher = openssl::symm::Cipher::aes_256_cbc();
+    let key_iv_pair = openssl::pkcs5::bytes_to_key(
         cipher,
-        &current_key[..32],
-        Some(&current_key[32..]),
-        &raw_url[16..],
-    )?;
+        openssl::hash::MessageDigest::md5(),
+        key,
+        Some(&decoded_ciphertext[8..16]),
+        1,
+    )
+    .map_err(EncryptionError::OpenSSLError)?;
 
-    Ok(String::from_utf8(decrypted_url).expect("Expected an UTF-8 read."))
+    String::from_utf8(
+        openssl::symm::decrypt(
+            cipher,
+            &key_iv_pair.key,
+            key_iv_pair.iv.as_ref().map(|value| value.as_ref()),
+            &decoded_ciphertext[16..],
+        )
+        .map_err(EncryptionError::OpenSSLError)?,
+    )
+    .map_err(|_| EncryptionError::ParsingError)
 }
+
