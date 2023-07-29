@@ -1,7 +1,7 @@
 use super::flixhq_html::{
-    parse_episode_html, parse_info_html, parse_page_html, parse_recent_movie_html,
-    parse_recent_shows_html, parse_search_html, parse_season_html, parse_server_html,
-    parse_trending_movie_html, parse_trending_shows_html,
+    parse_episode_html, parse_info_html, parse_recent_movie_html, parse_recent_shows_html,
+    parse_search_html, parse_season_html, parse_server_html, parse_trending_movie_html,
+    parse_trending_shows_html,
 };
 use crate::models::{
     BaseParser, BaseProvider, IEpisodeServer, IMovieEpisode, IMovieInfo, IMovieResult,
@@ -56,27 +56,39 @@ impl BaseParser for FlixHQ {
         query: String,
         page: Option<usize>,
     ) -> anyhow::Result<Self::BaseSearchResult> {
+        use crate::providers::flixhq_html::{has_next_page, page_fragment, page_ids, total_pages};
+
         let page = page.unwrap_or(1);
 
-        let re = regex::Regex::new(r"[\W_]+").unwrap();
-        let result_query = re.replace_all(&query, "-");
-        let url = format!("{}/search/{}?page={}", self.base_url(), result_query, page);
-        let page_html = reqwest::Client::new().get(url).send().await?.text().await?;
+        let parsed_query = query.replace(' ', "-");
+        let page_html = reqwest::Client::new()
+            .get(format!(
+                "{}/search/{}?page={}",
+                self.base_url(),
+                parsed_query,
+                page
+            ))
+            .send()
+            .await?
+            .text()
+            .await?;
 
-        let (next_page, total_page, id) = parse_page_html(page_html)?;
+        let fragment = &page_fragment(&page_html);
+
+        let ids = page_ids(fragment);
 
         let mut results = vec![];
 
-        for i in id.into_iter() {
-            let result = self.fetch_search_results(i).await?;
+        for id in ids.iter().flatten() {
+            let result = self.fetch_search_results(id.to_string()).await?;
 
             results.push(result);
         }
 
         Ok(ISearch {
             current_page: Some(page),
-            has_next_page: Some(next_page),
-            total_pages: total_page,
+            has_next_page: has_next_page(fragment),
+            total_pages: total_pages(fragment),
             total_results: results.len(),
             results,
         })

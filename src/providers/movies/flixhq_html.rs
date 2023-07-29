@@ -1,37 +1,34 @@
 use super::FlixHQInfo;
 use crate::models::{IEpisodeServer, IMovieEpisode, IMovieInfo, IMovieResult, TvType};
-use visdom::Vis;
+use visdom::{types::Elements, Vis};
 
-pub fn parse_page_html(page_html: String) -> anyhow::Result<(bool, usize, Vec<String>)> {
-    let page_fragment = Vis::load(&page_html).unwrap();
+pub fn page_fragment(page_html: &str) -> Elements<'_> {
+    Vis::load(page_html).unwrap()
+}
 
-    let next_page_selector =
-        page_fragment.find("div.pre-pagination:nth-child(3) > nav:nth-child(1) > ul:nth-child(1)");
+pub fn has_next_page(fragment: &Elements<'_>) -> bool {
+    fragment
+        .find("div.pre-pagination:nth-child(3) > nav:nth-child(1) > ul:nth-child(1) > li:nth-child(1)")
+        .has_class("active")
+}
 
-    let next_page = next_page_selector.has_class("active");
-
-    let total_page_selector = page_fragment
-        .find("div.pre-pagination:nth-child(3) > nav:nth-child(1) > ul:nth-child(1) > li.page-item:last-child a");
-
-    let total_page = total_page_selector
-        .attr("href")
-        .expect("Can't get total pages")
+pub fn total_pages(fragment: &Elements<'_>) -> Option<usize> {
+    fragment
+        .find("div.pre-pagination:nth-child(3) > nav:nth-child(1) > ul:nth-child(1) > li.page-item:last-child a").attr("href")?
         .to_string()
         .rsplit('=')
-        .next()
-        .and_then(|total_page| total_page.parse().ok())
-        .unwrap_or(1);
+        .next()?
+        .parse::<usize>().ok()
+}
 
-    let id_selector = page_fragment.find("div.film-poster > a");
-    let ids: Vec<String> = id_selector.map(|_, element| {
+pub fn page_ids(fragment: &Elements<'_>) -> Vec<Option<String>> {
+    fragment.find("div.film-poster > a").map(|_, element| {
         element
-            .get_attribute("href")
-            .unwrap()
+            .get_attribute("href")?
             .to_string()
-            .split_off(1)
-    });
-
-    Ok((next_page, total_page, ids))
+            .strip_prefix('/')
+            .map(String::from)
+    })
 }
 
 pub fn parse_search_html(
@@ -183,8 +180,8 @@ pub fn parse_episode_html(
     let episode_fragment = Vis::load(&episode_html).unwrap();
     let episode_selector = episode_fragment.find("ul > li > a");
 
-    let episode_ids: Vec<String> = episode_selector
-        .map(|_, element| element.get_attribute("data-id").unwrap().to_string());
+    let episode_ids: Vec<String> =
+        episode_selector.map(|_, element| element.get_attribute("data-id").unwrap().to_string());
 
     let episode_titles: Vec<String> =
         episode_selector.map(|_, element| element.get_attribute("title").unwrap().to_string());

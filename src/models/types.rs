@@ -47,8 +47,8 @@ pub struct IAnimeResult {
 #[derive(Debug, Deserialize)]
 pub struct ISearch<T> {
     pub current_page: Option<usize>,
-    pub has_next_page: Option<bool>,
-    pub total_pages: usize,
+    pub has_next_page: bool,
+    pub total_pages: Option<usize>,
     pub total_results: usize,
     pub results: Vec<T>,
 }

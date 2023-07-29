@@ -1,34 +1,35 @@
 use super::DramaCoolInfo;
-use crate::models::{IMovieEpisode, IMovieInfo, IMovieResult, MediaStatus, IMovieSeason};
+use crate::models::{IMovieEpisode, IMovieInfo, IMovieResult, IMovieSeason, MediaStatus};
 
-use visdom::Vis;
+use visdom::{types::Elements, Vis};
 
-pub fn parse_page_html(page_html: String) -> anyhow::Result<(bool, usize, Vec<String>)> {
-    let page_fragment = Vis::load(&page_html).unwrap();
+pub fn page_fragment(page_html: &str) -> Elements<'_> {
+    Vis::load(page_html).unwrap()
+}
 
-    let next_page_selector = page_fragment.find("ul.pagination li");
-    let next_page = next_page_selector.has_class("selected");
+pub fn has_next_page(fragment: &Elements<'_>) -> bool {
+    fragment.find("ul.pagination li").has_class("selected")
+}
 
-    let total_page_selector = page_fragment.find("ul.pagination li.last:last-child a");
-    let total_page = total_page_selector
-        .attr("href")
-        .unwrap()
+pub fn total_pages(fragment: &Elements<'_>) -> Option<usize> {
+    fragment
+        .find("ul.pagination li.last:last-child a")
+        .attr("href")?
         .to_string()
         .rsplit('=')
-        .next()
-        .and_then(|total_page| total_page.parse().ok())
-        .unwrap_or(1);
+        .next()?
+        .parse::<usize>()
+        .ok()
+}
 
-    let id_selector = page_fragment.find("div.block div.tab-content ul.list-episode-item li a");
-    let ids: Vec<String> = id_selector.map(|_, element| {
+pub fn page_ids(fragment: &Elements<'_>) -> Vec<Option<String>> {
+    fragment.find("div.block div.tab-content ul.list-episode-item li a").map(|_, element| {
         element
-            .get_attribute("href")
-            .unwrap()
+            .get_attribute("href")?
             .to_string()
-            .split_off(1)
-    });
-
-    Ok((next_page, total_page, ids))
+            .strip_prefix('/')
+            .map(String::from)
+    })
 }
 
 pub fn parse_search_html(
@@ -125,7 +126,7 @@ pub fn parse_info_html(
             seasons: Some(IMovieSeason {
                 season: None,
                 image: None,
-                episodes: Some(episodes.clone()) 
+                episodes: Some(episodes.clone()),
             }),
             episodes: Some(episodes),
         },
