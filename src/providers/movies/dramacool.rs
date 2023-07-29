@@ -13,7 +13,7 @@ pub struct DramaCool;
 
 #[derive(Debug, Deserialize)]
 pub struct DramaCoolServerInfo {
-    link: String,
+    _link: String,
 }
 
 #[derive(Debug)]
@@ -108,17 +108,17 @@ impl MovieParser for DramaCool {
 
     async fn fetch_episode_servers(
         &self,
-        episode_id: String,
-        media_id: String,
+        _episode_id: String,
+        _media_id: String,
     ) -> anyhow::Result<Vec<Self::ServerResult>> {
         todo!()
     }
 
     async fn fetch_episode_sources(
         &self,
-        episode_id: String,
-        media_id: String,
-        server: Option<StreamingServers>,
+        _episode_id: String,
+        _media_id: String,
+        _server: Option<StreamingServers>,
     ) -> anyhow::Result<Self::SourceResult> {
         todo!()
     }

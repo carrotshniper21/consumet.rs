@@ -95,7 +95,7 @@ pub fn parse_info_html(
         info_fragment.find("div.content-left > div.block-tab > div > div > ul > li'");
     let mut episodes: Vec<Vec<IMovieEpisode>> = vec![];
 
-    for episode in episode_selector {
+    for _ in episode_selector {
         let episode = IMovieEpisode {
             id: None,
             title: None,
