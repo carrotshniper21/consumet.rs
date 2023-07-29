@@ -8,8 +8,6 @@ pub struct StreamTape {
 }
 
 impl StreamTape {
-    const SERVER_NAME: &'static str = "StreamTape";
-
     pub async fn extract(&mut self, _video_url: String) -> anyhow::Result<StreamTape> {
         self.sources.push(IVideo {
             url: None,

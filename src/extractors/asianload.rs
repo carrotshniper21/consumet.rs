@@ -9,8 +9,6 @@ pub struct AsianLoad {
 }
 
 impl AsianLoad {
-    const SERVER_NAME: &'static str = "AsianLoad";
-
     pub async fn extract(&mut self, _video_url: String) -> anyhow::Result<AsianLoad> {
         self.sources.push(IVideo {
             url: None,

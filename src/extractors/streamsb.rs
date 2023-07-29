@@ -8,12 +8,10 @@ pub struct StreamSB {
     pub sources: Vec<IVideo>,
 }
 
-const HOST: &str = "https://streamsss.net/sources50";
-const HOST2: &str = "https://watchsb.com/sources50";
+const _HOST: &str = "https://streamsss.net/sources50";
+const _HOST2: &str = "https://watchsb.com/sources50";
 
 impl StreamSB {
-    const SERVER_NAME: &'static str = "StreamSB";
-
     pub async fn extract(&mut self, _video_url: String) -> anyhow::Result<StreamSB> {
         self.sources.push(IVideo {
             url: None,

@@ -45,8 +45,6 @@ const HOST: &str = "https://dokicloud.one";
 const HOST2: &str = "https://rabbitstream.net";
 
 impl VidCloud {
-    const SERVER_NAME: &'static str = "VidCloud";
-
     pub async fn extract(
         &mut self,
         video_url: String,

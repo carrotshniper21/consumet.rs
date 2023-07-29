@@ -9,8 +9,6 @@ pub struct MixDrop {
 }
 
 impl MixDrop {
-    const SERVER_NAME: &'static str = "MixDrop";
-
     pub async fn extract(&mut self, _video_url: String) -> anyhow::Result<MixDrop> {
         self.sources.push(IVideo {
             url: None,
