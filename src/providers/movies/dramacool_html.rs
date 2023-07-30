@@ -3,132 +3,125 @@ use crate::models::{IMovieEpisode, IMovieInfo, IMovieResult, IMovieSeason, Media
 
 use visdom::{types::Elements, Vis};
 
-pub fn page_fragment(page_html: &str) -> Elements<'_> {
+pub fn create_html_fragment(page_html: &str) -> Elements<'_> {
     Vis::load(page_html).unwrap()
 }
 
-pub fn has_next_page(fragment: &Elements<'_>) -> bool {
-    fragment.find("ul.pagination li").has_class("selected")
+pub struct Page<'a> {
+    pub elements: Elements<'a>,
 }
 
-pub fn total_pages(fragment: &Elements<'_>) -> Option<usize> {
-    fragment
-        .find("ul.pagination li.last:last-child a")
-        .attr("href")?
-        .to_string()
-        .rsplit('=')
-        .next()?
-        .parse::<usize>()
-        .ok()
-}
-
-pub fn page_ids(fragment: &Elements<'_>) -> Vec<Option<String>> {
-    fragment.find("div.block div.tab-content ul.list-episode-item li a").map(|_, element| {
-        element
-            .get_attribute("href")?
-            .to_string()
-            .strip_prefix('/')
-            .map(String::from)
-    })
-}
-
-pub fn parse_search_html(
-    media_html: String,
-    id: String,
-    url: String,
-) -> anyhow::Result<IMovieResult> {
-    let page_fragment = Vis::load(&media_html).unwrap();
-
-    let title = id.split('/').last().unwrap().to_owned();
-
-    let image_selector = page_fragment.find("div.details div.img img");
-    let image = image_selector.attr("src").unwrap().to_string();
-
-    let release_date_selector =
-        page_fragment.find(r#"div.details div.info p:contains("Released:")"#);
-    let release_date = release_date_selector
-        .text()
-        .replace("Released:", "")
-        .trim()
-        .to_owned();
-
-    let other_name_selector = page_fragment.find(".other_name > a");
-    let other_names: Vec<String> =
-        other_name_selector.map(|_, element| element.text().trim().to_owned());
-
-    Ok(IMovieResult {
-        id: Some(id),
-        cover: None,
-        title: Some(title),
-        other_names: Some(other_names),
-        url: Some(url),
-        image: Some(image),
-        release_date: Some(release_date),
-        media_type: None,
-    })
-}
-
-pub fn parse_info_html(
-    info: String,
-    search_results: IMovieResult,
-) -> anyhow::Result<DramaCoolInfo> {
-    let info_fragment = Vis::load(&info).unwrap();
-
-    let decription_selector = info_fragment.find("div.details div.info p:nth-child(4)");
-
-    let description = decription_selector.text().trim().to_owned();
-
-    let status_selector = info_fragment.find(r#"div.details div.info p:contains("Status:")"#);
-    let status = status_selector.text().replace("Status:", "");
-
-    let media_status = match status.trim() {
-        "OnGoing" => MediaStatus::OnGoing,
-        "Completed" => MediaStatus::Completed,
-        "Hiatus" => MediaStatus::Hiatus,
-        "Cancelled" => MediaStatus::Cancelled,
-        "NotYetAired" => MediaStatus::NotYetAired,
-        "Unknown" => MediaStatus::Unknown,
-        _ => panic!("Status {} not found!", status),
-    };
-
-    let episode_selector =
-        info_fragment.find("div.content-left > div.block-tab > div > div > ul > li'");
-    let mut episodes: Vec<Vec<IMovieEpisode>> = vec![];
-
-    for _ in episode_selector {
-        let episode = IMovieEpisode {
-            id: None,
-            title: None,
-            season: None,
-            url: None,
-            number: None,
-            description: None,
-            image: None,
-            release_date: None,
-        };
-
-        episodes.push(vec![episode]);
+impl<'a> Page<'a> {
+    pub fn has_next_page(&self) -> bool {
+        self.elements.find("ul.pagination li").has_class("selected")
     }
 
-    Ok(DramaCoolInfo {
-        base: search_results,
-        info: IMovieInfo {
-            genres: None,
-            description: Some(description),
-            rating: None,
-            status: Some(media_status),
-            duration: None,
-            country: None,
-            production: None,
-            casts: None,
-            tags: None,
-            total_episodes: Some(episodes.len()),
-            seasons: Some(IMovieSeason {
-                season: None,
-                image: None,
-                episodes: Some(episodes.clone()),
-            }),
-            episodes: Some(episodes),
-        },
-    })
+    pub fn total_pages(&self) -> Option<usize> {
+        self.elements
+            .find("ul.pagination li.last:last-child a")
+            .attr("href")?
+            .to_string()
+            .rsplit('=')
+            .next()?
+            .parse::<usize>()
+            .ok()
+    }
+
+    pub fn page_ids(&self) -> Vec<Option<String>> {
+        self.elements
+            .find("div.block div.tab-content ul.list-episode-item li a")
+            .map(|_, element| {
+                element
+                    .get_attribute("href")?
+                    .to_string()
+                    .strip_prefix('/')
+                    .map(String::from)
+            })
+    }
+}
+
+#[derive(Clone, Copy)]
+pub struct Search<'page, 'b> {
+    pub elements: &'b Elements<'page>,
+    pub id: &'b str,
+}
+
+impl<'page, 'b> Search<'page, 'b> {
+    pub fn search_title(self) -> String {
+        match self.id.split('/').last() {
+            Some(title) => title.to_owned(),
+            None => String::new(),
+        }
+    }
+
+    pub fn search_image(self) -> Option<String> {
+        Some(
+            self.elements
+                .find("div.details div.img img")
+                .attr("src")?
+                .to_string(),
+        )
+    }
+
+    pub fn search_release_date(self) -> String {
+        self.elements
+            .find(r#"div.details div.info p:contains("Released:")"#)
+            .text()
+            .replace("Released:", "")
+            .trim()
+            .to_owned()
+    }
+
+    pub fn search_other_names(&self) -> Option<Vec<String>> {
+        Some(
+            self.elements
+                .find(".other_name > a")
+                .map(|_, element| element.text().trim().to_owned()),
+        )
+    }
+}
+
+pub struct Info<'a> {
+    pub elements: Elements<'a>,
+}
+
+impl<'a> Info<'a> {
+    // let info_fragment = Vis::load(&info).unwrap();
+
+    // let decription_selector = info_fragment.find("div.details div.info p:nth-child(4)");
+
+    // let description = decription_selector.text().trim().to_owned();
+
+    // let status_selector = info_fragment.find(r#"div.details div.info p:contains("Status:")"#);
+    // let status = status_selector.text().replace("Status:", "");
+
+    // let media_status = match status.trim() {
+    //     "OnGoing" => MediaStatus::OnGoing,
+    //     "Completed" => MediaStatus::Completed,
+    //     "Hiatus" => MediaStatus::Hiatus,
+    //     "Cancelled" => MediaStatus::Cancelled,
+    //     "NotYetAired" => MediaStatus::NotYetAired,
+    //     "Unknown" => MediaStatus::Unknown,
+    //     _ => panic!("Status {} not found!", status),
+    // };
+
+    // let episode_selector =
+    //     info_fragment.find("div.content-left > div.block-tab > div > div > ul > li'");
+    // let mut episodes: Vec<Vec<IMovieEpisode>> = vec![];
+
+    // for _ in episode_selector {
+    //     let episode = IMovieEpisode {
+    //         id: None,
+    //         title: None,
+    //         season: None,
+    //         url: None,
+    //         number: None,
+    //         description: None,
+    //         image: None,
+    //         release_date: None,
+    //     };
+
+    //     episodes.push(vec![episode]);
+    // }
+    // }
 }

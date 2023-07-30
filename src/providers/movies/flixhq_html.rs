@@ -2,332 +2,295 @@ use super::FlixHQInfo;
 use crate::models::{IEpisodeServer, IMovieEpisode, IMovieInfo, IMovieResult, TvType};
 use visdom::{types::Elements, Vis};
 
-pub fn page_fragment(page_html: &str) -> Elements<'_> {
+pub fn create_html_fragment(page_html: &str) -> Elements<'_> {
     Vis::load(page_html).unwrap()
 }
 
-pub fn has_next_page(fragment: &Elements<'_>) -> bool {
-    fragment
-        .find("div.pre-pagination:nth-child(3) > nav:nth-child(1) > ul:nth-child(1) > li:nth-child(1)")
-        .has_class("active")
+pub struct Page<'a> {
+    pub elements: Elements<'a>,
 }
 
-pub fn total_pages(fragment: &Elements<'_>) -> Option<usize> {
-    fragment
+impl<'a> Page<'a> {
+    pub fn has_next_page(&self) -> bool {
+        self.elements
+        .find("div.pre-pagination:nth-child(3) > nav:nth-child(1) > ul:nth-child(1) > li:nth-child(1)")
+        .has_class("active")
+    }
+
+    pub fn total_pages(&self) -> Option<usize> {
+        self.elements
         .find("div.pre-pagination:nth-child(3) > nav:nth-child(1) > ul:nth-child(1) > li.page-item:last-child a").attr("href")?
         .to_string()
         .rsplit('=')
         .next()?
         .parse::<usize>().ok()
-}
-
-pub fn page_ids(fragment: &Elements<'_>) -> Vec<Option<String>> {
-    fragment.find("div.film-poster > a").map(|_, element| {
-        element
-            .get_attribute("href")?
-            .to_string()
-            .strip_prefix('/')
-            .map(String::from)
-    })
-}
-
-pub fn parse_search_html(
-    media_html: String,
-    id: String,
-    url: String,
-) -> anyhow::Result<IMovieResult> {
-    let page_fragment = Vis::load(&media_html).unwrap();
-
-    let image_selector = page_fragment.find("div.m_i-d-poster > div > img");
-
-    let image = image_selector
-        .attr("src")
-        .expect("Can't get image src")
-        .to_string();
-
-    let title_selector = page_fragment.find(
-        "#main-wrapper > div.movie_information > div > div.m_i-detail > div.m_i-d-content > h2",
-    );
-
-    let title = title_selector.text().trim().to_owned();
-
-    let release_date_selector =
-        page_fragment.find("div.m_i-d-content > div.elements > div:nth-child(3)");
-
-    let release_date = release_date_selector
-        .last()
-        .text()
-        .replace("Released:", "")
-        .trim()
-        .to_owned();
-
-    let cover_selector = page_fragment.find("div.w_b-cover");
-
-    let cover = cover_selector
-        .attr("style")
-        .expect("Can't get cover style")
-        .to_string()
-        .replace("background-image: url(", "")
-        .replace(')', "");
-
-    let media_type = match id.split('/').next() {
-        Some("tv") => TvType::TvSeries,
-        Some("movie") => TvType::Movie,
-        _ => panic!("Err: Type {} not supported!", id),
-    };
-
-    Ok(IMovieResult {
-        id: Some(id),
-        cover: Some(cover),
-        title: Some(title),
-        other_names: None,
-        url: Some(url),
-        image: Some(image),
-        release_date: Some(release_date),
-        media_type: Some(media_type),
-    })
-}
-
-pub fn parse_info_html(
-    info_html: String,
-    search_results: IMovieResult,
-) -> anyhow::Result<FlixHQInfo> {
-    let info_fragment = Vis::load(&info_html).unwrap();
-
-    let description_selector = info_fragment.find("#main-wrapper > div.movie_information > div > div.m_i-detail > div.m_i-d-content > div.description");
-
-    let description = description_selector.text().trim().to_owned();
-
-    let country_selector =
-        info_fragment.find("div.m_i-d-content > div.elements > div:nth-child(1)");
-
-    let country: Vec<String> = country_selector
-        .text()
-        .replace("Country:", "")
-        .split(',')
-        .map(|s| s.trim().to_owned())
-        .collect();
-
-    let genre_selector = info_fragment.find("div.m_i-d-content > div.elements > div:nth-child(2)");
-
-    let genre: Vec<String> = genre_selector
-        .text()
-        .replace("Genre:", "")
-        .split(',')
-        .map(|s| s.trim().to_owned())
-        .collect();
-
-    let production_selector =
-        info_fragment.find("div.m_i-d-content > div.elements > div:nth-child(4)");
-
-    let production: Vec<String> = production_selector
-        .text()
-        .replace("Production:", "")
-        .split(',')
-        .map(|s| s.trim().to_owned())
-        .collect();
-
-    let cast_selector = info_fragment.find("div.m_i-d-content > div.elements > div:nth-child(5)");
-
-    let casts: Vec<String> = cast_selector
-        .text()
-        .replace("Casts:", "")
-        .split(',')
-        .map(|s| s.trim().to_owned())
-        .collect();
-
-    let tag_selector = info_fragment.find("div.m_i-d-content > div.elements > div:nth-child(6)");
-
-    let tags: Vec<String> = tag_selector
-        .text()
-        .replace("Tags:", "")
-        .split(',')
-        .map(|s| s.trim().to_owned())
-        .collect();
-
-    let rating_selector = info_fragment.find("span.item:nth-child(2)");
-
-    let rating = rating_selector.text().trim().to_owned();
-
-    let duration_selector = info_fragment.find("span.item:nth-child(3)");
-
-    let duration = duration_selector.text().trim().to_owned();
-
-    Ok(FlixHQInfo {
-        base: search_results,
-        info: IMovieInfo {
-            genres: Some(genre),
-            description: Some(description),
-            rating: Some(rating),
-            status: None,
-            duration: Some(duration),
-            country: Some(country),
-            production: Some(production),
-            casts: Some(casts),
-            tags: Some(tags),
-            total_episodes: None,
-            seasons: None,
-            episodes: None,
-        },
-    })
-}
-
-pub fn parse_episode_html(
-    base_url: &str,
-    episode_html: String,
-    i: usize,
-) -> anyhow::Result<Vec<IMovieEpisode>> {
-    let episode_fragment = Vis::load(&episode_html).unwrap();
-    let episode_selector = episode_fragment.find("ul > li > a");
-
-    let episode_ids: Vec<String> =
-        episode_selector.map(|_, element| element.get_attribute("data-id").unwrap().to_string());
-
-    let episode_titles: Vec<String> =
-        episode_selector.map(|_, element| element.get_attribute("title").unwrap().to_string());
-
-    let mut episodes: Vec<IMovieEpisode> = Vec::new();
-
-    for (id, title) in episode_ids.iter().zip(episode_titles.iter()) {
-        let url = format!("{}/ajax/v2/episode/servers/{}", base_url, id);
-
-        let episode = IMovieEpisode {
-            id: Some(id.clone()),
-            title: Some(title.clone()),
-            season: Some(i + 1),
-            url: Some(url),
-            number: None,
-            description: None,
-            image: None,
-            release_date: None,
-        };
-
-        episodes.push(episode);
     }
 
-    Ok(episodes)
-}
-
-pub fn parse_season_html(season_html: String) -> anyhow::Result<Vec<String>> {
-    let season_fragment = Vis::load(&season_html).unwrap();
-
-    let season_item_selector = season_fragment.find(".dropdown-menu > a");
-    let season_ids: Vec<String> = season_item_selector
-        .map(|_, element| element.get_attribute("data-id").unwrap().to_string());
-
-    Ok(season_ids)
-}
-
-pub fn parse_server_html(
-    server_html: String,
-    base_url: &str,
-    is_movie: bool,
-    media_id: String,
-) -> anyhow::Result<Vec<IEpisodeServer>> {
-    let server_fragment = Vis::load(&server_html).unwrap();
-    let server_item_selector = server_fragment.find("ul > li > a");
-
-    let (server_ids, server_names) = if is_movie {
-        let server_ids: Vec<String> = server_item_selector
-            .map(|_, element| element.get_attribute("data-linkid").unwrap().to_string());
-
-        let server_names: Vec<String> = server_item_selector
-            .map(|_, element| element.get_attribute("title").unwrap().to_string());
-
-        (server_ids, server_names)
-    } else {
-        let server_ids: Vec<String> = server_item_selector
-            .map(|_, element| element.get_attribute("data-id").unwrap().to_string());
-
-        let server_names: Vec<String> = server_item_selector.map(|_, element| {
+    pub fn page_ids(&self) -> Vec<Option<String>> {
+        self.elements.find("div.film-poster > a").map(|_, element| {
             element
+                .get_attribute("href")?
+                .to_string()
+                .strip_prefix('/')
+                .map(String::from)
+        })
+    }
+}
+
+#[derive(Clone, Copy)]
+pub struct Search<'page, 'b> {
+    pub elements: &'b Elements<'page>,
+    pub id: &'b str,
+}
+
+impl<'page, 'b> Search<'page, 'b> {
+    pub fn search_image(self) -> Option<String> {
+        Some(
+            self.elements
+                .find("div.m_i-d-poster > div > img")
+                .attr("src")?
+                .to_string(),
+        )
+    }
+
+    pub fn search_title(self) -> String {
+        self.elements
+        .find(
+            "#main-wrapper > div.movie_information > div > div.m_i-detail > div.m_i-d-content > h2",
+        )
+        .text()
+        .trim()
+        .to_owned()
+    }
+
+    pub fn search_cover(self) -> Option<String> {
+        Some(
+            self.elements
+                .find("div.w_b-cover")
+                .attr("style")?
+                .to_string()
+                .replace("background-image: url(", "")
+                .replace(')', ""),
+        )
+    }
+
+    pub fn search_media_type(self) -> Option<TvType> {
+        match self.id.split('/').next() {
+            Some("tv") => Some(TvType::TvSeries),
+            Some("movie") => Some(TvType::Movie),
+            _ => None,
+        }
+    }
+}
+
+/// Remy clarke was here & some red guy
+#[derive(Clone, Copy)]
+pub struct Info<'page, 'b> {
+    pub elements: &'b Elements<'page>,
+}
+
+impl<'page, 'b> Info<'page, 'b> {
+    pub fn info_label(&self, index: usize, label: &str) -> Vec<String> {
+        self.elements
+            .find(&format!(
+                "div.m_i-d-content > div.elements > div:nth-child({})",
+                index
+            ))
+            .text()
+            .replace(label, "")
+            .split(',')
+            .map(|s| s.trim().to_owned())
+            .collect()
+    }
+
+    pub fn info_description(&self) -> Option<String> {
+        Some(self.elements.find("#main-wrapper > div.movie_information > div > div.m_i-detail > div.m_i-d-content > div.description").text().trim().to_owned())
+    }
+
+    pub fn info_rating(&self) -> Option<String> {
+        Some(
+            self.elements
+                .find("span.item:nth-child(2)")
+                .text()
+                .trim()
+                .to_owned(),
+        )
+    }
+
+    pub fn info_duration(&self) -> Option<String> {
+        Some(
+            self.elements
+                .find("span.item:nth-child(3)")
+                .text()
+                .trim()
+                .to_owned(),
+        )
+    }
+}
+
+pub struct Episodes {
+    pub episodes: Vec<IMovieEpisode>,
+    pub index: usize,
+}
+
+impl Iterator for Episodes {
+    type Item = IMovieEpisode;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.index < self.episodes.len() {
+            let episode = self.episodes[self.index].clone();
+            self.index += 1;
+            Some(episode)
+        } else {
+            None
+        }
+    }
+}
+
+impl Episodes {
+    pub fn episode_title(fragment: &Elements<'_>) -> Vec<Option<String>> {
+        fragment.find("ul > li > a").map(|_, element| {
+            element
+                .get_attribute("title")
+                .map(|value| value.to_string())
+        })
+    }
+
+    pub fn episode_id(fragment: &Elements<'_>) -> Vec<Option<String>> {
+        fragment.find("ul > li > a").map(|_, element| {
+            element
+                .get_attribute("data-id")
+                .map(|value| value.to_string())
+        })
+    }
+
+    pub fn episode_results(fragment: Elements<'_>, base_url: &str, i: usize) -> Self {
+        let episode_titles = Self::episode_title(&fragment);
+        let episode_ids = Self::episode_id(&fragment);
+
+        let episode: Vec<IMovieEpisode> = episode_ids
+            .iter()
+            .zip(episode_titles.iter())
+            .flat_map(|(id, title)| id.as_ref().map(|id| (id, title)))
+            .map(|(id, title)| {
+                let url = format!("{}/ajax/v2/episode/servers/{}", base_url, id);
+                IMovieEpisode {
+                    id: id.clone(),
+                    title: title.clone(),
+                    season: Some(i + 1),
+                    url,
+                    number: None,
+                    description: None,
+                    image: None,
+                    release_date: None,
+                }
+            })
+            .collect();
+
+        Self {
+            episodes: episode,
+            index: 0,
+        }
+    }
+}
+
+pub struct Seasons<'a> {
+    pub elements: Elements<'a>,
+}
+
+impl<'a> Seasons<'a> {
+    pub fn season_results(&self) -> Vec<Option<String>> {
+        self.elements.find(".dropdown-menu > a").map(|_, element| {
+            element
+                .get_attribute("data-id")
+                .map(|value| value.to_string())
+        })
+    }
+}
+
+pub struct Server<'a> {
+    pub element: Elements<'a>,
+}
+
+impl<'a> Server<'a> {
+    pub fn parse_server_html(
+        &self,
+        base_url: &str,
+        media_id: String,
+    ) -> anyhow::Result<Vec<IEpisodeServer>> {
+        let servers: Vec<IEpisodeServer> = self.element.find("ul > li > a").map(|_, element| {
+            let id = element
+                .get_attribute("id")
+                .unwrap()
+                .to_string()
+                .replace("watch-", "");
+            let name = element
                 .get_attribute("title")
                 .unwrap()
                 .to_string()
-                .replace("Server ", "")
+                .to_owned();
+            let url = format!("{}/watch-{}.{}", base_url, media_id, id);
+
+            IEpisodeServer { name, url }
         });
 
-        (server_ids, server_names)
-    };
+        Ok(servers)
+    }
+}
 
-    let mut servers: Vec<IEpisodeServer> = Vec::new();
+pub struct Recent<'a> {
+    pub elements: Elements<'a>,
+}
 
-    for (id, name) in server_ids.iter().zip(server_names.iter()) {
-        let url = format!("{}/watch-{}.{}", base_url, media_id, id);
-
-        let server = IEpisodeServer {
-            name: name.to_owned(),
-            url,
-        };
-
-        servers.push(server);
+impl<'a> Recent<'a> {
+    pub fn recent_movies(&self) -> Vec<Option<String>> {
+        self.elements.find("#main-wrapper > div > section:nth-child(6) > div.block_area-content.block_area-list.film_list.film_list-grid > div > div.flw-item > div.film-poster > a").map(|_, element| {
+            element
+                .get_attribute("href")?
+                .to_string()
+                .strip_prefix('/')
+                .map(String::from)
+        })
     }
 
-    Ok(servers)
+    pub fn recent_shows(&self) -> Vec<Option<String>> {
+        self.elements.find("#main-wrapper > div > section:nth-child(7) > div.block_area-content.block_area-list.film_list.film_list-grid > div > div.flw-item > div.film-poster > a").map(|_, element| {
+            element
+                 .get_attribute("href")?
+                .to_string()
+                .strip_prefix('/')
+                .map(String::from)
+
+        })
+    }
 }
 
-pub fn parse_recent_movie_html(page_html: String) -> anyhow::Result<Vec<String>> {
-    let page_fragment = Vis::load(&page_html).unwrap();
-
-    let id_selector = page_fragment.find("#main-wrapper > div > section:nth-child(6) > div.block_area-content.block_area-list.film_list.film_list-grid > div > div.flw-item > div.film-poster > a");
-
-    let ids: Vec<String> = id_selector.map(|_, element| {
-        element
-            .get_attribute("href")
-            .unwrap()
-            .to_string()
-            .split_off(1)
-    });
-
-    Ok(ids)
+pub struct Trending<'a> {
+    pub elements: Elements<'a>,
 }
 
-pub fn parse_recent_shows_html(page_html: String) -> anyhow::Result<Vec<String>> {
-    let page_fragment = Vis::load(&page_html).unwrap();
+impl<'a> Trending<'a> {
+    pub fn trending_movies(&self) -> Vec<Option<String>> {
+        self.elements
+            .find("div#trending-movies div.film_list-wrap div.flw-item div.film-poster a")
+            .map(|_, element| {
+                element
+                    .get_attribute("href")?
+                    .to_string()
+                    .strip_prefix('/')
+                    .map(String::from)
+            })
+    }
 
-    let id_selector = page_fragment.find("#main-wrapper > div > section:nth-child(7) > div.block_area-content.block_area-list.film_list.film_list-grid > div > div.flw-item > div.film-poster > a");
-
-    let ids: Vec<String> = id_selector.map(|_, element| {
-        element
-            .get_attribute("href")
-            .unwrap()
-            .to_string()
-            .split_off(1)
-    });
-
-    Ok(ids)
-}
-
-pub fn parse_trending_movie_html(page_html: String) -> anyhow::Result<Vec<String>> {
-    let page_fragment = Vis::load(&page_html).unwrap();
-
-    let id_selector =
-        page_fragment.find("div#trending-movies div.film_list-wrap div.flw-item div.film-poster a");
-
-    let ids: Vec<String> = id_selector.map(|_, element| {
-        element
-            .get_attribute("href")
-            .unwrap()
-            .to_string()
-            .split_off(1)
-    });
-
-    Ok(ids)
-}
-
-pub fn parse_trending_shows_html(page_html: String) -> anyhow::Result<Vec<String>> {
-    let page_fragment = Vis::load(&page_html).unwrap();
-
-    let id_selector =
-        page_fragment.find("div#trending-tv div.film_list-wrap div.flw-item div.film-poster a");
-
-    let ids: Vec<String> = id_selector.map(|_, element| {
-        element
-            .get_attribute("href")
-            .unwrap()
-            .to_string()
-            .split_off(1)
-    });
-
-    Ok(ids)
+    pub fn trending_shows(&self) -> Vec<Option<String>> {
+        self.elements
+            .find("div#trending-tv div.film_list-wrap div.flw-item div.film-poster a")
+            .map(|_, element| {
+                element
+                    .get_attribute("href")?
+                    .to_string()
+                    .strip_prefix('/')
+                    .map(String::from)
+            })
+    }
 }

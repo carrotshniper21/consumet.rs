@@ -15,8 +15,8 @@ pub enum EncryptionError {
 /// println!("{}", decrypted);
 /// ```
 pub fn decrypt_url(encrypted_url: &str, key: &[u8]) -> Result<String, EncryptionError> {
-    let decoded_ciphertext = openssl::base64::decode_block(encrypted_url)
-        .map_err(EncryptionError::OpenSSLError)?;
+    let decoded_ciphertext =
+        openssl::base64::decode_block(encrypted_url).map_err(EncryptionError::OpenSSLError)?;
 
     assert_eq!(&decoded_ciphertext[0..8], "Salted__".as_bytes());
 
@@ -41,4 +41,3 @@ pub fn decrypt_url(encrypted_url: &str, key: &[u8]) -> Result<String, Encryption
     )
     .map_err(|_| EncryptionError::ParsingError)
 }
-

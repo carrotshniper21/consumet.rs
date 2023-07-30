@@ -1,8 +1,7 @@
 use super::flixhq_html::{
-    parse_episode_html, parse_info_html, parse_recent_movie_html, parse_recent_shows_html,
-    parse_search_html, parse_season_html, parse_server_html, parse_trending_movie_html,
-    parse_trending_shows_html,
+    create_html_fragment, Episodes, Info, Page, Recent, Search, Seasons, Server, Trending,
 };
+
 use crate::models::{
     BaseParser, BaseProvider, IEpisodeServer, IMovieEpisode, IMovieInfo, IMovieResult,
     IMovieSeason, ISearch, ISource, MovieParser, StreamingServers, TvType,
@@ -56,8 +55,6 @@ impl BaseParser for FlixHQ {
         query: String,
         page: Option<usize>,
     ) -> anyhow::Result<Self::BaseSearchResult> {
-        use crate::providers::flixhq_html::{has_next_page, page_fragment, page_ids, total_pages};
-
         let page = page.unwrap_or(1);
 
         let parsed_query = query.replace(' ', "-");
@@ -73,9 +70,11 @@ impl BaseParser for FlixHQ {
             .text()
             .await?;
 
-        let fragment = &page_fragment(&page_html);
+        let fragment = create_html_fragment(&page_html);
 
-        let ids = page_ids(fragment);
+        let page_parser = Page { elements: fragment };
+
+        let ids = page_parser.page_ids();
 
         let mut results = vec![];
 
@@ -87,8 +86,8 @@ impl BaseParser for FlixHQ {
 
         Ok(ISearch {
             current_page: Some(page),
-            has_next_page: has_next_page(fragment),
-            total_pages: total_pages(fragment),
+            has_next_page: page_parser.has_next_page(),
+            total_pages: page_parser.total_pages(),
             total_results: results.len(),
             results,
         })
@@ -141,7 +140,27 @@ impl FlixHQ {
             .text()
             .await?;
 
-        parse_search_html(media_html, id, url)
+        let fragment = create_html_fragment(&media_html);
+
+        let search_parser = Search {
+            elements: &fragment,
+            id: &id,
+        };
+
+        let info_parser = Info {
+            elements: &fragment,
+        };
+
+        Ok(IMovieResult {
+            cover: search_parser.search_cover(),
+            title: search_parser.search_title(),
+            other_names: None,
+            url: Some(url),
+            image: search_parser.search_image(),
+            release_date: info_parser.info_label(3, "Released:").join(""),
+            media_type: search_parser.search_media_type(),
+            id: Some(id),
+        })
     }
 
     /// Returns a future which resolves into an movie info object (including the episodes). (*[`impl Future<Output = Result<FlixHQInfo>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/providers/movies/flixhq.rs#L22-L26)*)\
@@ -160,7 +179,29 @@ impl FlixHQ {
             .text()
             .await?;
 
-        let info = parse_info_html(info_html, search_results)?;
+        let fragment = create_html_fragment(&info_html);
+
+        let info_parser = Info {
+            elements: &fragment,
+        };
+
+        let info = FlixHQInfo {
+            base: search_results,
+            info: IMovieInfo {
+                genres: Some(info_parser.info_label(2, "Genre:")),
+                description: info_parser.info_description(),
+                rating: info_parser.info_rating(),
+                status: None,
+                duration: info_parser.info_duration(),
+                country: Some(info_parser.info_label(1, "Country:")),
+                production: Some(info_parser.info_label(4, "Production:")),
+                casts: Some(info_parser.info_label(5, "Casts:")),
+                tags: Some(info_parser.info_label(6, "Tags:")),
+                total_episodes: None,
+                seasons: None,
+                episodes: None,
+            },
+        };
 
         if is_seasons {
             let id = media_id.split('-').last().unwrap_or_default().to_owned();
@@ -173,7 +214,15 @@ impl FlixHQ {
                 .text()
                 .await?;
 
-            let season_ids = parse_season_html(season_html)?;
+            let fragment = create_html_fragment(&season_html);
+
+            let season_parser = Seasons { elements: fragment };
+
+            let season_ids: Vec<String> = season_parser
+                .season_results()
+                .into_iter()
+                .flatten()
+                .collect();
 
             let mut seasons_and_episodes: Vec<Vec<IMovieEpisode>> = vec![];
 
@@ -191,9 +240,11 @@ impl FlixHQ {
                     .await
                     .unwrap();
 
-                let episodes = parse_episode_html(self.base_url(), episode_html, i).unwrap();
+                let fragment = create_html_fragment(&episode_html);
 
-                seasons_and_episodes.push(episodes);
+                let episodes = Episodes::episode_results(fragment, self.base_url(), i);
+
+                seasons_and_episodes.push(episodes.episodes);
             }
 
             Ok(FlixHQInfo {
@@ -237,20 +288,17 @@ impl FlixHQ {
         episode_id: String,
         media_id: String,
     ) -> anyhow::Result<Vec<IEpisodeServer>> {
-        let (episode_id, is_movie) = if !episode_id
-            .starts_with(&format!("{}/ajax", self.base_url()))
-            && !media_id.contains("movie")
-        {
-            (
-                format!("{}/ajax/v2/episode/servers/{}", self.base_url(), episode_id),
-                false,
-            )
-        } else {
-            (
-                format!("{}/ajax/movie/episodes/{}", self.base_url(), episode_id),
-                true,
-            )
-        };
+        let episode_id = format!(
+            "{}/ajax/{}",
+            self.base_url(),
+            if !episode_id.starts_with(&format!("{}/ajax", self.base_url()))
+                && !media_id.contains("movie")
+            {
+                format!("v2/episode/servers/{}", episode_id)
+            } else {
+                format!("movie/episodes/{}", episode_id)
+            }
+        );
 
         let server_html = reqwest::Client::new()
             .get(episode_id)
@@ -259,7 +307,11 @@ impl FlixHQ {
             .text()
             .await?;
 
-        let servers = parse_server_html(server_html, self.base_url(), is_movie, media_id)?;
+        let fragment = create_html_fragment(&server_html);
+
+        let server_parser = Server { element: fragment };
+
+        let servers = server_parser.parse_server_html(self.base_url(), media_id)?;
 
         Ok(servers)
     }
@@ -384,12 +436,16 @@ impl FlixHQ {
             .text()
             .await?;
 
-        let id = parse_recent_movie_html(recent_movie_html)?;
+        let fragment = create_html_fragment(&recent_movie_html);
+
+        let recent_parser = Recent { elements: fragment };
+
+        let ids = recent_parser.recent_movies();
 
         let mut results = vec![];
 
-        for i in id.into_iter() {
-            let result = self.fetch_search_results(i).await?;
+        for id in ids.iter().flatten() {
+            let result = self.fetch_search_results(id.to_string()).await?;
 
             results.push(result);
         }
@@ -408,12 +464,16 @@ impl FlixHQ {
             .text()
             .await?;
 
-        let id = parse_recent_shows_html(recent_shows_html)?;
+        let fragment = create_html_fragment(&recent_shows_html);
+
+        let recent_parser = Recent { elements: fragment };
+
+        let ids = recent_parser.recent_shows();
 
         let mut results = vec![];
 
-        for i in id.into_iter() {
-            let result = self.fetch_search_results(i).await?;
+        for id in ids.iter().flatten() {
+            let result = self.fetch_search_results(id.to_string()).await?;
 
             results.push(result);
         }
@@ -432,12 +492,16 @@ impl FlixHQ {
             .text()
             .await?;
 
-        let id = parse_trending_movie_html(trending_movies_html)?;
+        let fragment = create_html_fragment(&trending_movies_html);
+
+        let trending_parser = Trending { elements: fragment };
+
+        let ids = trending_parser.trending_movies();
 
         let mut results = vec![];
 
-        for i in id.into_iter() {
-            let result = self.fetch_search_results(i).await?;
+        for id in ids.iter().flatten() {
+            let result = self.fetch_search_results(id.to_string()).await?;
 
             results.push(result);
         }
@@ -456,12 +520,16 @@ impl FlixHQ {
             .text()
             .await?;
 
-        let id = parse_trending_shows_html(trending_shows_html)?;
+        let fragment = create_html_fragment(&trending_shows_html);
+
+        let trending_parser = Trending { elements: fragment };
+
+        let ids = trending_parser.trending_shows();
 
         let mut results = vec![];
 
-        for i in id.into_iter() {
-            let result = self.fetch_search_results(i).await?;
+        for id in ids.iter().flatten() {
+            let result = self.fetch_search_results(id.to_string()).await?;
 
             results.push(result);
         }

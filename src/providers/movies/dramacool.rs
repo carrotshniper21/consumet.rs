@@ -1,4 +1,4 @@
-use super::dramacool_html::{parse_info_html, parse_search_html};
+use super::dramacool_html::{create_html_fragment, Info, Page, Search};
 use crate::models::{
     BaseParser, BaseProvider, IEpisodeServer, IMovieEpisode, IMovieInfo, IMovieResult, ISearch,
     ISource, MovieParser, ProxyConfig, StreamingServers, TvType,
@@ -52,10 +52,6 @@ impl BaseParser for DramaCool {
         query: String,
         page: Option<usize>,
     ) -> anyhow::Result<Self::BaseSearchResult> {
-        use crate::providers::dramacool_html::{
-            has_next_page, page_fragment, page_ids, total_pages,
-        };
-
         let page = page.unwrap_or(1);
 
         let parsed_query = query.replace(' ', "-");
@@ -71,9 +67,11 @@ impl BaseParser for DramaCool {
             .text()
             .await?;
 
-        let fragment = &page_fragment(&page_html);
+        let fragment = create_html_fragment(&page_html);
 
-        let ids = page_ids(fragment);
+        let page_parser = Page { elements: fragment };
+
+        let ids = page_parser.page_ids();
 
         let mut results = vec![];
 
@@ -85,8 +83,8 @@ impl BaseParser for DramaCool {
 
         Ok(ISearch {
             current_page: Some(page),
-            has_next_page: has_next_page(fragment),
-            total_pages: total_pages(fragment),
+            has_next_page: page_parser.has_next_page(),
+            total_pages: page_parser.total_pages(),
             total_results: results.len(),
             results,
         })
@@ -138,7 +136,23 @@ impl DramaCool {
             .text()
             .await?;
 
-        parse_search_html(media_html, id, url)
+        let fragment = create_html_fragment(&media_html);
+
+        let search_parser = Search {
+            elements: &fragment,
+            id: &id,
+        };
+
+        Ok(IMovieResult {
+            cover: None,
+            title: search_parser.search_title(),
+            other_names: search_parser.search_other_names(),
+            url: Some(url),
+            image: search_parser.search_image(),
+            release_date: search_parser.search_release_date(),
+            media_type: None,
+            id: Some(id),
+        })
     }
 
     pub async fn fetch_info(&self, media_id: String) -> anyhow::Result<DramaCoolInfo> {
@@ -151,8 +165,28 @@ impl DramaCool {
             .text()
             .await?;
 
-        let info = parse_info_html(info_html, search_results)?;
+        let fragment = create_html_fragment(&info_html);
 
-        Ok(info)
+        let info_parser = Info { elements: fragment };
+
+        let info = DramaCoolInfo {
+            base: search_results,
+            info: IMovieInfo {
+                genres: None,
+                description: None,
+                rating: None,
+                status: None,
+                duration: None,
+                country: None,
+                production: None,
+                casts: None,
+                tags: None,
+                total_episodes: None,
+                seasons: None,
+                episodes: None,
+            },
+        };
+
+        todo!()
     }
 }
