@@ -8,7 +8,7 @@ pub struct Bilibili {
 }
 
 impl Bilibili {
-    pub async fn extract(&mut self, episode_id: String) -> anyhow::Result<Self> {
+    pub async fn extract(&mut self, _episode_id: String) -> anyhow::Result<Self> {
         self.sources.push(IVideo {
             url: None,
             quality: None,

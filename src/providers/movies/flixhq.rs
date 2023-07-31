@@ -3,8 +3,8 @@ use super::flixhq_html::{
 };
 
 use crate::models::{
-    BaseProvider, IEpisodeServer, IMovieEpisode, IMovieInfo, IMovieResult,
-    IMovieSeason, ISearch, ISource, StreamingServers, TvType,
+    BaseProvider, IEpisodeServer, IMovieEpisode, IMovieInfo, IMovieResult, IMovieSeason, ISearch,
+    ISource, StreamingServers, TvType,
 };
 
 use crate::extractors::{MixDrop, VidCloud};

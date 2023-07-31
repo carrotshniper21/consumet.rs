@@ -12,7 +12,7 @@ const HOST: &str = "https://streamsss.net/sources50";
 const HOST2: &str = "https://watchsb.com/sources50";
 
 impl StreamSB {
-    pub async fn extract(&mut self, video_url: String) -> anyhow::Result<Self> {
+    pub async fn extract(&mut self, _video_url: String) -> anyhow::Result<Self> {
         self.sources.push(IVideo {
             url: None,
             quality: None,

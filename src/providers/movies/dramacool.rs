@@ -86,7 +86,7 @@ impl DramaCool {
     /// Returns a future which resolves into an movie result object (*[`impl Future<Output = Result<IMovieResult>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L452-L462)*)\
     /// # Parameters
     /// * `id` - the id of the provided drama
-     async fn fetch_search_result(&self, id: String) -> anyhow::Result<IMovieResult> {
+    async fn fetch_search_result(&self, id: String) -> anyhow::Result<IMovieResult> {
         let url = format!("{}/{}", self.base_url(), id);
 
         let media_html = reqwest::Client::new()
@@ -115,23 +115,23 @@ impl DramaCool {
         })
     }
 
-    pub async fn info(&self, media_id: String) -> anyhow::Result<DramaCoolInfo> {
+    pub async fn info(&self, _media_id: String) -> anyhow::Result<DramaCoolInfo> {
         todo!()
     }
 
     pub async fn servers(
         &self,
-        episode_id: String,
-        media_id: String,
+        _episode_id: String,
+        _media_id: String,
     ) -> anyhow::Result<Vec<IMovieEpisode>> {
         todo!()
     }
 
     pub async fn sources(
         &self,
-        episode_id: String,
-        media_id: String,
-        server: Option<StreamingServers>,
+        _episode_id: String,
+        _media_id: String,
+        _server: Option<StreamingServers>,
     ) -> anyhow::Result<ISource> {
         todo!()
     }

@@ -6,7 +6,7 @@ pub struct StreamHub {
 }
 
 impl StreamHub {
-    pub async fn extract(&mut self, video_url: String) -> anyhow::Result<Self> {
+    pub async fn extract(&mut self, _video_url: String) -> anyhow::Result<Self> {
         self.sources.push(IVideo {
             url: None,
             quality: None,
