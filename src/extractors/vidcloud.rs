@@ -49,7 +49,7 @@ impl VidCloud {
         &mut self,
         video_url: String,
         is_alternative: Option<bool>,
-    ) -> anyhow::Result<VidCloud> {
+    ) -> anyhow::Result<Self> {
         let is_alternative = is_alternative.unwrap_or(false);
 
         let host = if !is_alternative { HOST } else { HOST2 };
@@ -188,7 +188,7 @@ impl VidCloud {
 
         self.subtitles.extend(subtitles);
 
-        Ok(VidCloud {
+        Ok(Self {
             sources: self.sources.clone(),
             subtitles: self.subtitles.clone(),
         })

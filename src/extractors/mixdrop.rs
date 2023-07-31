@@ -9,7 +9,7 @@ pub struct MixDrop {
 }
 
 impl MixDrop {
-    pub async fn extract(&mut self, _video_url: String) -> anyhow::Result<MixDrop> {
+    pub async fn extract(&mut self, video_url: String) -> anyhow::Result<Self> {
         self.sources.push(IVideo {
             url: None,
             quality: None,
@@ -25,7 +25,7 @@ impl MixDrop {
             lang: None,
         });
 
-        Ok(MixDrop {
+        Ok(Self {
             sources: self.sources.clone(),
             subtitles: self.subtitles.clone(),
         })

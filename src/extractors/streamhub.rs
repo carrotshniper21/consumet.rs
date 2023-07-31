@@ -1,14 +1,11 @@
 use crate::models::{ISubtitle, IVideo};
-use serde::Deserialize;
 
-/// Contains both the Decrypted Sources and Subtitles
-#[derive(Debug, Deserialize)]
-pub struct AsianLoad {
+pub struct StreamHub {
     pub sources: Vec<IVideo>,
     pub subtitles: Vec<ISubtitle>,
 }
 
-impl AsianLoad {
+impl StreamHub {
     pub async fn extract(&mut self, video_url: String) -> anyhow::Result<Self> {
         self.sources.push(IVideo {
             url: None,

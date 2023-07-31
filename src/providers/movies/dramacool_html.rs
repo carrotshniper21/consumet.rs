@@ -85,43 +85,4 @@ pub struct Info<'a> {
     pub elements: Elements<'a>,
 }
 
-impl<'a> Info<'a> {
-    // let info_fragment = Vis::load(&info).unwrap();
-
-    // let decription_selector = info_fragment.find("div.details div.info p:nth-child(4)");
-
-    // let description = decription_selector.text().trim().to_owned();
-
-    // let status_selector = info_fragment.find(r#"div.details div.info p:contains("Status:")"#);
-    // let status = status_selector.text().replace("Status:", "");
-
-    // let media_status = match status.trim() {
-    //     "OnGoing" => MediaStatus::OnGoing,
-    //     "Completed" => MediaStatus::Completed,
-    //     "Hiatus" => MediaStatus::Hiatus,
-    //     "Cancelled" => MediaStatus::Cancelled,
-    //     "NotYetAired" => MediaStatus::NotYetAired,
-    //     "Unknown" => MediaStatus::Unknown,
-    //     _ => panic!("Status {} not found!", status),
-    // };
-
-    // let episode_selector =
-    //     info_fragment.find("div.content-left > div.block-tab > div > div > ul > li'");
-    // let mut episodes: Vec<Vec<IMovieEpisode>> = vec![];
-
-    // for _ in episode_selector {
-    //     let episode = IMovieEpisode {
-    //         id: None,
-    //         title: None,
-    //         season: None,
-    //         url: None,
-    //         number: None,
-    //         description: None,
-    //         image: None,
-    //         release_date: None,
-    //     };
-
-    //     episodes.push(vec![episode]);
-    // }
-    // }
-}
+impl<'a> Info<'a> {}

@@ -10,7 +10,6 @@ mod movie_parser;
 mod news_parser;
 mod type_objects;
 mod types;
-mod video_extractor;
 
 pub use anime_parser::*;
 pub use base_parser::*;
@@ -24,4 +23,3 @@ pub use movie_parser::*;
 pub use news_parser::*;
 pub use type_objects::*;
 pub use types::*;
-pub use video_extractor::*;

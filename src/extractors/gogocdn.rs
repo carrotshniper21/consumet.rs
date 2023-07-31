@@ -1,14 +1,12 @@
-use crate::models::{ISubtitle, IVideo};
+use crate::models::{IVideo, ProxyConfig};
 use serde::Deserialize;
 
-/// Contains both the Decrypted Sources and Subtitles
 #[derive(Debug, Deserialize)]
-pub struct AsianLoad {
+pub struct GogoCDN {
     pub sources: Vec<IVideo>,
-    pub subtitles: Vec<ISubtitle>,
 }
 
-impl AsianLoad {
+impl GogoCDN {
     pub async fn extract(&mut self, video_url: String) -> anyhow::Result<Self> {
         self.sources.push(IVideo {
             url: None,
@@ -19,15 +17,8 @@ impl AsianLoad {
             other: None,
         });
 
-        self.subtitles.push(ISubtitle {
-            id: None,
-            url: None,
-            lang: None,
-        });
-
         Ok(Self {
             sources: self.sources.clone(),
-            subtitles: self.subtitles.clone(),
         })
     }
 }

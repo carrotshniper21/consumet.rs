@@ -1,13 +1,12 @@
-use crate::models::IVideo;
-use serde::Deserialize;
+use crate::models::{ISubtitle, IVideo, Intro};
 
-/// Contains the Decrypted Sources
-#[derive(Debug, Deserialize)]
-pub struct StreamTape {
-    pub sources: Vec<IVideo>,
+pub struct VizCloud {
+    sources: Vec<IVideo>,
 }
 
-impl StreamTape {
+const HOST: &str = "https://vidstream.pro";
+
+impl VizCloud {
     pub async fn extract(&mut self, video_url: String) -> anyhow::Result<Self> {
         self.sources.push(IVideo {
             url: None,

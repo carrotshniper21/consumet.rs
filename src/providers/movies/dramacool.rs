@@ -1,4 +1,4 @@
-use super::dramacool_html::{create_html_fragment, Info, Page, Search};
+use super::dramacool_html::{create_html_fragment, Page, Search};
 use crate::models::{
     BaseParser, BaseProvider, IEpisodeServer, IMovieEpisode, IMovieInfo, IMovieResult, ISearch,
     ISource, MovieParser, ProxyConfig, StreamingServers, TvType,
@@ -156,37 +156,6 @@ impl DramaCool {
     }
 
     pub async fn fetch_info(&self, media_id: String) -> anyhow::Result<DramaCoolInfo> {
-        let search_results = self.fetch_search_results(media_id.clone()).await?;
-
-        let info_html = reqwest::Client::new()
-            .get(format!("{}/{}", self.base_url(), media_id))
-            .send()
-            .await?
-            .text()
-            .await?;
-
-        let fragment = create_html_fragment(&info_html);
-
-        let info_parser = Info { elements: fragment };
-
-        let info = DramaCoolInfo {
-            base: search_results,
-            info: IMovieInfo {
-                genres: None,
-                description: None,
-                rating: None,
-                status: None,
-                duration: None,
-                country: None,
-                production: None,
-                casts: None,
-                tags: None,
-                total_episodes: None,
-                seasons: None,
-                episodes: None,
-            },
-        };
-
         todo!()
     }
 }

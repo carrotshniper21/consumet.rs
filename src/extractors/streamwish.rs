@@ -1,13 +1,10 @@
 use crate::models::IVideo;
-use serde::Deserialize;
 
-/// Contains the Decrypted Sources
-#[derive(Debug, Deserialize)]
-pub struct StreamTape {
-    pub sources: Vec<IVideo>,
+pub struct StreamWish {
+    sources: Vec<IVideo>,
 }
 
-impl StreamTape {
+impl StreamWish {
     pub async fn extract(&mut self, video_url: String) -> anyhow::Result<Self> {
         self.sources.push(IVideo {
             url: None,
