@@ -1,7 +1,6 @@
 <h1>FlixHQ</h1>
 
 ```rs
-use consumet_api_rs::models::{MovieParser, BaseParser};
 use consumet_api_rs::providers::movies;
 
 let flixhq = movies::FlixHQ;
@@ -10,13 +9,13 @@ let flixhq = movies::FlixHQ;
 <h2>Methods</h2>
 
 - [search](#search)
-- [fetch\_media\_info](#fetch_media_info)
-- [fetch\_episode\_sources](#fetch_episode_sources)
-- [fetch\_episode\_servers](#fetch_episode_servers)
-- [fetch\_recent\_movies](#fetch_recent_movies)
-- [fetch\_recent\_shows](#fetch_recent_shows)
-- [fetch\_trending\_movies](#fetch_trending_movies)
-- [fetch\_trending\_shows](#fetch_trending_shows)
+- [info](#info)
+- [sources](#sources)
+- [servers](#servers)
+- [recent\_movies](#recent_movies)
+- [recent\_shows](#recent_shows)
+- [trending\_movies](#trending_movies)
+- [trending\_shows](#trending_shows)
 
 ### search
 > Note: This method is a subclass of the [`BaseParser`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/base_parser.rs) trait. meaning it is available across most categories.
@@ -76,7 +75,7 @@ ISearch {
 }
 ```
 
-### fetch_media_info
+### info
 
 <h4>Parameters</h4>
 
@@ -85,7 +84,7 @@ ISearch {
 | mediaId   | `string` | takes media id or url as a parameter. (*media id or url can be found in the media search results as shown on the above method*) |
 
 ```rust
-let data = flixhq.fetch_media_info("tv/watch-vincenzo-67955".to_owned()).await?;
+let data = flixhq.info("tv/watch-vincenzo-67955".to_owned()).await?;
 println!("{:#?}", data);
 ```
 
@@ -217,19 +216,19 @@ FlixHQInfo {
 }
 ```
 
-### fetch_episode_sources
+### sources
 
 <h4>Parameters</h4>
 
-| Parameter         | Type                                                                                                   | Description                                                                                                                                             |
-| ----------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| episodeId         | `string`                                                                                               | takes episode id as a parameter. (*episode id can be found in the media info object*)                                                                   |
-| mediaId           | `string`                                                                                               | takes media id as a parameter. (*media id can be found in the media info object*)                                                                       |
+| Parameter         | Type                                                                                                               | Description                                                                                                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| episodeId         | `string`                                                                                                           | takes episode id as a parameter. (*episode id can be found in the media info object*)                                                                                |
+| mediaId           | `string`                                                                                                           | takes media id as a parameter. (*media id can be found in the media info object*)                                                                                    |
 | server (optional) | [`StreamingServers`](https://github.com/carrotshniper21/consumet-api-rs/blob/master/src/models/types.ts#L166-L183) | takes server enum as a parameter. *default: [`StreamingServers::VidCloud`](https://github.com/carrotshniper21/consumet-api-rs/blob/master/src/models/types.rs#L177)* |
 
 
 ```rust
-let data = flixhq.fetch_episode_sources("1167571".to_owned(), "tv/watch-vincenzo-67955".to_owned(), None).await?;
+let data = flixhq.sources("1167571".to_owned(), "tv/watch-vincenzo-67955".to_owned(), None).await?;
 println!("{:#?}", data);
 ```
 returns a future which resolves into an vector of episode sources and subtitles. (*[`impl Future<Output = Result<ISource>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L374-L380)*)\
@@ -289,7 +288,7 @@ ISource {
 }
 ```
 
-### fetch_episode_servers
+### servers
 
 <h4>Parameters</h4>
 
@@ -299,7 +298,7 @@ ISource {
 | mediaId   | `string` | takes media id as a parameter. (*media id can be found in the media info object*)                             |
 
 ```rust
-let data = flixhq.fetch_episode_servers("1167571".to_owned(), "tv/watch-vincenzo-67955".to_owned()).await?;
+let data = flixhq.servers("1167571".to_owned(), "tv/watch-vincenzo-67955".to_owned()).await?;
 println!("{:#?}", data);
 ```
 returns a future which resolves into an vector of episode servers. (*[`impl Future<Output = Result<Vec<IEpisodeServer>>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L148-L153)*)\
@@ -325,10 +324,10 @@ output:
 
 <p align="end">(<a href="https://github.com/carrotshniper21/consumet-api-rs/blob/main/docs/guides/movies.md#">back to movie providers list</a>)</p>
 
-### fetch_recent_movies
+### recent_movies
 
 ```rust
-let data = flixhq.fetch_recent_movies().await?;
+let data = flixhq.recent_movies().await?;
 println!("{:#?}", data)
 ```
 
@@ -411,10 +410,10 @@ output:
 ```
 
 
-### fetch_recent_shows
+### recent_shows
 
 ```rust
-let data = flixhq.fetch_recent_shows().await?;
+let data = flixhq.recent_shows().await?;
 println!("{:#?}", data);
 ```
 
@@ -497,10 +496,10 @@ output:
 ```
 
 
-### fetch_trending_movies
+### trending_movies
 
 ```rust
-let data = flixhq.fetch_trending_movies().await?;
+let data = flixhq.trending_movies().await?;
 println!("{:#?}", data);
 ```
 
@@ -583,10 +582,10 @@ output:
 ```
 
 
-### fetch_trending_shows
+### trending_shows
 
 ```rust
-let data = flixhq.fetch_trending_shows().await?;
+let data = flixhq.trending_shows().await?;
 println!("{:#?}", data);
 ```
 

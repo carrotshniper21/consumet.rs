@@ -3,8 +3,8 @@ use super::flixhq_html::{
 };
 
 use crate::models::{
-    BaseParser, BaseProvider, IEpisodeServer, IMovieEpisode, IMovieInfo, IMovieResult,
-    IMovieSeason, ISearch, ISource, MovieParser, StreamingServers, TvType,
+    BaseProvider, IEpisodeServer, IMovieEpisode, IMovieInfo, IMovieResult,
+    IMovieSeason, ISearch, ISource, StreamingServers, TvType,
 };
 
 use crate::extractors::{MixDrop, VidCloud};
@@ -47,14 +47,12 @@ impl BaseProvider for FlixHQ {
     }
 }
 
-impl BaseParser for FlixHQ {
-    type BaseSearchResult = ISearch<IMovieResult>;
-
-    async fn search(
+impl FlixHQ {
+    pub async fn search(
         &self,
         query: String,
         page: Option<usize>,
-    ) -> anyhow::Result<Self::BaseSearchResult> {
+    ) -> anyhow::Result<ISearch<IMovieResult>> {
         let page = page.unwrap_or(1);
 
         let parsed_query = query.replace(' ', "-");
@@ -79,7 +77,7 @@ impl BaseParser for FlixHQ {
         let mut results = vec![];
 
         for id in ids.iter().flatten() {
-            let result = self.fetch_search_results(id.to_string()).await?;
+            let result = self.fetch_search_result(id.to_string()).await?;
 
             results.push(result);
         }
@@ -92,45 +90,11 @@ impl BaseParser for FlixHQ {
             results,
         })
     }
-}
 
-impl MovieParser for FlixHQ {
-    type MediaInfo = FlixHQInfo;
-    type ServerResult = IEpisodeServer;
-    type SourceResult = ISource;
-
-    #[inline]
-    fn supported_types(&self) -> &[TvType] {
-        &[TvType::Movie, TvType::TvSeries]
-    }
-
-    async fn fetch_media_info(&self, media_id: String) -> anyhow::Result<Self::MediaInfo> {
-        self.fetch_info(media_id).await
-    }
-
-    async fn fetch_episode_servers(
-        &self,
-        episode_id: String,
-        media_id: String,
-    ) -> anyhow::Result<Vec<Self::ServerResult>> {
-        self.fetch_servers(episode_id, media_id).await
-    }
-
-    async fn fetch_episode_sources(
-        &self,
-        episode_id: String,
-        media_id: String,
-        server: Option<StreamingServers>,
-    ) -> anyhow::Result<Self::SourceResult> {
-        self.fetch_sources(episode_id, media_id, server).await
-    }
-}
-
-impl FlixHQ {
     /// Returns a future which resolves into an movie result object (*[`impl Future<Output = Result<IMovieResult>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L452-L462)*)\
     /// # Parameters
     /// * `id` - the id of a movie or show
-    pub async fn fetch_search_results(&self, id: String) -> anyhow::Result<IMovieResult> {
+    async fn fetch_search_result(&self, id: String) -> anyhow::Result<IMovieResult> {
         let url = format!("{}/{}", self.base_url(), id);
 
         let media_html = reqwest::Client::new()
@@ -166,10 +130,10 @@ impl FlixHQ {
     /// Returns a future which resolves into an movie info object (including the episodes). (*[`impl Future<Output = Result<FlixHQInfo>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/providers/movies/flixhq.rs#L22-L26)*)\
     /// # Parameters
     /// * `media_id` - takes media id or url as a parameter. (*media id or url can be found in the media search results as shown on the above method*)
-    pub async fn fetch_info(&self, media_id: String) -> anyhow::Result<FlixHQInfo> {
-        let search_results = self.fetch_search_results(media_id.clone()).await?;
+    pub async fn info(&self, media_id: String) -> anyhow::Result<FlixHQInfo> {
+        let search_result = self.fetch_search_result(media_id.clone()).await?;
 
-        let media_type = search_results.media_type.unwrap();
+        let media_type = search_result.media_type.unwrap();
         let is_seasons = matches!(media_type, TvType::TvSeries);
 
         let info_html = reqwest::Client::new()
@@ -186,7 +150,7 @@ impl FlixHQ {
         };
 
         let info = FlixHQInfo {
-            base: search_results,
+            base: search_result,
             info: IMovieInfo {
                 genres: Some(info_parser.info_label(2, "Genre:")),
                 description: info_parser.info_description(),
@@ -283,7 +247,7 @@ impl FlixHQ {
     /// # Parameters
     /// * `episode_id` - take an episode id or url as a parameter. (*episode id or episode url can be found in the media info object*)
     /// * `media_id` - takes media id as a parameter. (*media id can be found in the media info object*
-    pub async fn fetch_servers(
+    pub async fn servers(
         &self,
         episode_id: String,
         media_id: String,
@@ -321,14 +285,14 @@ impl FlixHQ {
     /// * `episode_id` - takes episode id as a parameter. (*episode id can be found in the media info object*)
     /// * `media_id` - takes media id as a parameter. (*media id can be found in the media info object*)
     /// * `server (optional)` - [`StreamingServers`]
-    pub async fn fetch_sources(
+    pub async fn sources(
         &self,
         episode_id: String,
         media_id: String,
         server: Option<StreamingServers>,
     ) -> anyhow::Result<ISource> {
         let server = server.unwrap_or(StreamingServers::UpCloud);
-        let servers = self.fetch_servers(episode_id.clone(), media_id).await?;
+        let servers = self.servers(episode_id.clone(), media_id).await?;
 
         let i = servers
             .iter()
@@ -428,7 +392,7 @@ impl FlixHQ {
     /// Returns a future which resolves into an vector of movie results  (*[`impl Future<Output = Result<Vec<IMovieResult>>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L452-L462)*)
     /// # Parameters
     /// * `None`
-    pub async fn fetch_recent_movies(&self) -> anyhow::Result<Vec<IMovieResult>> {
+    pub async fn recent_movies(&self) -> anyhow::Result<Vec<IMovieResult>> {
         let recent_movie_html = reqwest::Client::new()
             .get(format!("{}/home", self.base_url()))
             .send()
@@ -445,7 +409,7 @@ impl FlixHQ {
         let mut results = vec![];
 
         for id in ids.iter().flatten() {
-            let result = self.fetch_search_results(id.to_string()).await?;
+            let result = self.fetch_search_result(id.to_string()).await?;
 
             results.push(result);
         }
@@ -456,7 +420,7 @@ impl FlixHQ {
     /// Returns a future which resolves into an vector of tv shows results  (*[`impl Future<Output = Result<Vec<IMovieResult>>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L452-L462)*)
     /// # Parameters
     /// * `None`
-    pub async fn fetch_recent_shows(&self) -> anyhow::Result<Vec<IMovieResult>> {
+    pub async fn recent_shows(&self) -> anyhow::Result<Vec<IMovieResult>> {
         let recent_shows_html = reqwest::Client::new()
             .get(format!("{}/home", self.base_url()))
             .send()
@@ -473,7 +437,7 @@ impl FlixHQ {
         let mut results = vec![];
 
         for id in ids.iter().flatten() {
-            let result = self.fetch_search_results(id.to_string()).await?;
+            let result = self.fetch_search_result(id.to_string()).await?;
 
             results.push(result);
         }
@@ -484,7 +448,7 @@ impl FlixHQ {
     /// Returns a future which resolves into an vector of movie results  (*[`impl Future<Output = Result<Vec<IMovieResult>>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L452-L462)*)
     /// # Parameters
     /// * `None`
-    pub async fn fetch_trending_movies(&self) -> anyhow::Result<Vec<IMovieResult>> {
+    pub async fn trending_movies(&self) -> anyhow::Result<Vec<IMovieResult>> {
         let trending_movies_html = reqwest::Client::new()
             .get(format!("{}/home", self.base_url()))
             .send()
@@ -501,7 +465,7 @@ impl FlixHQ {
         let mut results = vec![];
 
         for id in ids.iter().flatten() {
-            let result = self.fetch_search_results(id.to_string()).await?;
+            let result = self.fetch_search_result(id.to_string()).await?;
 
             results.push(result);
         }
@@ -512,7 +476,7 @@ impl FlixHQ {
     /// Returns a future which resolves into an vector of tv shows results  (*[`impl Future<Output = Result<Vec<IMovieResult>>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L452-L462)*)
     /// # Parameters
     /// * `None`
-    pub async fn fetch_trending_shows(&self) -> anyhow::Result<Vec<IMovieResult>> {
+    pub async fn trending_shows(&self) -> anyhow::Result<Vec<IMovieResult>> {
         let trending_shows_html = reqwest::Client::new()
             .get(format!("{}/home", self.base_url()))
             .send()
@@ -529,7 +493,7 @@ impl FlixHQ {
         let mut results = vec![];
 
         for id in ids.iter().flatten() {
-            let result = self.fetch_search_results(id.to_string()).await?;
+            let result = self.fetch_search_result(id.to_string()).await?;
 
             results.push(result);
         }

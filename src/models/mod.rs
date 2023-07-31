@@ -1,25 +1,9 @@
-mod anime_parser;
-mod base_parser;
 mod base_provider;
 mod base_types;
-mod book_parser;
-mod comic_parser;
-mod lightnovel_parser;
-mod manga_parser;
-mod movie_parser;
-mod news_parser;
 mod type_objects;
 mod types;
 
-pub use anime_parser::*;
-pub use base_parser::*;
 pub use base_provider::*;
 pub use base_types::*;
-pub use book_parser::*;
-pub use comic_parser::*;
-pub use lightnovel_parser::*;
-pub use manga_parser::*;
-pub use movie_parser::*;
-pub use news_parser::*;
 pub use type_objects::*;
 pub use types::*;

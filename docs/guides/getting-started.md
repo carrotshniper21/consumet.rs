@@ -17,7 +17,6 @@ cargo add consumet-api-rs
 
 **Example** - searching for a film using the flixhq provider.
 ```rust
-use consumet_api_rs::models::MovieParser;
 use consumet_api_rs::providers::movies;
 
 #[tokio::main]
@@ -30,7 +29,7 @@ async fn main() {
     println!("{:#?}", results);
     // Get the first movie info
     let first_movie = results.results[0];
-    let movie_info = flixhq.fetch_media_info(first_movie.id).await?;
+    let movie_info = flixhq.info(first_movie.id).await?;
     // Print the info
     println!("{:#?}", movie_info);
 }

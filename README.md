@@ -45,7 +45,6 @@ cargo install consumet-api-rs
 
 **Example** - searching for a movie using the flixhq provider.
 ```rs
-use consumet_api_rs::models::BaseParser;
 use consumet_api_rs::providers::movies;
 
 // Create a new instance of the FlixHQ provider

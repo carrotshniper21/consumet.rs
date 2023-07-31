@@ -1,7 +1,7 @@
 use super::dramacool_html::{create_html_fragment, Page, Search};
 use crate::models::{
-    BaseParser, BaseProvider, IEpisodeServer, IMovieEpisode, IMovieInfo, IMovieResult, ISearch,
-    ISource, MovieParser, ProxyConfig, StreamingServers, TvType,
+    BaseProvider, IEpisodeServer, IMovieEpisode, IMovieInfo, IMovieResult, ISearch, ISource,
+    ProxyConfig, StreamingServers, TvType,
 };
 
 use crate::extractors::{AsianLoad, MixDrop, StreamSB, StreamTape};
@@ -10,11 +10,6 @@ use serde::Deserialize;
 
 // Contains all the DramaCool Info
 pub struct DramaCool;
-
-#[derive(Debug, Deserialize)]
-pub struct DramaCoolServerInfo {
-    _link: String,
-}
 
 #[derive(Debug)]
 pub struct DramaCoolInfo {
@@ -44,14 +39,12 @@ impl BaseProvider for DramaCool {
     }
 }
 
-impl BaseParser for DramaCool {
-    type BaseSearchResult = ISearch<IMovieResult>;
-
-    async fn search(
+impl DramaCool {
+    pub async fn search(
         &self,
         query: String,
         page: Option<usize>,
-    ) -> anyhow::Result<Self::BaseSearchResult> {
+    ) -> anyhow::Result<ISearch<IMovieResult>> {
         let page = page.unwrap_or(1);
 
         let parsed_query = query.replace(' ', "-");
@@ -76,7 +69,7 @@ impl BaseParser for DramaCool {
         let mut results = vec![];
 
         for id in ids.iter().flatten() {
-            let result = self.fetch_search_results(id.to_string()).await?;
+            let result = self.fetch_search_result(id.to_string()).await?;
 
             results.push(result);
         }
@@ -89,44 +82,11 @@ impl BaseParser for DramaCool {
             results,
         })
     }
-}
 
-impl MovieParser for DramaCool {
-    type MediaInfo = DramaCoolInfo;
-    type ServerResult = String;
-    type SourceResult = String;
-
-    fn supported_types(&self) -> &[TvType] {
-        todo!()
-    }
-
-    async fn fetch_media_info(&self, media_id: String) -> anyhow::Result<Self::MediaInfo> {
-        self.fetch_info(media_id).await
-    }
-
-    async fn fetch_episode_servers(
-        &self,
-        _episode_id: String,
-        _media_id: String,
-    ) -> anyhow::Result<Vec<Self::ServerResult>> {
-        todo!()
-    }
-
-    async fn fetch_episode_sources(
-        &self,
-        _episode_id: String,
-        _media_id: String,
-        _server: Option<StreamingServers>,
-    ) -> anyhow::Result<Self::SourceResult> {
-        todo!()
-    }
-}
-
-impl DramaCool {
     /// Returns a future which resolves into an movie result object (*[`impl Future<Output = Result<IMovieResult>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L452-L462)*)\
     /// # Parameters
     /// * `id` - the id of the provided drama
-    pub async fn fetch_search_results(&self, id: String) -> anyhow::Result<IMovieResult> {
+     async fn fetch_search_result(&self, id: String) -> anyhow::Result<IMovieResult> {
         let url = format!("{}/{}", self.base_url(), id);
 
         let media_html = reqwest::Client::new()
@@ -155,7 +115,24 @@ impl DramaCool {
         })
     }
 
-    pub async fn fetch_info(&self, media_id: String) -> anyhow::Result<DramaCoolInfo> {
+    pub async fn info(&self, media_id: String) -> anyhow::Result<DramaCoolInfo> {
+        todo!()
+    }
+
+    pub async fn servers(
+        &self,
+        episode_id: String,
+        media_id: String,
+    ) -> anyhow::Result<Vec<IMovieEpisode>> {
+        todo!()
+    }
+
+    pub async fn sources(
+        &self,
+        episode_id: String,
+        media_id: String,
+        server: Option<StreamingServers>,
+    ) -> anyhow::Result<ISource> {
         todo!()
     }
 }
