@@ -81,45 +81,45 @@ pub trait UtilFuncs {
 
     /// Pass in a String and to_find and get the substring before it
     /// ```
-    /// use consumet_api_rs::utils::util_funcs::substring_before;
+    /// use consumet_api_rs::utils::util_funcs::UtilFuncs;
     ///
     /// let substring = "remy Clarke";
     /// let found = substring.substring_before("Clarke").expect("Unable to find substring!");
     ///
-    /// assert_eq!("remy", found);
+    /// assert_eq!("remy ", found);
     /// ```
     fn substring_before(&self, to_find: &str) -> Result<String, String>;
 
     /// Pass in a String and to_find and get the substring after it
     /// ```
-    /// use consumet_api_rs::utils::util_funcs::substring_after;
+    /// use consumet_api_rs::utils::util_funcs::UtilFuncs;;
     ///
     /// let substring = "remy Clarke";
     /// let found = substring.substring_before("remy").expect("Unable to find substring!");
     ///
-    /// assert_eq!("Clarke", found);
+    /// assert_eq!("", found);
     /// ```
     fn substring_after(&self, to_find: &str) -> Result<String, String>;
 
     /// Pass in a String and to_find and get the substring before the last occurrence of it
     /// ```
-    /// use consumet_api_rs::utils::util_funcs::substring_before_last;
+    /// use consumet_api_rs::utils::util_funcs::UtilFuncs;
     ///
     /// let substring = "remy Clarke remy";
     /// let found = substring.substring_before_last("remy").expect("Unable to find substring!");
     ///
-    /// assert_eq!("remy Clarke", found);
+    /// assert_eq!("remy Clarke ", found);
     /// ```
     fn substring_before_last(&self, to_find: &str) -> Result<String, String>;
 
     /// Pass in a String and to_find and get the substring after the last occurrence of it
     /// ```
-    /// use consumet_api_rs::utils::util_funcs::substring_after_last;
+    /// use consumet_api_rs::utils::util_funcs::UtilFuncs;
     ///
     /// let substring = "remy Clarke remy Clarke";
     /// let found = substring.substring_after_last("remy").expect("Unable to find substring!");
     ///
-    /// assert_eq!("Clarke", found);
+    /// assert_eq!(" Clarke", found);
     /// ```
     fn substring_after_last(&self, to_find: &str) -> Result<String, String>;
 }

@@ -42,7 +42,7 @@ impl BaseProvider for DramaCool {
 impl DramaCool {
     pub async fn search(
         &self,
-        query: String,
+        query: &str,
         page: Option<usize>,
     ) -> anyhow::Result<ISearch<IMovieResult>> {
         let page = page.unwrap_or(1);
@@ -69,7 +69,7 @@ impl DramaCool {
         let mut results = vec![];
 
         for id in ids.iter().flatten() {
-            let result = self.fetch_search_result(id.to_string()).await?;
+            let result = self.fetch_search_result(id).await?;
 
             results.push(result);
         }
@@ -86,7 +86,7 @@ impl DramaCool {
     /// Returns a future which resolves into an movie result object (*[`impl Future<Output = Result<IMovieResult>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L452-L462)*)\
     /// # Parameters
     /// * `id` - the id of the provided drama
-    async fn fetch_search_result(&self, id: String) -> anyhow::Result<IMovieResult> {
+    async fn fetch_search_result(&self, id: &str) -> anyhow::Result<IMovieResult> {
         let url = format!("{}/{}", self.base_url(), id);
 
         let media_html = reqwest::Client::new()
@@ -100,7 +100,7 @@ impl DramaCool {
 
         let search_parser = Search {
             elements: &fragment,
-            id: &id,
+            id,
         };
 
         Ok(IMovieResult {
@@ -111,26 +111,26 @@ impl DramaCool {
             image: search_parser.search_image(),
             release_date: search_parser.search_release_date(),
             media_type: None,
-            id: Some(id),
+            id: Some(id.to_string()),
         })
     }
 
-    pub async fn info(&self, _media_id: String) -> anyhow::Result<DramaCoolInfo> {
+    pub async fn info(&self, _media_id: &str) -> anyhow::Result<DramaCoolInfo> {
         todo!()
     }
 
     pub async fn servers(
         &self,
-        _episode_id: String,
-        _media_id: String,
+        _episode_id: &str,
+        _media_id: &str,
     ) -> anyhow::Result<Vec<IMovieEpisode>> {
         todo!()
     }
 
     pub async fn sources(
         &self,
-        _episode_id: String,
-        _media_id: String,
+        _episode_id: &str,
+        _media_id: &str,
         _server: Option<StreamingServers>,
     ) -> anyhow::Result<ISource> {
         todo!()

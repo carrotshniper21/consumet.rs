@@ -1,5 +1,7 @@
 use crate::models::IVideo;
+use serde::Deserialize;
 
+#[derive(Clone, Debug, Deserialize)]
 pub struct VidMoly {
     pub sources: Vec<IVideo>,
 }

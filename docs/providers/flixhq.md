@@ -29,7 +29,7 @@ let flixhq = movies::FlixHQ;
 | page (optional) | `number` | page number (default: 1)                                                                                                                   |
 
 ```rust
-let data = flixhq.search("Vincenzo".to_owned(), None).await?;
+let data = flixhq.search("Vincenzo", None).await?;
 println!("{:#?}", data);
 ```
 
@@ -84,7 +84,7 @@ ISearch {
 | mediaId   | `string` | takes media id or url as a parameter. (*media id or url can be found in the media search results as shown on the above method*) |
 
 ```rust
-let data = flixhq.info("tv/watch-vincenzo-67955".to_owned()).await?;
+let data = flixhq.info("tv/watch-vincenzo-67955").await?;
 println!("{:#?}", data);
 ```
 
@@ -228,7 +228,7 @@ FlixHQInfo {
 
 
 ```rust
-let data = flixhq.sources("1167571".to_owned(), "tv/watch-vincenzo-67955".to_owned(), None).await?;
+let data = flixhq.sources("1167571", "tv/watch-vincenzo-67955", None).await?;
 println!("{:#?}", data);
 ```
 returns a future which resolves into an vector of episode sources and subtitles. (*[`impl Future<Output = Result<ISource>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L374-L380)*)\
@@ -298,7 +298,7 @@ ISource {
 | mediaId   | `string` | takes media id as a parameter. (*media id can be found in the media info object*)                             |
 
 ```rust
-let data = flixhq.servers("1167571".to_owned(), "tv/watch-vincenzo-67955".to_owned()).await?;
+let data = flixhq.servers("1167571", "tv/watch-vincenzo-67955").await?;
 println!("{:#?}", data);
 ```
 returns a future which resolves into an vector of episode servers. (*[`impl Future<Output = Result<Vec<IEpisodeServer>>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L148-L153)*)\

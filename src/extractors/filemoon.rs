@@ -2,7 +2,7 @@ use crate::models::{ISubtitle, IVideo, Intro};
 use crate::utils::util_funcs::USER_AGENT;
 use serde::Deserialize;
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct FileMoon {
     pub sources: Vec<IVideo>,
 }

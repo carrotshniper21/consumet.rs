@@ -1,5 +1,7 @@
 use crate::models::{ISubtitle, IVideo};
+use serde::Deserialize;
 
+#[derive(Clone, Debug, Deserialize)]
 pub struct SmashyStream {
     sources: Vec<IVideo>,
     subtitles: Vec<ISubtitle>,

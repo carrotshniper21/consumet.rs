@@ -24,7 +24,7 @@ async fn main() {
     // Create a new instance of the flixhq provider
     let flixhq = movies::FlixHQ;
     // Search for a movie. In this case, "Vincenzo"
-    let results = flixhq.search("Vincenzo".to_owned(), None).await?;
+    let results = flixhq.search("Vincenzo", None).await?;
     // Print the results
     println!("{:#?}", results);
     // Get the first movie info

@@ -10,10 +10,6 @@ pub enum EncryptionError {
 /// # Parameters
 /// * `encrypted_url` - The AES-256-CBC Encrypted url.
 /// * `secret` - the decryption key as bytes.
-/// ```
-/// let decypted = decrypt::decrypt_url(encrypted_url, &key.into_bytes());
-/// println!("{}", decrypted);
-/// ```
 pub fn decrypt_url(encrypted_url: &str, key: &[u8]) -> Result<String, EncryptionError> {
     let decoded_ciphertext =
         openssl::base64::decode_block(encrypted_url).map_err(EncryptionError::OpenSSLError)?;

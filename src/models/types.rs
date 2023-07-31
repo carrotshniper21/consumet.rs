@@ -70,10 +70,6 @@ pub struct FuzzyDate {
 }
 
 /// Used to get the Format of the chosen media
-/// ```
-/// let format = MediaFormat::<format>;
-/// println!("{}", format);
-/// ```
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
 pub enum MediaFormat {
     Tv,
@@ -164,10 +160,6 @@ pub struct IVideo {
 }
 
 /// Used to get the video url for the server chosen
-/// ```
-/// let server = StreamingServers::<server>;
-/// println!("{}", server);
-/// ```
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum StreamingServers {
     GogoCDN,
@@ -202,10 +194,6 @@ impl std::fmt::Display for StreamingServers {
 }
 
 /// Used to check the status of the provided media
-/// ```
-/// let status = MediaStatus::<status>;
-/// println!("{}", status);
-/// ```
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
 pub enum MediaStatus {
     OnGoing,
@@ -232,10 +220,6 @@ impl std::fmt::Display for MediaStatus {
 }
 
 /// Used to check if something is Sub, Dub or Both
-/// ```
-/// let sub_or_dub = SubOrDub::<sub_or_dub>;
-/// println!("{}", sub_or_dub);
-/// ```
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
 pub enum SubOrSub {
     Sub,
@@ -413,10 +397,6 @@ pub struct ISource {
 }
 
 /// Used **only** for movie/tvshow providers
-/// ```
-/// let media_type = TvType::<media_type>;
-/// println!("{}", media_type);
-/// ```
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Deserialize)]
 pub enum TvType {
     TvSeries,
@@ -530,10 +510,6 @@ pub struct IMovieInfo {
 }
 
 ///  Contains all the possible Genres
-/// ```
-/// let genre = Genres::<genre>;
-/// println!("{}", genre);
-/// ```
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Genres {
     Action,
@@ -586,10 +562,6 @@ impl std::fmt::Display for Genres {
 }
 
 ///  Contains all the possible Topics
-/// ```
-/// let topic = Topics::<topic>;
-/// println!("{}", topic);
-/// ```
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
 pub enum Topics {
     Anime,

@@ -1,5 +1,7 @@
 use crate::models::{ISubtitle, IVideo, Intro};
+use serde::Deserialize;
 
+#[derive(Clone, Debug, Deserialize)]
 pub struct VizCloud {
     sources: Vec<IVideo>,
 }

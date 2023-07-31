@@ -50,7 +50,7 @@ impl BaseProvider for FlixHQ {
 impl FlixHQ {
     pub async fn search(
         &self,
-        query: String,
+        query: &str,
         page: Option<usize>,
     ) -> anyhow::Result<ISearch<IMovieResult>> {
         let page = page.unwrap_or(1);
@@ -77,7 +77,7 @@ impl FlixHQ {
         let mut results = vec![];
 
         for id in ids.iter().flatten() {
-            let result = self.fetch_search_result(id.to_string()).await?;
+            let result = self.fetch_search_result(id).await?;
 
             results.push(result);
         }
@@ -94,7 +94,7 @@ impl FlixHQ {
     /// Returns a future which resolves into an movie result object (*[`impl Future<Output = Result<IMovieResult>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L452-L462)*)\
     /// # Parameters
     /// * `id` - the id of a movie or show
-    async fn fetch_search_result(&self, id: String) -> anyhow::Result<IMovieResult> {
+    async fn fetch_search_result(&self, id: &str) -> anyhow::Result<IMovieResult> {
         let url = format!("{}/{}", self.base_url(), id);
 
         let media_html = reqwest::Client::new()
@@ -108,7 +108,7 @@ impl FlixHQ {
 
         let search_parser = Search {
             elements: &fragment,
-            id: &id,
+            id,
         };
 
         let info_parser = Info {
@@ -123,15 +123,15 @@ impl FlixHQ {
             image: search_parser.search_image(),
             release_date: info_parser.info_label(3, "Released:").join(""),
             media_type: search_parser.search_media_type(),
-            id: Some(id),
+            id: Some(id.to_string()),
         })
     }
 
     /// Returns a future which resolves into an movie info object (including the episodes). (*[`impl Future<Output = Result<FlixHQInfo>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/providers/movies/flixhq.rs#L22-L26)*)\
     /// # Parameters
     /// * `media_id` - takes media id or url as a parameter. (*media id or url can be found in the media search results as shown on the above method*)
-    pub async fn info(&self, media_id: String) -> anyhow::Result<FlixHQInfo> {
-        let search_result = self.fetch_search_result(media_id.clone()).await?;
+    pub async fn info(&self, media_id: &str) -> anyhow::Result<FlixHQInfo> {
+        let search_result = self.fetch_search_result(media_id).await?;
 
         let media_type = search_result.media_type.unwrap();
         let is_seasons = matches!(media_type, TvType::TvSeries);
@@ -249,8 +249,8 @@ impl FlixHQ {
     /// * `media_id` - takes media id as a parameter. (*media id can be found in the media info object*
     pub async fn servers(
         &self,
-        episode_id: String,
-        media_id: String,
+        episode_id: &str,
+        media_id: &str,
     ) -> anyhow::Result<Vec<IEpisodeServer>> {
         let episode_id = format!(
             "{}/ajax/{}",
@@ -287,12 +287,12 @@ impl FlixHQ {
     /// * `server (optional)` - [`StreamingServers`]
     pub async fn sources(
         &self,
-        episode_id: String,
-        media_id: String,
+        episode_id: &str,
+        media_id: &str,
         server: Option<StreamingServers>,
     ) -> anyhow::Result<ISource> {
         let server = server.unwrap_or(StreamingServers::UpCloud);
-        let servers = self.servers(episode_id.clone(), media_id).await?;
+        let servers = self.servers(episode_id, media_id).await?;
 
         let i = servers
             .iter()
@@ -316,8 +316,8 @@ impl FlixHQ {
             match server {
                 StreamingServers::MixDrop => {
                     let mut mix_drop = MixDrop {
-                        sources: Vec::new(),
-                        subtitles: Vec::new(),
+                        sources: vec![],
+                        subtitles: vec![],
                     };
 
                     mix_drop.extract(server_info.link.clone()).await?;
@@ -331,8 +331,8 @@ impl FlixHQ {
                 }
                 StreamingServers::VidCloud => {
                     let mut vid_cloud = VidCloud {
-                        sources: Vec::new(),
-                        subtitles: Vec::new(),
+                        sources: vec![],
+                        subtitles: vec![],
                     };
 
                     vid_cloud
@@ -349,8 +349,8 @@ impl FlixHQ {
                 }
                 StreamingServers::UpCloud => {
                     let mut vid_cloud = VidCloud {
-                        sources: Vec::new(),
-                        subtitles: Vec::new(),
+                        sources: vec![],
+                        subtitles: vec![],
                     };
 
                     vid_cloud
@@ -367,8 +367,8 @@ impl FlixHQ {
                 }
                 _ => {
                     let mut vid_cloud = VidCloud {
-                        sources: Vec::new(),
-                        subtitles: Vec::new(),
+                        sources: vec![],
+                        subtitles: vec![],
                     };
 
                     vid_cloud
@@ -409,7 +409,7 @@ impl FlixHQ {
         let mut results = vec![];
 
         for id in ids.iter().flatten() {
-            let result = self.fetch_search_result(id.to_string()).await?;
+            let result = self.fetch_search_result(id).await?;
 
             results.push(result);
         }
@@ -437,7 +437,7 @@ impl FlixHQ {
         let mut results = vec![];
 
         for id in ids.iter().flatten() {
-            let result = self.fetch_search_result(id.to_string()).await?;
+            let result = self.fetch_search_result(id).await?;
 
             results.push(result);
         }
@@ -465,7 +465,7 @@ impl FlixHQ {
         let mut results = vec![];
 
         for id in ids.iter().flatten() {
-            let result = self.fetch_search_result(id.to_string()).await?;
+            let result = self.fetch_search_result(id).await?;
 
             results.push(result);
         }
@@ -493,7 +493,7 @@ impl FlixHQ {
         let mut results = vec![];
 
         for id in ids.iter().flatten() {
-            let result = self.fetch_search_result(id.to_string()).await?;
+            let result = self.fetch_search_result(id).await?;
 
             results.push(result);
         }

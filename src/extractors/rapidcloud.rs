@@ -2,7 +2,7 @@ use crate::models::{ISubtitle, IVideo, Intro, ProxyConfig};
 use crate::utils::util_funcs::UtilFuncs;
 use serde::Deserialize;
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct RapidCloud {
     sources: Vec<IVideo>,
     subtitles: Vec<ISubtitle>,

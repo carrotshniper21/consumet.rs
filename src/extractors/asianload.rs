@@ -2,7 +2,7 @@ use crate::models::{ISubtitle, IVideo};
 use serde::Deserialize;
 
 /// Contains both the Decrypted Sources and Subtitles
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct AsianLoad {
     pub sources: Vec<IVideo>,
     pub subtitles: Vec<ISubtitle>,

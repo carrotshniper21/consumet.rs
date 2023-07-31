@@ -2,7 +2,7 @@ use crate::models::{ISource, IVideo};
 use crate::utils::util_funcs::UtilFuncs;
 use serde::Deserialize;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Bilibili {
     pub sources: Vec<IVideo>,
 }

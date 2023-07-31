@@ -216,7 +216,7 @@ impl<'a> Server<'a> {
     pub fn parse_server_html(
         &self,
         base_url: &str,
-        media_id: String,
+        media_id: &str,
     ) -> anyhow::Result<Vec<IEpisodeServer>> {
         let servers: Vec<IEpisodeServer> = self.element.find("ul > li > a").map(|_, element| {
             let id = element

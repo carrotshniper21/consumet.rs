@@ -3,7 +3,7 @@ use crate::utils::util_funcs::USER_AGENT;
 use serde::Deserialize;
 
 /// Contains the Decrypted Sources
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct StreamSB {
     pub sources: Vec<IVideo>,
 }

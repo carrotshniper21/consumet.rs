@@ -1,5 +1,7 @@
 use crate::models::{ISource, IVideo};
+use serde::Deserialize;
 
+#[derive(Clone, Debug, Deserialize)]
 pub struct StreamLare {
     sources: Vec<IVideo>,
 }

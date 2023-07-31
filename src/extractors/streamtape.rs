@@ -2,7 +2,7 @@ use crate::models::IVideo;
 use serde::Deserialize;
 
 /// Contains the Decrypted Sources
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct StreamTape {
     pub sources: Vec<IVideo>,
 }
