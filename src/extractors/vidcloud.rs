@@ -59,7 +59,7 @@ impl VideoExtractor for VidCloud {
             user_agent: _,
         } = args;
 
-        let is_alternative: bool = is_alternative.unwrap();
+        let is_alternative: bool = is_alternative.unwrap_or(false);
 
         let host = if !is_alternative { HOST } else { HOST2 };
 

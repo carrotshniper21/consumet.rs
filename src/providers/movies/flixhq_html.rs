@@ -1,4 +1,3 @@
-
 use crate::models::types::{IEpisodeServer, IMovieEpisode, TvType};
 use visdom::{types::Elements, Vis};
 
@@ -224,11 +223,14 @@ impl<'a> Server<'a> {
                 .unwrap()
                 .to_string()
                 .replace("watch-", "");
+
             let name = element
                 .get_attribute("title")
                 .unwrap()
                 .to_string()
+                .trim_start_matches("Server ")
                 .to_owned();
+
             let url = format!("{}/watch-{}.{}", base_url, media_id, id);
 
             IEpisodeServer { name, url }
