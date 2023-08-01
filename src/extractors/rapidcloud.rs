@@ -1,5 +1,5 @@
-use crate::models::{ISubtitle, IVideo, Intro, ProxyConfig};
-use crate::utils::util_funcs::UtilFuncs;
+use crate::models::{ExtractConfig, ISubtitle, IVideo, VideoExtractor};
+
 use serde::Deserialize;
 
 #[derive(Clone, Debug, Deserialize)]
@@ -10,8 +10,21 @@ pub struct RapidCloud {
 
 const HOST: &str = "https://rapid-cloud.co";
 
-impl RapidCloud {
-    pub async fn extract(&mut self, _video_url: String) -> anyhow::Result<Self> {
+impl VideoExtractor for RapidCloud {
+    type VideoSource = RapidCloud;
+
+    async fn extract(
+        &mut self,
+        _video_url: String,
+        args: ExtractConfig,
+    ) -> anyhow::Result<Self::VideoSource> {
+        let ExtractConfig {
+            vis_cloud_helper: _,
+            api_key: _,
+            is_alternative: _,
+            user_agent: _,
+        } = args;
+
         self.sources.push(IVideo {
             url: None,
             quality: None,

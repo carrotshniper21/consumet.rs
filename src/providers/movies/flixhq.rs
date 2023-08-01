@@ -3,8 +3,8 @@ use super::flixhq_html::{
 };
 
 use crate::models::{
-    BaseProvider, IEpisodeServer, IMovieEpisode, IMovieInfo, IMovieResult, IMovieSeason, ISearch,
-    ISource, StreamingServers, TvType,
+    BaseProvider, ExtractConfig, IEpisodeServer, IMovieEpisode, IMovieInfo, IMovieResult,
+    IMovieSeason, ISearch, ISource, StreamingServers, TvType, VideoExtractor,
 };
 
 use crate::extractors::{MixDrop, VidCloud};
@@ -320,7 +320,14 @@ impl FlixHQ {
                         subtitles: vec![],
                     };
 
-                    mix_drop.extract(server_info.link.clone()).await?;
+                    mix_drop
+                        .extract(
+                            server_info.link.clone(),
+                            ExtractConfig {
+                                ..Default::default()
+                            },
+                        )
+                        .await?;
 
                     Ok(ISource {
                         sources: Some(mix_drop.sources),
@@ -336,7 +343,13 @@ impl FlixHQ {
                     };
 
                     vid_cloud
-                        .extract(server_info.link.clone(), Some(true))
+                        .extract(
+                            server_info.link.clone(),
+                            ExtractConfig {
+                                is_alternative: Some(true),
+                                ..Default::default()
+                            },
+                        )
                         .await
                         .expect("Failed to extract VidCloud sources!");
 
@@ -354,9 +367,14 @@ impl FlixHQ {
                     };
 
                     vid_cloud
-                        .extract(server_info.link.clone(), None)
+                        .extract(
+                            server_info.link.clone(),
+                            ExtractConfig {
+                                ..Default::default()
+                            },
+                        )
                         .await
-                        .expect("Failed to extract UpCloud sources!");
+                        .expect("failed to extract upcloud sources!");
 
                     Ok(ISource {
                         sources: Some(vid_cloud.sources),
@@ -372,7 +390,13 @@ impl FlixHQ {
                     };
 
                     vid_cloud
-                        .extract(server_info.link.clone(), None)
+                        .extract(
+                            server_info.link.clone(),
+                            ExtractConfig {
+                                is_alternative: Some(false),
+                                ..Default::default()
+                            },
+                        )
                         .await
                         .expect("Failed to extract UpCloud sources!");
 

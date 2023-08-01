@@ -50,7 +50,7 @@ use consumet_api_rs::providers::movies;
 // Create a new instance of the FlixHQ provider
 let flixhq = movies::FlixHQ;
 // Search for a movie. In this case, "Vincenzo"
-let data = flixhq.search("Vincenzo", None).await.unwrap();
+let data = flixhq.search("Vincenzo", None).await?;
 println!("{:#?}", data);
 ```
 

@@ -1,4 +1,4 @@
-use crate::models::{ISubtitle, IVideo};
+use crate::models::{ExtractConfig, ISubtitle, IVideo, VideoExtractor};
 use serde::Deserialize;
 
 #[derive(Clone, Debug, Deserialize)]
@@ -9,8 +9,21 @@ pub struct SmashyStream {
 
 const HOST: &str = "https://embed.smashystream.com";
 
-impl SmashyStream {
-    pub async fn extract(&mut self, _video_url: String) -> anyhow::Result<Self> {
+impl VideoExtractor for SmashyStream {
+    type VideoSource = SmashyStream;
+
+    async fn extract(
+        &mut self,
+        _video_url: String,
+        args: ExtractConfig,
+    ) -> anyhow::Result<Self::VideoSource> {
+        let ExtractConfig {
+            vis_cloud_helper: _,
+            api_key: _,
+            is_alternative: _,
+            user_agent: _,
+        } = args;
+
         self.sources.push(IVideo {
             url: None,
             quality: None,

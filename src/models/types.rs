@@ -2,6 +2,14 @@ use crate::models::Hashes;
 use serde::Deserialize;
 use std::collections::HashMap;
 
+#[derive(Default, Clone, Debug)]
+pub struct ExtractConfig {
+    pub vis_cloud_helper: Option<String>,
+    pub api_key: Option<String>,
+    pub is_alternative: Option<bool>,
+    pub user_agent: Option<String>,
+}
+
 /// Used to get other fields in structs
 #[derive(Clone, Debug, Deserialize)]
 pub enum Other {

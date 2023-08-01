@@ -1,4 +1,4 @@
-use crate::models::{ISubtitle, IVideo};
+use crate::models::{ExtractConfig, ISubtitle, IVideo, VideoExtractor};
 use crate::utils::{decrypt, util_funcs::USER_AGENT};
 use serde::{Deserialize, Serialize};
 
@@ -44,13 +44,22 @@ pub struct Sources {
 const HOST: &str = "https://dokicloud.one";
 const HOST2: &str = "https://rabbitstream.net";
 
-impl VidCloud {
-    pub async fn extract(
+impl VideoExtractor for VidCloud {
+    type VideoSource = VidCloud;
+
+    async fn extract(
         &mut self,
         video_url: String,
-        is_alternative: Option<bool>,
-    ) -> anyhow::Result<Self> {
-        let is_alternative = is_alternative.unwrap_or(false);
+        args: ExtractConfig,
+    ) -> anyhow::Result<Self::VideoSource> {
+        let ExtractConfig {
+            vis_cloud_helper: _,
+            api_key: _,
+            is_alternative,
+            user_agent: _,
+        } = args;
+
+        let is_alternative: bool = is_alternative.unwrap();
 
         let host = if !is_alternative { HOST } else { HOST2 };
 

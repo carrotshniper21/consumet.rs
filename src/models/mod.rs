@@ -1,8 +1,8 @@
-mod base_provider;
-mod base_types;
-mod type_objects;
-mod types;
-mod video_extractor;
+pub mod base_provider;
+pub mod base_types;
+pub mod type_objects;
+pub mod types;
+pub mod video_extractor;
 
 pub use base_provider::*;
 pub use base_types::*;

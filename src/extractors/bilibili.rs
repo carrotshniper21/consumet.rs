@@ -1,5 +1,5 @@
-use crate::models::{ISource, IVideo};
-use crate::utils::util_funcs::UtilFuncs;
+use crate::models::{ExtractConfig, IVideo, VideoExtractor};
+
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, Clone)]
@@ -7,8 +7,21 @@ pub struct Bilibili {
     pub sources: Vec<IVideo>,
 }
 
-impl Bilibili {
-    pub async fn extract(&mut self, _episode_id: String) -> anyhow::Result<Self> {
+impl VideoExtractor for Bilibili {
+    type VideoSource = Bilibili;
+
+    async fn extract(
+        &mut self,
+        _episode_id: String,
+        args: ExtractConfig,
+    ) -> anyhow::Result<Self::VideoSource> {
+        let ExtractConfig {
+            vis_cloud_helper: _,
+            api_key: _,
+            is_alternative: _,
+            user_agent: _,
+        } = args;
+
         self.sources.push(IVideo {
             url: None,
             quality: None,

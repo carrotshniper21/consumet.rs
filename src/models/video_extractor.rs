@@ -1,11 +1,13 @@
-pub trait VideoExtractor<T> {
+use crate::models::ExtractConfig;
+
+pub trait VideoExtractor {
     type VideoSource;
 
     /// takes video link
     /// returns video sources (video links) available
     async fn extract(
-        &self,
+        &mut self,
         video_url: String,
-        bofadeez: &mut Vec<T>,
+        args: ExtractConfig,
     ) -> anyhow::Result<Self::VideoSource>;
 }

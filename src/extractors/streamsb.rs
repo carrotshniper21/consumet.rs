@@ -1,5 +1,5 @@
-use crate::models::IVideo;
-use crate::utils::util_funcs::USER_AGENT;
+use crate::models::{ExtractConfig, IVideo, VideoExtractor};
+
 use serde::Deserialize;
 
 /// Contains the Decrypted Sources
@@ -11,8 +11,21 @@ pub struct StreamSB {
 const HOST: &str = "https://streamsss.net/sources50";
 const HOST2: &str = "https://watchsb.com/sources50";
 
-impl StreamSB {
-    pub async fn extract(&mut self, _video_url: String) -> anyhow::Result<Self> {
+impl VideoExtractor for StreamSB {
+    type VideoSource = StreamSB;
+
+    async fn extract(
+        &mut self,
+        _video_url: String,
+        args: ExtractConfig,
+    ) -> anyhow::Result<Self::VideoSource> {
+        let ExtractConfig {
+            vis_cloud_helper: _,
+            api_key: _,
+            is_alternative: _,
+            user_agent: _,
+        } = args;
+
         self.sources.push(IVideo {
             url: None,
             quality: None,

@@ -1,5 +1,5 @@
-use super::FlixHQInfo;
-use crate::models::{IEpisodeServer, IMovieEpisode, IMovieInfo, IMovieResult, TvType};
+
+use crate::models::types::{IEpisodeServer, IMovieEpisode, TvType};
 use visdom::{types::Elements, Vis};
 
 pub fn create_html_fragment(page_html: &str) -> Elements<'_> {

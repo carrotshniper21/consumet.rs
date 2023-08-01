@@ -1,12 +1,11 @@
 use super::dramacool_html::{create_html_fragment, Page, Search};
 use crate::models::{
-    BaseProvider, IEpisodeServer, IMovieEpisode, IMovieInfo, IMovieResult, ISearch, ISource,
-    ProxyConfig, StreamingServers, TvType,
+    BaseProvider, IMovieEpisode, IMovieInfo, IMovieResult, ISearch, ISource, StreamingServers,
 };
 
-use crate::extractors::{AsianLoad, MixDrop, StreamSB, StreamTape};
 
-use serde::Deserialize;
+
+
 
 // Contains all the DramaCool Info
 pub struct DramaCool;

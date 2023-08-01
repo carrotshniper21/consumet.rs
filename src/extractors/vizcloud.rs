@@ -1,4 +1,4 @@
-use crate::models::{ISubtitle, IVideo, Intro};
+use crate::models::{ExtractConfig, IVideo, VideoExtractor};
 use serde::Deserialize;
 
 #[derive(Clone, Debug, Deserialize)]
@@ -8,8 +8,14 @@ pub struct VizCloud {
 
 const HOST: &str = "https://vidstream.pro";
 
-impl VizCloud {
-    pub async fn extract(&mut self, _video_url: String) -> anyhow::Result<Self> {
+impl VideoExtractor for VizCloud {
+    type VideoSource = VizCloud;
+
+    async fn extract(
+        &mut self,
+        _video_url: String,
+        _args: ExtractConfig,
+    ) -> anyhow::Result<Self::VideoSource> {
         self.sources.push(IVideo {
             url: None,
             quality: None,

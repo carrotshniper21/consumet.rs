@@ -1,5 +1,3 @@
-use openssl::symm::{decrypt, Cipher};
-
 #[derive(Debug)]
 pub enum EncryptionError {
     OpenSSLError(openssl::error::ErrorStack),
