@@ -13,11 +13,11 @@
 
 # Imports
 ```rs
-use super::<provider_name_html>::{};
+use super::<provider_name_html>::{ /* Html Parsing Methods */ };
 
 use crate::models::{BaseProvider};
 
-use crate::extractors::{};
+use crate::extractors::{ /* Server Extractors */ };
 
 use serde::Deserialize;
 ```

@@ -1,10 +1,18 @@
+
 use super::dramacool_html::{create_html_fragment, Page, Search};
 use crate::models::{
     BaseProvider, IMovieEpisode, IMovieInfo, IMovieResult, ISearch, ISource, StreamingServers,
 };
 
+use serde::Deserialize;
+
 // Contains all the DramaCool Info
 pub struct DramaCool;
+
+#[derive(Debug, Deserialize)] 
+pub struct DramaCoolServerInfo {
+    link: String
+}
 
 #[derive(Debug)]
 pub struct DramaCoolInfo {
