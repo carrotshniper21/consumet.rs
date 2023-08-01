@@ -11,7 +11,7 @@ Let's start!
 ### Installation
 Install with cargo:
 ```sh
-cargo add consumet-api-rs
+cargo add consumet_api_rs
 ```
 ### Usage
 
