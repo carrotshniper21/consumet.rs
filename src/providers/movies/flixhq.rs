@@ -294,8 +294,6 @@ impl FlixHQ {
         let server = server.unwrap_or(StreamingServers::UpCloud);
         let servers = self.servers(episode_id, media_id).await?;
 
-        println!("{:#?}", servers);
-
         let i = servers
             .iter()
             .position(|s| s.name == server.to_string())

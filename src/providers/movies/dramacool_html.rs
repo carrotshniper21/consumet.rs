@@ -1,6 +1,3 @@
-
-
-
 use visdom::{types::Elements, Vis};
 
 pub fn create_html_fragment(page_html: &str) -> Elements<'_> {

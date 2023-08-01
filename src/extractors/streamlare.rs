@@ -11,6 +11,7 @@ const HOST: &str = "https://streamlare.com";
 impl VideoExtractor for StreamLare {
     type VideoSource = StreamLare;
 
+    // NOTE: Only needs video_url & user_agent param param
     async fn extract(
         &mut self,
         _video_url: String,

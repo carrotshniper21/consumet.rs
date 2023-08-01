@@ -14,6 +14,7 @@ const HOST2: &str = "https://watchsb.com/sources50";
 impl VideoExtractor for StreamSB {
     type VideoSource = StreamSB;
 
+    // NOTE: Only needs video_url & is_alternative param
     async fn extract(
         &mut self,
         _video_url: String,

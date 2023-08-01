@@ -13,6 +13,7 @@ const HOST: &str = "https://rapid-cloud.co";
 impl VideoExtractor for RapidCloud {
     type VideoSource = RapidCloud;
 
+    // NOTE: Only needs video_url param
     async fn extract(
         &mut self,
         _video_url: String,

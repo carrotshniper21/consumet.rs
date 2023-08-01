@@ -47,6 +47,7 @@ const HOST2: &str = "https://rabbitstream.net";
 impl VideoExtractor for VidCloud {
     type VideoSource = VidCloud;
 
+    // NOTE: Only needs video_url & is_alternativeparam
     async fn extract(
         &mut self,
         video_url: String,

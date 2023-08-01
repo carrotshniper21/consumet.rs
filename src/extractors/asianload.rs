@@ -11,6 +11,7 @@ pub struct AsianLoad {
 impl VideoExtractor for AsianLoad {
     type VideoSource = AsianLoad;
 
+    // NOTE: Only needs video_url param
     async fn extract(
         &mut self,
         _video_url: String,

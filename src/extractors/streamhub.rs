@@ -10,6 +10,7 @@ pub struct StreamHub {
 impl VideoExtractor for StreamHub {
     type VideoSource = StreamHub;
 
+    // NOTE: Only needs video_url param
     async fn extract(
         &mut self,
         _video_url: String,

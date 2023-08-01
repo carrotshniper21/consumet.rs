@@ -9,6 +9,7 @@ pub struct VidMoly {
 impl VideoExtractor for VidMoly {
     type VideoSource = VidMoly;
 
+    // NOTE: Only needs video_url param
     async fn extract(
         &mut self,
         _video_url: String,

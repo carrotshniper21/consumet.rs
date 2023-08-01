@@ -9,6 +9,7 @@ pub struct GogoCDN {
 impl VideoExtractor for GogoCDN {
     type VideoSource = GogoCDN;
 
+    // NOTE: Only needs video_url param
     async fn extract(
         &mut self,
         _video_url: String,

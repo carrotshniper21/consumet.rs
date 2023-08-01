@@ -10,6 +10,7 @@ pub struct Bilibili {
 impl VideoExtractor for Bilibili {
     type VideoSource = Bilibili;
 
+    // NOTE: Only needs episode_id param
     async fn extract(
         &mut self,
         _episode_id: String,

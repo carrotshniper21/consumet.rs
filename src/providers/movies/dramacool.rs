@@ -3,10 +3,6 @@ use crate::models::{
     BaseProvider, IMovieEpisode, IMovieInfo, IMovieResult, ISearch, ISource, StreamingServers,
 };
 
-
-
-
-
 // Contains all the DramaCool Info
 pub struct DramaCool;
 

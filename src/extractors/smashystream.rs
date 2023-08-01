@@ -12,6 +12,7 @@ const HOST: &str = "https://embed.smashystream.com";
 impl VideoExtractor for SmashyStream {
     type VideoSource = SmashyStream;
 
+    // NOTE: Only needs video_url param
     async fn extract(
         &mut self,
         _video_url: String,

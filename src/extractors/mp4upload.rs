@@ -9,6 +9,7 @@ pub struct Mp4Upload {
 impl VideoExtractor for Mp4Upload {
     type VideoSource = Mp4Upload;
 
+    // NOTE: Only needs video_url param
     async fn extract(
         &mut self,
         _video_url: String,

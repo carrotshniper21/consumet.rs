@@ -9,6 +9,7 @@ pub struct StreamWish {
 impl VideoExtractor for StreamWish {
     type VideoSource = StreamWish;
 
+    // NOTE: Only needs video_url param
     async fn extract(
         &mut self,
         _video_url: String,

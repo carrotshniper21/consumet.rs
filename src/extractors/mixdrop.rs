@@ -11,6 +11,7 @@ pub struct MixDrop {
 impl VideoExtractor for MixDrop {
     type VideoSource = MixDrop;
 
+    // NOTE: Only needs video_url param
     async fn extract(
         &mut self,
         _video_url: String,

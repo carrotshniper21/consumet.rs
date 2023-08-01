@@ -11,6 +11,7 @@ const HOST: &str = "https://vidstream.pro";
 impl VideoExtractor for VizCloud {
     type VideoSource = VizCloud;
 
+    // NOTE: Only needs video_url & viz_cloud_helper & api_key param
     async fn extract(
         &mut self,
         _video_url: String,

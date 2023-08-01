@@ -12,6 +12,7 @@ const HOST: &str = "https://filemoon.sx";
 impl VideoExtractor for FileMoon {
     type VideoSource = FileMoon;
 
+    // NOTE: Only needs video_url param
     async fn extract(
         &mut self,
         _video_url: String,
