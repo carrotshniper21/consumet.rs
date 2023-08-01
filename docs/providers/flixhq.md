@@ -9,6 +9,7 @@ let flixhq = movies::FlixHQ;
 <h2>Methods</h2>
 
 - [search](#search)
+- [single search](#single-search)
 - [info](#info)
 - [sources](#sources)
 - [servers](#servers)
@@ -18,9 +19,6 @@ let flixhq = movies::FlixHQ;
 - [trending\_shows](#trending_shows)
 
 ### search
-> Note: This method is a subclass of the [`BaseParser`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/base_parser.rs) trait. meaning it is available across most categories.
-
-
 <h4>Parameters</h4>
 
 | Parameter       | Type     | Description                                                                                                                                |
@@ -35,7 +33,7 @@ println!("{:#?}", data);
 
 returns a future which resolves into an vector of movies/tv series. (*[`impl Future<Output = Result<ISearch<Vec<IMovieResult>>>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L452-L462)*)\
             output:
-```
+```rust
 ISearch {
     current_page: Some(
         1,
@@ -75,6 +73,46 @@ ISearch {
 }
 ```
 
+### single search
+<h4>Parameters</h4>
+
+| Parameter | Type     | Description                                                                                                                     |
+| --------- | -------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| mediaId   | `string` | takes media id or url as a parameter. (*media id or url can be found in the media search results as shown on the above method*) |
+
+```rust
+let data = flixhq.fetch_search_result("tv/watch-vincenzo-67955").await?;
+println!("{:#?}", data);
+```
+
+returns a future which resolves into an IMovieResult. (*[`impl Future<Output = Result<IMovieResult>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L440-L451)*)\
+            output:
+```rust
+IMovieResult {
+    id: Some(
+        "tv/watch-vincenzo-67955",
+    ),
+    cover: Some(
+        "https://img.flixhq.to/xxrz/1200x600/379/54/ed/54ed3e2164e4efa4c9ccc248e03f0032/54ed3e2164e4efa4c9ccc248e03f0032.jpg",
+    ),
+    title: Some(
+        "Vincenzo",
+    ),
+    url: Some(
+        "https://flixhq.to/tv/watch-vincenzo-67955",
+    ),
+    image: Some(
+        "https://img.flixhq.to/xxrz/250x400/379/79/6b/796b32989cf1308b9e0619524af5b022/796b32989cf1308b9e0619524af5b022.jpg",
+    ),
+    release_date: Some(
+        "2021-02-20",
+    ),
+    media_type: Some(
+        TvSeries,
+    ),
+}
+```
+
 ### info
 
 <h4>Parameters</h4>
@@ -90,7 +128,7 @@ println!("{:#?}", data);
 
 returns a future which resolves into an movie info object (including the episodes). (*[`impl Future<Output = Result<FlixHQInfo>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/providers/movies/flixhq.rs#L22-L26)*)\
 output:
-```
+```rust
 FlixHQInfo {
     base: IMovieResult {
         id: Some(
@@ -224,7 +262,7 @@ FlixHQInfo {
 | ----------------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | episodeId         | `string`                                                                                                           | takes episode id as a parameter. (*episode id can be found in the media info object*)                                                                                |
 | mediaId           | `string`                                                                                                           | takes media id as a parameter. (*media id can be found in the media info object*)                                                                                    |
-| server (optional) | [`StreamingServers`](https://github.com/carrotshniper21/consumet-api-rs/blob/master/src/models/types.ts#L166-L183) | takes server enum as a parameter. *default: [`StreamingServers::VidCloud`](https://github.com/carrotshniper21/consumet-api-rs/blob/master/src/models/types.rs#L177)* |
+| server (optional) | [`StreamingServers`](https://github.com/carrotshniper21/consumet-api-rs/blob/master/src/models/types.rs#L166-L183) | takes server enum as a parameter. *default: [`StreamingServers::VidCloud`](https://github.com/carrotshniper21/consumet-api-rs/blob/master/src/models/types.rs#L177)* |
 
 
 ```rust
@@ -235,7 +273,7 @@ returns a future which resolves into an vector of episode sources and subtitles.
 output:
 
 
-```
+```rust
 ISource {
     headers: Some(
         "https://dokicloud.one/embed-4/UCOzqDHOU3UO?z=",
@@ -303,7 +341,7 @@ println!("{:#?}", data);
 ```
 returns a future which resolves into an vector of episode servers. (*[`impl Future<Output = Result<Vec<IEpisodeServer>>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L148-L153)*)\
 output:
-```
+```rust
 [
     IEpisodeServer {
         name: "UpCloud",
@@ -333,7 +371,7 @@ println!("{:#?}", data)
 
 returns a future which resolves into an vector of movies. (*[`impl Future<Output = Result<Vec<IMovieResult>>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L452-L462)*)\
 output:
-```
+```rust
 [
     IMovieResult {
         id: Some(
@@ -419,7 +457,7 @@ println!("{:#?}", data);
 
 returns a future which resolves into an vector of tv shows. (*[`impl Future<Output = Result<Vec<IMovieResult>>>`](https://github.com//consumet-api-rs/blob/master/src/models/types.rs#L452-L462)*)\
 output:
-```
+```rust
 [
     IMovieResult {
         id: Some(
@@ -505,7 +543,7 @@ println!("{:#?}", data);
 
 returns a future which resolves into an vector of movies. (*[`impl Future<Output = Result<Vec<IMovieResult>>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L452-L462)*)\
 output:
-```
+```rust
 [
     IMovieResult {
         id: Some(
@@ -591,7 +629,7 @@ println!("{:#?}", data);
 
 returns a future which resolves into an vector of tv shows. (*[`impl Future<Output = Result<Vec<IMovieResult>>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L452-L462)*)\
 output:
-```
+```rust
 [
     IMovieResult {
         id: Some(

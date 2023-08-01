@@ -7,27 +7,27 @@ By using `MOVIES` category you can interact with the movie providers. And have a
 ```rust
 use consumet_api_rs::providers::movies;
 
-// <provider_name> is the name of the provider you want to use. list of the proivders is below.
+// <provider_name> is the name of the provider you want to use. list of the providers is below.
 let movie_provider = movies::<provider_name>;
 ```
 
 ## Common Methods
 
-``languages`` - string, the language of the current provider, return language code, example: ``languages: 'en'``
+``languages`` - array, the language of the current provider, return language code, example: ``["en"]``
 
-``isNSFW`` - bool, ``true`` if the provider providers NSFW content.
+``is_nsfw`` - bool, ``true`` if the provider providers NSFW content.
 
-``isWorking`` - bool, a bool to identify the state of the current provider, ``true`` if the provider is working, ``false`` otherwise. 
+``is_working`` - bool, a bool to identify the state of the current provider, ``true`` if the provider is working, ``false`` otherwise. 
 
-``name`` - string, the name of the current provider, example: ``name: 'FlixHQ'``
+``name`` - string, the name of the current provider, example: ``"FlixHQ"``
 
-``baseUrl`` - string, url to the base URL of the current provider
+``base_url`` - string, url to the base URL of the current provider
 
 ``logo`` - string, url to the logo image of the current provider
 
-``classPath`` - string,
+``class_path`` - string,
 
-``supportedTypes`` - object, A ``Set`` of supported types by the provider, to check if a type is supported use  ``supportedTypes.has(<the type to be checked>)``.
+``supported_types`` - A ``array`` of supported types by the provider, to check if a type is supported use  ``println!("{:#?}", supported_types)``.
   
 
 ## Movies Providers List
