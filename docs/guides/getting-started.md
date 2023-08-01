@@ -27,9 +27,10 @@ async fn main() -> anyhow::Result<()> {
     let results = flixhq.search("Vincenzo", None).await?;
     // Print the results
     println!("{:#?}", results);
+
     // Get the first movie info
-    let first_movie = results.results[0];
-    let movie_info = flixhq.info(first_movie.id).await?;
+    let first_movie = results.results[0].id.clone().expect("No id found!");
+    let movie_info = flixhq.info(first_movie.as_str()).await?;
     // Print the info
     println!("{:#?}", movie_info);
 
