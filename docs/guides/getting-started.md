@@ -20,7 +20,7 @@ cargo add consumet-api-rs
 use consumet_api_rs::providers::movies;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> anyhow::Result<()> {
     // Create a new instance of the flixhq provider
     let flixhq = movies::FlixHQ;
     // Search for a movie. In this case, "Vincenzo"
@@ -32,6 +32,8 @@ async fn main() {
     let movie_info = flixhq.info(first_movie.id).await?;
     // Print the info
     println!("{:#?}", movie_info);
+
+    Ok(())
 }
 ```
 *see also [MOVIE documentation](./movies.md#movies) for more information.*\
