@@ -173,8 +173,7 @@ impl FlixHQ {
             let season_html = reqwest::Client::new()
                 .get(format!("{}/ajax/v2/tv/seasons/{}", self.base_url(), id))
                 .send()
-                .await
-                .unwrap()
+                .await?
                 .text()
                 .await?;
 
@@ -198,11 +197,9 @@ impl FlixHQ {
                         &episode
                     ))
                     .send()
-                    .await
-                    .unwrap()
+                    .await?
                     .text()
-                    .await
-                    .unwrap();
+                    .await?;
 
                 let fragment = create_html_fragment(&episode_html);
 
@@ -300,7 +297,7 @@ impl FlixHQ {
             .expect(&format!("Server {server} not found"));
 
         let parts: Vec<&str> = servers[i].url.split('.').collect();
-        let server_id = parts.last().cloned().unwrap_or_default();
+        let server_id = parts.last().copied().expect("Server id is None");
 
         let server_json = reqwest::Client::new()
             .get(format!("{}/ajax/get_link/{}", self.base_url(), server_id))
@@ -309,8 +306,7 @@ impl FlixHQ {
             .text()
             .await?;
 
-        let server_info: FlixHQServerInfo =
-            serde_json::from_str(&server_json).expect("Error parsing JSON");
+        let server_info: FlixHQServerInfo = serde_json::from_str(&server_json)?;
 
         if server_info.link.starts_with("http") {
             match server {
@@ -350,8 +346,7 @@ impl FlixHQ {
                                 ..Default::default()
                             },
                         )
-                        .await
-                        .expect("Failed to extract VidCloud sources!");
+                        .await?;
 
                     Ok(ISource {
                         sources: Some(vid_cloud.sources),
@@ -373,8 +368,7 @@ impl FlixHQ {
                                 ..Default::default()
                             },
                         )
-                        .await
-                        .expect("failed to extract upcloud sources!");
+                        .await?;
 
                     Ok(ISource {
                         sources: Some(vid_cloud.sources),
@@ -397,8 +391,7 @@ impl FlixHQ {
                                 ..Default::default()
                             },
                         )
-                        .await
-                        .expect("Failed to extract UpCloud sources!");
+                        .await?;
 
                     Ok(ISource {
                         sources: Some(vid_cloud.sources),
@@ -409,7 +402,7 @@ impl FlixHQ {
                 }
             }
         } else {
-            panic!("Incorrect server Url. Try Again.")
+            Err(anyhow::anyhow!("Incorrect server url. Try Again."))
         }
     }
 
