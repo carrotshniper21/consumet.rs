@@ -7,8 +7,6 @@ use crate::models::{
     IMovieSeason, ISearch, ISource, StreamingServers, TvType, VideoExtractor,
 };
 
-use crate::utils::logger;
-
 use crate::extractors::{MixDrop, VidCloud};
 
 use serde::Deserialize;
@@ -50,6 +48,42 @@ impl BaseProvider for FlixHQ {
 }
 
 impl FlixHQ {
+    pub(crate) fn parse_search(
+        &self,
+        page_html: String,
+    ) -> (Vec<Option<String>>, bool, Option<usize>) {
+        let fragment = create_html_fragment(&page_html);
+
+        let page_parser = Page { elements: fragment };
+
+        let ids = page_parser.page_ids();
+        (ids, page_parser.has_next_page(), page_parser.total_pages())
+    }
+
+    pub(crate) fn single_page(&self, media_html: String, id: &str, url: String) -> IMovieResult {
+        let fragment = create_html_fragment(&media_html);
+
+        let search_parser = Search {
+            elements: &fragment,
+            id,
+        };
+
+        let info_parser = Info {
+            elements: &fragment,
+        };
+
+        IMovieResult {
+            cover: search_parser.search_cover(),
+            title: search_parser.search_title(),
+            other_names: None,
+            url: Some(url),
+            image: search_parser.search_image(),
+            release_date: info_parser.info_label(3, "Released:").join(""),
+            media_type: search_parser.search_media_type(),
+            id: Some(id.to_string()),
+        }
+    }
+
     pub async fn search(
         &self,
         query: &str,
@@ -70,11 +104,7 @@ impl FlixHQ {
             .text()
             .await?;
 
-        let fragment = create_html_fragment(&page_html);
-
-        let page_parser = Page { elements: fragment };
-
-        let ids = page_parser.page_ids();
+        let (ids, has_next_page, total_pages) = self.parse_search(page_html);
 
         let mut results = vec![];
 
@@ -86,8 +116,8 @@ impl FlixHQ {
 
         Ok(ISearch {
             current_page: Some(page),
-            has_next_page: page_parser.has_next_page(),
-            total_pages: page_parser.total_pages(),
+            has_next_page,
+            total_pages,
             total_results: results.len(),
             results,
         })
@@ -106,27 +136,7 @@ impl FlixHQ {
             .text()
             .await?;
 
-        let fragment = create_html_fragment(&media_html);
-
-        let search_parser = Search {
-            elements: &fragment,
-            id,
-        };
-
-        let info_parser = Info {
-            elements: &fragment,
-        };
-
-        Ok(IMovieResult {
-            cover: search_parser.search_cover(),
-            title: search_parser.search_title(),
-            other_names: None,
-            url: Some(url),
-            image: search_parser.search_image(),
-            release_date: info_parser.info_label(3, "Released:").join(""),
-            media_type: search_parser.search_media_type(),
-            id: Some(id.to_string()),
-        })
+        Ok(self.single_page(media_html, id, url))
     }
 
     /// Returns a future which resolves into an movie info object (including the episodes). (*[`impl Future<Output = Result<FlixHQInfo>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/providers/movies/flixhq.rs#L22-L26)*)\

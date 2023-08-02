@@ -1,7 +1,7 @@
 use crate::models::types::{IEpisodeServer, IMovieEpisode, TvType};
 use visdom::{types::Elements, Vis};
 
-pub fn create_html_fragment(page_html: &str) -> dyn Send + Elements<'_> {
+pub fn create_html_fragment(page_html: &str) -> Elements<'_> {
     Vis::load(page_html).unwrap()
 }
 
