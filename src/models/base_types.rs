@@ -1,6 +1,6 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 /// Book Info struct
 pub struct Book {
     pub title: String,
@@ -16,7 +16,7 @@ pub struct Book {
     pub link: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 /// Hash struct
 pub struct Hashes {
     pub aich: String,
