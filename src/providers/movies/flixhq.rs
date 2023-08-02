@@ -7,6 +7,8 @@ use crate::models::{
     IMovieSeason, ISearch, ISource, StreamingServers, TvType, VideoExtractor,
 };
 
+use crate::utils::logger;
+
 use crate::extractors::{MixDrop, VidCloud};
 
 use serde::Deserialize;
