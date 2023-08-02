@@ -1,8 +1,8 @@
 use crate::models::{ExtractConfig, IVideo, VideoExtractor};
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct Bilibili {
     pub sources: Vec<IVideo>,
 }

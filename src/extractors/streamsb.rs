@@ -1,9 +1,9 @@
 use crate::models::{ExtractConfig, IVideo, VideoExtractor};
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Contains the Decrypted Sources
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct StreamSB {
     pub sources: Vec<IVideo>,
 }

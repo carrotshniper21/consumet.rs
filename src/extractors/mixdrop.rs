@@ -1,8 +1,8 @@
 use crate::models::{ExtractConfig, ISubtitle, IVideo, VideoExtractor};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Contains both the Decrypted Sources and Subtitles
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct MixDrop {
     pub sources: Vec<IVideo>,
     pub subtitles: Vec<ISubtitle>,

@@ -3,7 +3,7 @@ use crate::utils::{decrypt, util_funcs::USER_AGENT};
 use serde::{Deserialize, Serialize};
 
 /// Contains both the Decrypted Sources and Subtitles
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct VidCloud {
     pub sources: Vec<IVideo>,
     pub subtitles: Vec<ISubtitle>,
@@ -19,21 +19,21 @@ pub struct Tracks {
 }
 
 /// Contains the Decrypted Sources File
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct Video {
     pub file: Option<String>,
     pub r#type: Option<String>,
 }
 
 /// Sources Enum for when its being decrypted
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub enum File {
     EncryptedURL(String),
     DecryptedURL(Vec<Video>),
 }
 
 /// Contains the Encrypted Sources
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Sources {
     pub sources: Option<serde_json::Value>,
     pub tracks: Option<Vec<Tracks>>,

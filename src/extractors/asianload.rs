@@ -1,8 +1,8 @@
 use crate::models::{ExtractConfig, ISubtitle, IVideo, VideoExtractor};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Contains both the Decrypted Sources and Subtitles
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct AsianLoad {
     pub sources: Vec<IVideo>,
     pub subtitles: Vec<ISubtitle>,
