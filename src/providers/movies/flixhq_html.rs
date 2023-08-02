@@ -39,7 +39,7 @@ impl<'a> Page<'a> {
 #[derive(Clone, Copy)]
 pub struct Search<'page, 'b> {
     pub elements: &'b (dyn Elements<'page> + Send + Sync),
-    pub id: &'b (dyn str + Send + Sync),
+    pub id: &'b str
 }
 
 impl<'page, 'b> Search<'page, 'b> {
