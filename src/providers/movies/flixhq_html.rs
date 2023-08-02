@@ -6,7 +6,7 @@ pub fn create_html_fragment(page_html: &str) -> Elements<'_> {
 }
 
 pub struct Page<'a> {
-    pub elements: (dyn Elements<'a> + Send + Sync),
+    pub elements: Elements<'a>
 }
 
 impl<'a> Page<'a> {
@@ -38,7 +38,7 @@ impl<'a> Page<'a> {
 
 #[derive(Clone, Copy)]
 pub struct Search<'page, 'b> {
-    pub elements: &'b (dyn Elements<'page> + Send + Sync),
+    pub elements: &'b Elements<'page>,
     pub id: &'b str
 }
 
