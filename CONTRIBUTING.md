@@ -1,6 +1,6 @@
 <h1>Contributing</h1>
 
-This guide is for the people who are interested in contributing to consumet.rs. It is not a complete guide yet, but it should help you get started. If you have any questions or any suggestions, please open a [issue](https://github.com/consumet-rs/consumet.rs/issues/new?assignees=&labels=Bug&template=bug-report.yml) or join the [discord server](https://discord.gg/qTPfvMxzNH).
+This guide is for the people who are interested in contributing to consumet.rs. It is not a complete guide yet, but it should help you get started. If you have any questions or any suggestions, please open a [issue](https://github.com/carrotshniper21/consumet.rs/issues/new?assignees=&labels=Bug&template=bug-report.yml) or join the [discord server](https://discord.gg/qTPfvMxzNH).
 
 See our [informal contributing guide](./docs/guides/contributing.md) for more details on contributing to this project.
 
@@ -27,10 +27,10 @@ To contribute to Consumet code, you need to know the following:
        - [DevTools](https://developer.mozilla.org/en-US/docs/Learn/Common_questions/What_are_browser_developer_tools)
 
 ### Cloning the repository
-1. [Fork the repository](https://github.com/consumet-rs/consumet.rs/fork)
+1. [Fork the repository](https://github.com/carrotshniper21/consumet.rs/fork)
 2. Clone your fork to your local machine using the following command **(make sure to change `<your_username>` to your GitHub username)**:
 ```sh
-git clone https://github.com/<your-username>/consumet-api.git
+git clone https://github.com/<your-username>/consumet.rs.git
 ```
 3. Create a new branch:
 ```sh
