@@ -45,6 +45,7 @@ I believe that project structure is needed to make it simple to contribute to co
 
 ```sh
 > tree
+.github/
 docs/
 ├── guides/
 |   ├── ...
@@ -54,15 +55,25 @@ docs/
 ├── providers/
 │   └── <provider-name>.md (provider documentation)
 ├── README.md
+examples/
+provider-templates/
 src/
-├── lib.rs
+|── extractors
+|── html
 |── models
 ├── providers
 │   ├── <category>
 │   │   ├── mod.rs
 │   │   └── <provider-name>.rs
 │   └── <category>
-└── utils
+├── utils
+└── lib.rs
+.gitignore
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+Cargo.toml
+LICENSE
+README.md
 ```
 
 #### Setting up the provider
