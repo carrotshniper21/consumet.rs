@@ -2,4 +2,3 @@ pub mod decrypt;
 pub mod get_comics;
 pub mod queries;
 pub mod util_funcs;
-pub mod logger;

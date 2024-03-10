@@ -8,7 +8,7 @@ pub struct RapidCloud {
     subtitles: Vec<ISubtitle>,
 }
 
-const HOST: &str = "https://rapid-cloud.co";
+const _HOST: &str = "https://rapid-cloud.co";
 
 impl VideoExtractor for RapidCloud {
     type VideoSource = RapidCloud;

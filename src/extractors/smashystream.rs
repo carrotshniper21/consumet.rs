@@ -7,7 +7,7 @@ pub struct SmashyStream {
     subtitles: Vec<ISubtitle>,
 }
 
-const HOST: &str = "https://embed.smashystream.com";
+const _HOST: &str = "https://embed.smashystream.com";
 
 impl VideoExtractor for SmashyStream {
     type VideoSource = SmashyStream;

@@ -1,8 +1,8 @@
-use chrono::{DateTime, Datelike, Local, NaiveDateTime, Utc};
+use chrono::{DateTime, Datelike, Local, NaiveDateTime, TimeZone, Utc};
 
 /// The User-Agent used in HTTP requests in some parser implmentations
 /// ```
-/// use consumet_api_rs::utils::util_funcs::USER_AGENT;
+/// use consumet::utils::util_funcs::USER_AGENT;
 /// use reqwest::{Client, header};
 ///
 /// #[tokio::main]
@@ -37,7 +37,7 @@ pub enum Days {
 pub trait UtilFuncs {
     /// Pass in a author string and get a Vector
     /// ```
-    /// use consumet_api_rs::utils::util_funcs::UtilFuncs;
+    /// use consumet::utils::util_funcs::UtilFuncs;
     ///
     /// let author_string = "author1, author2";
     /// let author_vec = author_string.split_author();
@@ -48,7 +48,7 @@ pub trait UtilFuncs {
 
     /// Pass in a id string and get the floored version
     /// ```
-    /// use consumet_api_rs::utils::util_funcs::UtilFuncs;
+    /// use consumet::utils::util_funcs::UtilFuncs;
     ///
     /// let id = "123456";
     /// let floored_id = id.floor_id();
@@ -59,7 +59,7 @@ pub trait UtilFuncs {
 
     /// Pass in a title and get the formatted version
     /// ```
-    /// use consumet_api_rs::utils::util_funcs::UtilFuncs;
+    /// use consumet::utils::util_funcs::UtilFuncs;
     ///
     /// let title = "Remy Clarke123 The Movie   ";
     /// let formatted_title = title.format_title();
@@ -70,7 +70,7 @@ pub trait UtilFuncs {
 
     /// Pass in a String and get the first letter capitalized
     /// ```
-    /// use consumet_api_rs::utils::util_funcs::UtilFuncs;
+    /// use consumet::utils::util_funcs::UtilFuncs;
     ///
     /// let to_be_capitalized = "remy Clarke";
     /// let capitalized = to_be_capitalized.capitalize_first_letter();
@@ -81,7 +81,7 @@ pub trait UtilFuncs {
 
     /// Pass in a String and to_find and get the substring before it
     /// ```
-    /// use consumet_api_rs::utils::util_funcs::UtilFuncs;
+    /// use consumet::utils::util_funcs::UtilFuncs;
     ///
     /// let substring = "remy Clarke";
     /// let found = substring.substring_before("Clarke").expect("Unable to find substring!");
@@ -92,7 +92,7 @@ pub trait UtilFuncs {
 
     /// Pass in a String and to_find and get the substring after it
     /// ```
-    /// use consumet_api_rs::utils::util_funcs::UtilFuncs;;
+    /// use consumet::utils::util_funcs::UtilFuncs;;
     ///
     /// let substring = "remy Clarke";
     /// let found = substring.substring_before("remy").expect("Unable to find substring!");
@@ -103,7 +103,7 @@ pub trait UtilFuncs {
 
     /// Pass in a String and to_find and get the substring before the last occurrence of it
     /// ```
-    /// use consumet_api_rs::utils::util_funcs::UtilFuncs;
+    /// use consumet::utils::util_funcs::UtilFuncs;
     ///
     /// let substring = "remy Clarke remy";
     /// let found = substring.substring_before_last("remy").expect("Unable to find substring!");
@@ -114,7 +114,7 @@ pub trait UtilFuncs {
 
     /// Pass in a String and to_find and get the substring after the last occurrence of it
     /// ```
-    /// use consumet_api_rs::utils::util_funcs::UtilFuncs;
+    /// use consumet::utils::util_funcs::UtilFuncs;
     ///
     /// let substring = "remy Clarke remy Clarke";
     /// let found = substring.substring_after_last("remy").expect("Unable to find substring!");
@@ -146,7 +146,7 @@ pub fn get_day(day: Days) -> i64 {
 
 /// Wrapper for the get_day function
 /// ```
-/// use consumet_api_rs::utils::util_funcs::{get_days, Days};
+/// use consumet::utils::util_funcs::{get_days, Days};
 ///
 /// // Assuming today is 8/24/23
 /// let days = get_days(vec![Days::Sunday, Days::Saturday]); // Output: [1690723824, 1690637424]
@@ -163,7 +163,7 @@ pub fn get_days(days: Vec<Days>) -> Vec<i64> {
 
 /// Turns milliseconds into 24 Hour Format
 /// ```
-/// use consumet_api_rs::utils::util_funcs::convert_duration;
+/// use consumet::utils::util_funcs::convert_duration;
 ///
 /// let milliseconds = 23409823;
 /// let duration = convert_duration(milliseconds);
@@ -172,8 +172,8 @@ pub fn get_days(days: Vec<Days>) -> Vec<i64> {
 /// ```
 pub fn convert_duration(milliseconds: i64) -> String {
     let timestamp = milliseconds * 1000;
-    let naive = NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
-    let datetime: DateTime<Utc> = DateTime::from_utc(naive, Utc);
+    let native = NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
+    let datetime: DateTime<Utc> = Utc.from_utc_datetime(&native);
     datetime.format("PT%HH%MM%SS").to_string()
 }
 

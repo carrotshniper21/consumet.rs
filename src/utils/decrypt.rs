@@ -35,3 +35,16 @@ pub fn decrypt_url(encrypted_url: &str, key: &[u8]) -> Result<String, Encryption
     )
     .map_err(|_| EncryptionError::ParsingError)
 }
+
+pub fn key_finder(encrypted_url: &mut String, key_resolver: Vec<(u8, u8)>) -> String {
+    let rough_copy: String = encrypted_url.clone();
+
+    key_resolver
+        .iter()
+        .map(|(start, end)| {
+            let segment = &rough_copy[(*start as usize)..(*end as usize)];
+            *encrypted_url = encrypted_url.replace(segment, "");
+            segment
+        })
+        .collect::<String>()
+}

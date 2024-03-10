@@ -6,7 +6,7 @@ pub struct VizCloud {
     sources: Vec<IVideo>,
 }
 
-const HOST: &str = "https://vidstream.pro";
+const _HOST: &str = "https://vidstream.pro";
 
 impl VideoExtractor for VizCloud {
     type VideoSource = VizCloud;

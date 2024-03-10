@@ -6,7 +6,7 @@ pub struct StreamLare {
     sources: Vec<IVideo>,
 }
 
-const HOST: &str = "https://streamlare.com";
+const _HOST: &str = "https://streamlare.com";
 
 impl VideoExtractor for StreamLare {
     type VideoSource = StreamLare;

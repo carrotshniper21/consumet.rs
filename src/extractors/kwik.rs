@@ -6,7 +6,7 @@ pub struct Kwik {
     pub sources: Vec<IVideo>,
 }
 
-const HOST: &str = "https://animepage.com";
+const _HOST: &str = "https://animepage.com";
 
 impl VideoExtractor for Kwik {
     type VideoSource = Kwik;

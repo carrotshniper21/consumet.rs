@@ -7,7 +7,7 @@ pub struct FileMoon {
     pub sources: Vec<IVideo>,
 }
 
-const HOST: &str = "https://filemoon.sx";
+const _HOST: &str = "https://filemoon.sx";
 
 impl VideoExtractor for FileMoon {
     type VideoSource = FileMoon;

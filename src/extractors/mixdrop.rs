@@ -1,11 +1,24 @@
-use crate::models::{ExtractConfig, ISubtitle, IVideo, VideoExtractor};
+use crate::models::{ExtractConfig, VideoExtractor};
 use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct MixDropSource {
+    pub url: String,
+    pub quality: String,
+    pub is_m3u8: bool,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct MixDropSubtitle {
+    pub url: String,
+    pub lang: String,
+}
 
 /// Contains both the Decrypted Sources and Subtitles
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct MixDrop {
-    pub sources: Vec<IVideo>,
-    pub subtitles: Vec<ISubtitle>,
+    pub sources: Vec<MixDropSource>,
+    pub subtitles: Vec<MixDropSubtitle>,
 }
 
 impl VideoExtractor for MixDrop {
@@ -24,19 +37,15 @@ impl VideoExtractor for MixDrop {
             user_agent: _,
         } = args;
 
-        self.sources.push(IVideo {
-            url: None,
-            quality: None,
-            is_m3u8: None,
-            is_dash: None,
-            size: None,
-            other: None,
+        self.sources.push(MixDropSource {
+            url: String::new(),
+            quality: String::new(),
+            is_m3u8: false,
         });
 
-        self.subtitles.push(ISubtitle {
-            id: None,
-            url: None,
-            lang: None,
+        self.subtitles.push(MixDropSubtitle {
+            url: String::new(),
+            lang: String::new(),
         });
 
         Ok(Self {

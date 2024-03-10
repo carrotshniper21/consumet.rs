@@ -1,4 +1,3 @@
-use crate::models::Hashes;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -16,16 +15,32 @@ pub enum Other {
     Poster(String),
 }
 
-/// Contains Provider Statistics
-#[derive(Clone, Copy, Debug)]
-pub struct IProviderStats<'a> {
-    pub name: &'a str,
-    pub base_url: &'a str,
-    pub lang: &'a [&'a str],
-    pub is_nsfw: bool,
-    pub logo: &'a str,
-    pub class_path: &'a str,
-    pub is_working: bool,
+/// Book Info struct
+#[derive(Debug, Deserialize, Serialize)]
+pub struct Book {
+    pub title: String,
+    pub authors: Vec<String>,
+    pub publisher: String,
+    pub year: String,
+    pub edition: String,
+    pub volume: String,
+    pub series: String,
+    pub isbn: Vec<String>,
+    pub image: String,
+    pub description: String,
+    pub link: String,
+}
+
+/// Hash struct
+#[derive(Debug, Deserialize, Serialize)]
+pub struct Hashes {
+    pub aich: String,
+    pub crc32: String,
+    pub edonkey: String,
+    pub md5: String,
+    pub sha1: String,
+    pub sha256: Vec<String>,
+    pub tth: String,
 }
 
 /// Contains Title Info
@@ -152,8 +167,8 @@ pub struct IAnimeEpisode {
 /// Contains Episode Server Info
 #[derive(Debug, Deserialize, Serialize)]
 pub struct IEpisodeServer {
-    pub name: String,
-    pub url: String,
+    pub name: Option<String>,
+    pub url: Option<String>,
 }
 
 /// Contains Video Sources
@@ -168,7 +183,7 @@ pub struct IVideo {
 }
 
 /// Used to get the video url for the server chosen
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub enum StreamingServers {
     GogoCDN,
     StreamSB,
@@ -328,11 +343,22 @@ pub struct ILightNovelInfo {
 /// Contains Book Search Results Info
 #[derive(Debug, Deserialize, Serialize)]
 pub struct LibgenBook {
+    pub title: String,
+    pub authors: Vec<String>,
+    pub publisher: String,
+    pub year: String,
+    pub edition: String,
+    pub volume: String,
+    pub series: String,
+    pub isbn: Vec<String>,
+    pub link: String,
     pub id: String,
     pub language: String,
     pub format: String,
     pub size: String,
     pub pages: String,
+    pub image: String,
+    pub description: String,
     pub table_of_contents: String,
     pub topic: String,
     pub hashes: Hashes,
@@ -493,7 +519,7 @@ pub struct INewsFeedPreview {
 }
 
 /// Contains Movie Seasons
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct IMovieSeason {
     pub season: Option<usize>,
     pub image: Option<String>,
@@ -501,12 +527,13 @@ pub struct IMovieSeason {
 }
 
 /// Contains Movie Info
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct IMovieInfo {
     pub genres: Option<Vec<String>>,
     pub description: Option<String>,
     pub rating: Option<String>,
     pub status: Option<MediaStatus>,
+    pub quality: Option<String>,
     pub duration: Option<String>,
     pub country: Option<Vec<String>>,
     pub production: Option<Vec<String>>,
@@ -518,7 +545,7 @@ pub struct IMovieInfo {
 }
 
 ///  Contains all the possible Genres
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Genres {
     Action,
     Adventure,

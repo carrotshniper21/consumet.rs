@@ -8,12 +8,4 @@ pub mod movies;
 pub mod news;
 pub mod others;
 
-pub use anime::*;
-pub use books::*;
-pub use comics::*;
-pub use light_novels::*;
-pub use manga::*;
-pub use meta::*;
 pub use movies::*;
-pub use news::*;
-pub use others::*;

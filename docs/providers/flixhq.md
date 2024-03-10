@@ -1,7 +1,7 @@
 <h1>FlixHQ</h1>
 
 ```rs
-use consumet_api_rs::providers::movies;
+use consumet::providers::movies;
 
 let flixhq = movies::FlixHQ;
 ```
@@ -9,7 +9,6 @@ let flixhq = movies::FlixHQ;
 <h2>Methods</h2>
 
 - [search](#search)
-- [single search](#single-search)
 - [info](#info)
 - [sources](#sources)
 - [servers](#servers)
@@ -31,85 +30,56 @@ let data = flixhq.search("Vincenzo", None).await?;
 println!("{:#?}", data);
 ```
 
-returns a future which resolves into an vector of movies/tv series. (*[`impl Future<Output = Result<ISearch<Vec<IMovieResult>>>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L452-L462)*)\
+returns a future which resolves into FlixHQSearchResults. (*[`impl Future<Output = Result<FlixHQSearchResults>>`](https://github.com/eatmynerds/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L60-L68)*)\
             output:
 ```rust
-ISearch {
-    current_page: Some(
-        1,
-    ),
-    has_next_page: Some(
-        false,
-    ),
+FlixHQSearchResults {
+    current_page: 1,
+    has_next_page: false,
     total_pages: 1,
     total_results: 1,
     results: [
-        IMovieResult {
-            id: Some(
-                "tv/watch-vincenzo-67955",
-            ),
-            cover: Some(
-                "https://img.flixhq.to/xxrz/1200x600/379/54/ed/54ed3e2164e4efa4c9ccc248e03f0032/54ed3e2164e4efa4c9ccc248e03f0032.jpg",
-            ),
-            title: Some(
-                "Vincenzo",
-            ),
-            url: Some(
-                "https://flixhq.to/tv/watch-vincenzo-67955",
-            ),
-            image: Some(
-                "https://img.flixhq.to/xxrz/250x400/379/79/6b/796b32989cf1308b9e0619524af5b022/796b32989cf1308b9e0619524af5b022.jpg",
-            ),
-            release_date: Some(
-                "2021-02-20",
-            ),
-            media_type: Some(
-                TvSeries,
-            ),
+        FlixHQResult {
+            id: "tv/watch-vincenzo-67955",
+            cover: "https://img.flixhq.to/xxrz/1200x600/379/54/ed/54ed3e2164e4efa4c9ccc248e03f0032/54ed3e2164e4efa4c9ccc248e03f0032.jpg",
+            title: "Vincenzo",
+            url: "https://flixhq.to/tv/watch-vincenzo-67955",
+            image: "https://img.flixhq.to/xxrz/250x400/379/79/6b/796b32989cf1308b9e0619524af5b022/796b32989cf1308b9e0619524af5b022.jpg",
+            release_date: "2021-02-20",
+            media_type: TvSeries,
+            genres: [
+                "Action & Adventure",
+                "Crime",
+            ],
+            decription: "At age of 8, Park Joo-Hyung went to Italy after he was adopted. He is now an adult and has the name of Vincenzo Cassano. He is lawyer, who works for the Mafia as a consigliere. Because of a war between mafia groups, he flies to South Korea. In Korea, he gets involved with lawyer Hong Cha-Young. She is the type of attorney who will do anything to win a case. Vincenzo Cassano falls in love with her. He also achieves social justice by his own way.",
+            rating: "8.4",
+            quality: "HD",
+            duration: "60 min",
+            country: [
+                "South Korea",
+            ],
+            production: [
+                "Studio Dragon",
+                "Logos Film",
+            ],
+            casts: [
+                "Kwak Dong-yeon",
+                "Kim yeo-jin",
+                "Ok Taec-yeon",
+                "Jeon Yeo-been",
+                "Song Joong-ki",
+            ],
+            tags: [
+                "Watch Vincenzo Online Free",
+                "Vincenzo Online Free",
+                "Where to watch Vincenzo",
+                "Vincenzo movie free online",
+                "Vincenzo free online",
+            ],
         },
         {...}
         ...
     ],
-}
-```
-
-### single search
-<h4>Parameters</h4>
-
-| Parameter | Type     | Description                                                                                                                     |
-| --------- | -------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| mediaId   | `string` | takes media id or url as a parameter. (*media id or url can be found in the media search results as shown on the above method*) |
-
-```rust
-let data = flixhq.fetch_search_result("tv/watch-vincenzo-67955").await?;
-println!("{:#?}", data);
-```
-
-returns a future which resolves into an IMovieResult. (*[`impl Future<Output = Result<IMovieResult>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L440-L451)*)\
-            output:
-```rust
-IMovieResult {
-    id: Some(
-        "tv/watch-vincenzo-67955",
-    ),
-    cover: Some(
-        "https://img.flixhq.to/xxrz/1200x600/379/54/ed/54ed3e2164e4efa4c9ccc248e03f0032/54ed3e2164e4efa4c9ccc248e03f0032.jpg",
-    ),
-    title: Some(
-        "Vincenzo",
-    ),
-    url: Some(
-        "https://flixhq.to/tv/watch-vincenzo-67955",
-    ),
-    image: Some(
-        "https://img.flixhq.to/xxrz/250x400/379/79/6b/796b32989cf1308b9e0619524af5b022/796b32989cf1308b9e0619524af5b022.jpg",
-    ),
-    release_date: Some(
-        "2021-02-20",
-    ),
-    media_type: Some(
-        TvSeries,
-    ),
 }
 ```
 
@@ -126,204 +96,63 @@ let data = flixhq.info("tv/watch-vincenzo-67955").await?;
 println!("{:#?}", data);
 ```
 
-returns a future which resolves into an movie info object (including the episodes). (*[`impl Future<Output = Result<FlixHQInfo>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/providers/movies/flixhq.rs#L22-L26)*)\
+returns a future which resolves into an enum containing extra media info (including the episodes). (*[`impl Future<Output = Result<FlixHQInfo>>`](https://github.com/eatmynerds/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L90-L94)*)\
 output:
 ```rust
-FlixHQInfo {
-    base: IMovieResult {
-        id: Some(
-            "tv/watch-vincenzo-67955",
-        ),
-        cover: Some(
-            "https://img.flixhq.to/xxrz/1200x600/379/54/ed/54ed3e2164e4efa4c9ccc248e03f0032/54ed3e2164e4efa4c9ccc248e03f0032.jpg",
-        ),
-        title: Some(
-            "Vincenzo",
-        ),
-        url: Some(
-            "https://flixhq.to/tv/watch-vincenzo-67955",
-        ),
-        image: Some(
-            "https://img.flixhq.to/xxrz/250x400/379/79/6b/796b32989cf1308b9e0619524af5b022/796b32989cf1308b9e0619524af5b022.jpg",
-        ),
-        release_date: Some(
-            "2021-02-20",
-        ),
-        media_type: Some(
-            TvSeries,
-        ),
-    },
-    info: IMovieInfo {
-        genres: Some(
-            [
-                "Action & Adventure",
-                "Crime",
-            ],
-        ),
-        description: Some(
-            "At age of 8, Park Joo-Hyung went to Italy after he was adopted. He is now an adult and has the name of Vincenzo Cassano. He is lawyer, who works for the Mafia as a consigliere. Because of a war between mafia groups, he flies to South Korea. In Korea, he gets involved with lawyer Hong Cha-Young. She is the type of attorney who will do anything to win a case. Vincenzo Cassano falls in love with her. He also achieves social justice by his own way.",
-        ),
-        rating: Some(
-            "8.4",
-        ),
-        status: None,
-        duration: Some(
-            "60 min",
-        ),
-        country: Some(
-            [
-                "South Korea",
-            ],
-        ),
-        production: Some(
-            [
-                "Studio Dragon",
-                "Logos Film",
-            ],
-        ),
-        casts: Some(
-            [
-                "Kwak Dong-yeon",
-                "Kim Yeo-jin",
-                "Ok Taec-yeon",
-                "Jeon Yeo-been",
-                "Song Joong-ki",
-            ],
-        ),
-        tags: Some(
-            [
-                "Watch Vincenzo Online Free",
-                "Vincenzo Online Free",
-                "Where to watch Vincenzo",
-                "Vincenzo movie free online",
-                "Vincenzo free online",
-            ],
-        ),
-        total_episodes: Some(
-            20,
-        ),
-        seasons: Some(
-            IMovieSeason {
-                season: 1,
-                image: None,
-                episodes: Some(
-                    [
-                        [
-                            IMovieEpisode {
-                                id: "1167571",
-                                title: "Eps 1: Episode #1.1",
-                                url: Some(
-                                    "https://flixhq.to/ajax/v2/episode/servers/1167571",
-                                ),
-                                number: None,
-                                season: Some(
-                                1,
-                            ),
-                            description: None,
-                            image: None,
-                            release_date: None,
-                            },
-                            {...}
-                        ],
-                    ],
-                ),
-            },
-        ),
-        episodes: Some(
-            [
+Tv(
+    FlixHQShow {
+        id: "tv/watch-vincenzo-67955",
+        cover: "https://img.flixhq.to/xxrz/1200x600/379/54/ed/54ed3e2164e4efa4c9ccc248e03f0032/54ed3e2164e4efa4c9ccc248e03f0032.jpg",
+        title: "Vincenzo",
+        url: "https://flixhq.to/tv/watch-vincenzo-67955",
+        image: "https://img.flixhq.to/xxrz/250x400/379/79/6b/796b32989cf1308b9e0619524af5b022/796b32989cf1308b9e0619524af5b022.jpg",
+        release_date: "2021-02-20",
+        media_type: TvSeries,
+        genres: [
+            "Action & Adventure",
+            "Crime",
+        ],
+        description: "At age of 8, Park Joo-Hyung went to Italy after he was adopted. He is now an adult and has the name of Vincenzo Cassano. He is lawyer, who works for the Mafia as a consigliere. Because of a war between mafia groups, he flies to South Korea. In Korea, he gets involved with lawyer Hong Cha-Young. She is the type of attorney who will do anything to win a case. Vincenzo Cassano falls in love with her. He also achieves social justice by his own way.",
+        rating: "8.4",
+        quality: "HD",
+        duration: "60 min",
+        country: [
+            "South Korea",
+        ],
+        production: [
+            "Studio Dragon",
+            "Logos Film",
+        ],
+        casts: [
+            "Kwak Dong-yeon",
+            "Kim Yeo-jin",
+            "Ok Taec-yeon",
+            "Jeon Yeo-been",
+            "Song Joong-ki",
+        ],
+        tags: [
+            "Watch Vincenzo Online Free",
+            "Vincenzo Online Free",
+            "Where to watch Vincenzo",
+            "Vincenzo movie free online",
+            "Vincenzo free online",
+        ],
+        total_episodes: 20,
+        seasons: FlixHQSeason {
+            total_seasons: 1,
+            episodes: [
                 [
-                    IMovieEpisode {
+                    FlixHQEpisode {
                         id: "1167571",
-                        title: "Eps 1: Episode #1.1",
-                        url: Some(
-                            "https://flixhq.to/ajax/v2/episode/servers/1167571",
-                        ),
-                        number: None,
-                        season: Some(
-                            1,
-                        ),
-                        description: None,
-                        image: None,
-                        release_date: None,
+                        title: "Eps 1: Episode 1",
+                        url: "https://flixhq.to/ajax/v2/episode/servers/1167571",
                     },
                     {...}
                 ],
             ],
-        ),
+        },
     },
-}
-```
-
-### sources
-
-<h4>Parameters</h4>
-
-| Parameter         | Type                                                                                                               | Description                                                                                                                                                          |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| episodeId         | `string`                                                                                                           | takes episode id as a parameter. (*episode id can be found in the media info object*)                                                                                |
-| mediaId           | `string`                                                                                                           | takes media id as a parameter. (*media id can be found in the media info object*)                                                                                    |
-| server (optional) | [`StreamingServers`](https://github.com/carrotshniper21/consumet-api-rs/blob/master/src/models/types.rs#L166-L183) | takes server enum as a parameter. *default: [`StreamingServers::VidCloud`](https://github.com/carrotshniper21/consumet-api-rs/blob/master/src/models/types.rs#L177)* |
-
-
-```rust
-let data = flixhq.sources("1167571", "tv/watch-vincenzo-67955", None).await?;
-println!("{:#?}", data);
-```
-returns a future which resolves into an vector of episode sources and subtitles. (*[`impl Future<Output = Result<ISource>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L374-L380)*)\
-output:
-
-
-```rust
-ISource {
-    headers: Some(
-        "https://dokicloud.one/embed-4/UCOzqDHOU3UO?z=",
-    ),
-    intro: None,
-    subtitles: Some(
-        [
-            ISubtitle {
-                id: None,
-                url: Some(
-                    "https://cc.2cdns.com/26/7f/267fbca84e18437aa7c7df80179b0751/ara-3.vtt",
-                ),
-                lang: Some(
-                    "Arabic - Arabic",
-                ),
-            },
-            ISubtitle {
-                id: None,
-                url: Some(
-                    "https://cc.2cdns.com/26/7f/267fbca84e18437aa7c7df80179b0751/chi-4.vtt",
-                ),
-                lang: Some(
-                    "Chinese - Chinese Simplified",
-                ),
-            },
-            {...} 
-            ...
-        ],
-    ),
-    sources: Some(
-        [
-            IVideo {
-                url: Some(
-                    "https://owt.webarchivecdn.com/_v10/01b3e0bf48e643923f849702a32bd97a5c4360797759b0838c8f34597271ed8bf541e616b85a255a1320417863fe1980c9c6d12d471fb6d7961711321a2d9cb1be23897428798cbcc3b97d9d706357ecb6da5d1fb3c16fd51a4a691c0f014cc2148227666bb1235192ae7bb1a52b6db8cb2a29c52f47094bce0efb39fcc9eb6e16950cd25ec3872f80cf24cc2632ef1c/playlist.m3u8",
-                ),
-                quality: Some(
-                    "auto",
-                ),
-                is_m3u8: Some(
-                    true,
-                ),
-                is_dash: None,
-                size: None,
-                other: None,
-            },
-            {...} 
-            ...
-        ],
-    ),
-}
+)
 ```
 
 ### servers
@@ -339,28 +168,82 @@ ISource {
 let data = flixhq.servers("1167571", "tv/watch-vincenzo-67955").await?;
 println!("{:#?}", data);
 ```
-returns a future which resolves into an vector of episode servers. (*[`impl Future<Output = Result<Vec<IEpisodeServer>>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L148-L153)*)\
+returns a future which resolves into FlixHQServers (*[`impl Future<Output = Result<FlixHQServers>>`](https://github.com/eatmynerds/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L36-L39)*)\
 output:
 ```rust
-[
-    IEpisodeServer {
-        name: "UpCloud",
-        url: "https://flixhq.to/watch-tv/watch-vincenzo-67955.4829542",
-    },
-    IEpisodeServer {
-        name: "Vidcloud",
-        url: "https://flixhq.to/watch-tv/watch-vincenzo-67955.4087001",
-    },
-    IEpisodeServer {
-        name: "Voe",
-        url: "https://flixhq.to/watch-tv/watch-vincenzo-67955.7823107",
-    },
-    {...},
-    ...
-]
+FlixHQServers {
+    servers: [
+        FlixHQServer {
+            name: "UpCloud",
+            url: "https://flixhq.to/watch-tv/watch-vincenzo-67955.4829542",
+        },
+        FlixHQServer {
+            name: "Vidcloud",
+            url: "https://flixhq.to/watch-tv/watch-vincenzo-67955.4087001",
+        },
+        FlixHQServer {
+            name: "Voe",
+            url: "https://flixhq.to/watch-tv/watch-vincenzo-67955.7823107",
+        },
+        FlixHQServer {
+            name: "DoodStream",
+            url: "https://flixhq.to/watch-tv/watch-vincenzo-67955.4087002",
+        },
+        FlixHQServer {
+            name: "MixDrop",
+            url: "https://flixhq.to/watch-tv/watch-vincenzo-67955.6488473",
+        },
+    ],
+}
 ```
 
-<p align="end">(<a href="https://github.com/carrotshniper21/consumet-api-rs/blob/main/docs/guides/movies.md#">back to movie providers list</a>)</p>
+### sources
+
+<h4>Parameters</h4>
+
+| Parameter         | Type                                                                                                               | Description                                                                                                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| episodeId         | `string`                                                                                                           | takes episode id as a parameter. (*episode id can be found in the media info object*)                                                                                |
+| mediaId           | `string`                                                                                                           | takes media id as a parameter. (*media id can be found in the media info object*)                                                                                    |
+| server (optional) | [`StreamingServers`](https://github.com/eatmynerds/consumet.rs/blob/master/src/models/types.rs#L185-L198) | takes server enum as a parameter. *default: [`StreamingServers::VidCloud`](https://github.com/consumet-rs/consumet.rs/blob/master/src/models/types.rs#L177)* |
+
+
+```rust
+let data = flixhq.sources("1167571", "tv/watch-vincenzo-67955", None).await?;
+println!("{:#?}", data);
+```
+returns a future which resolves into FlixHQSource. (*[`impl Future<Output = Result<FlixHQSource>>`](https://github.com/eatmynerds/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L29-L34)*)\
+output:
+
+
+```rust
+FlixHQSource {
+    headers: "https://rabbitstream.net/embed-4/61fuoYgDxBPQ?z=",
+    subtitles: VidCloud(
+        [
+            VidCloudSubtitle {
+                url: "https://cc.2cdns.com/26/7f/267fbca84e18437aa7c7df80179b0751/ara-3.vtt",
+                lang: "Arabic - Arabic",
+            },
+            {...}
+        ],
+    ),
+    sources: VidCloud(
+        [
+            VidCloudSource {
+                url: "https://o.pollllop.com/_v11/01b3e0bf48e643923f849702a32bd97a5c4360797759b0838c8f34597271ed8bf541e616b85a255a1320417863fe1980c9c6d12d471fb6d7961711321a2d9cb1be23897428798cbcc3b97d9d706357ecb6da5d1fb3c16fd51a4a691c0f014cc2148227666bb1235192ae7bb1a52b6db8fd6cd2f2300471e000680b1d06acd6b3b96b32a7519e7daae0044abdf5e0f3d4/playlist.m3u8",
+                quality: "auto",
+                is_m3u8: true,
+            },
+            {...}
+        ],
+    ),
+}
+```
+
+
+
+<p align="end">(<a href="https://github.com/eatmynerds/consumet.rs/blob/master/docs/guides/movies.md#">back to movie providers list</a>)</p>
 
 ### recent_movies
 
@@ -369,81 +252,57 @@ let data = flixhq.recent_movies().await?;
 println!("{:#?}", data)
 ```
 
-returns a future which resolves into an vector of movies. (*[`impl Future<Output = Result<Vec<IMovieResult>>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L452-L462)*)\
+returns a future which resolves into an vector of movies. (*[`impl Future<Output = Result<Vec<FlixHQResult>>>`](https://github.com/eatmynerds/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L70-L88)*)\
 output:
 ```rust
 [
-    IMovieResult {
-        id: Some(
-            "movie/watch-the-little-mermaid-88243",
-        ),
-        cover: Some(
-            "https://img.flixhq.to/xxrz/1200x600/379/17/c1/17c19945d0546aa21c3ce84b4eef22f4/17c19945d0546aa21c3ce84b4eef22f4.jpg",
-        ),
-        title: Some(
-            "The Little Mermaid",
-        ),
-        url: Some(
-            "https://flixhq.to/movie/watch-the-little-mermaid-88243",
-        ),
-        image: Some(
-            "https://img.flixhq.to/xxrz/250x400/379/fc/7d/fc7de6b957d0dfb5f3b719c812093766/fc7de6b957d0dfb5f3b719c812093766.jpg",
-        ),
-        release_date: Some(
-            "2023-05-24",
-        ),
-        media_type: Some(
-            Movie,
-        ),
+    FlixHQResult {
+        id: "movie/watch-one-life-106294",
+        cover: "https://img.flixhq.to/xxrz/1200x600/379/ab/ef/abef2a8a5c2bdf33b12bb0c4dc17408a/abef2a8a5c2bdf33b12bb0c4dc17408a.jpg",
+        title: "One Life",
+        url: "https://flixhq.to/movie/watch-one-life-106294",
+        image: "https://img.flixhq.to/xxrz/250x400/379/60/fc/60fc7e3848aa007433e8ad399273f438/60fc7e3848aa007433e8ad399273f438.jpg",
+        release_date: "2023-09-09",
+        media_type: Movie,
+        genres: [
+            "Drama",
+            "History",
+            "War",
+        ],
+        description: "British stockbroker Nicholas Winton visits Czechoslovakia in the 1930s and forms plans to assist in the rescue of Jewi
+sh children before the onset of World War II, in an operation that came to be known as the Kindertransport.",
+        rating: "7.6",
+        quality: "HD",
+        duration: "109 min",
+        country: [
+            "United Kingdom",
+            "United States of America",
+        ],
+        production: [
+            "See-Saw Films",
+            "MBK Productions",
+            "BBC Film",
+            "FilmNation Entertainment",
+            "Cross City Films",
+            "Lipsync Productions",
+            "BBC Films",
+        ],
+        casts: [
+            "Matilda Thorpe",
+            "Alex Sharp",
+            "Ziggy Heath",
+            "Samantha Spiro",
+            "Samuel Finzi",
+        ],
+        tags: [
+            "Watch One Life Online Free",
+            "One Life Online Free",
+            "Where to watch One Life",
+            "One Life movie free online",
+            "One Life free online",
+        ],
     },
-    IMovieResult {
-        id: Some(
-            "movie/watch-justice-league-warworld-98344",
-        ),
-        cover: Some(
-            "https://img.flixhq.to/xxrz/1200x600/379/20/19/20197bf01bb04ccfec89b8c42261ed2e/20197bf01bb04ccfec89b8c42261ed2e.jpg",
-        ),
-        title: Some(
-            "Justice League: Warworld",
-        ),
-        url: Some(
-            "https://flixhq.to/movie/watch-justice-league-warworld-98344",
-        ),
-        image: Some(
-            "https://img.flixhq.to/xxrz/250x400/379/d4/6e/d46e0478e7349f8b2fecc134d8940286/d46e0478e7349f8b2fecc134d8940286.jpg",
-        ),
-        release_date: Some(
-            "2023-07-25",
-        ),
-        media_type: Some(
-            Movie,
-        ),
-    },
-    IMovieResult {
-        id: Some(
-            "movie/watch-the-venture-bros-radiant-is-the-blood-of-the-baboon-heart-98488",
-        ),
-        cover: Some(
-            "https://img.flixhq.to/xxrz/1200x600/379/28/f9/28f9654cdc5640a23ad5a897f2d58d3d/28f9654cdc5640a23ad5a897f2d58d3d.jpg",
-        ),
-        title: Some(
-            "The Venture Bros.: Radiant is the Blood of the Baboon Heart",
-        ),
-        url: Some(
-            "https://flixhq.to/movie/watch-the-venture-bros-radiant-is-the-blood-of-the-baboon-heart-98488",
-        ),
-        image: Some(
-            "https://img.flixhq.to/xxrz/250x400/379/a9/82/a982fdb426f0216725255b2e7a1a8b21/a982fdb426f0216725255b2e7a1a8b21.jpg",
-        ),
-        release_date: Some(
-            "2023-07-21",
-        ),
-        media_type: Some(
-            Movie,
-        ),
-    },
-    {...},
-    ...
+    {...}
 ]
 ```
 
@@ -455,81 +314,47 @@ let data = flixhq.recent_shows().await?;
 println!("{:#?}", data);
 ```
 
-returns a future which resolves into an vector of tv shows. (*[`impl Future<Output = Result<Vec<IMovieResult>>>`](https://github.com//consumet-api-rs/blob/master/src/models/types.rs#L452-L462)*)\
+returns a future which resolves into an vector of tv shows. (*[`impl Future<Output = Result<Vec<FlixHQResult>>>`](https://github.com/eatmynerds/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L70-L88)*)\
 output:
 ```rust
 [
-    IMovieResult {
-        id: Some(
-            "tv/watch-null-98587",
-        ),
-        cover: Some(
-            "https://img.flixhq.to/xxrz/1200x600/379/df/78/df789708304f2e051d8292b8405f000f/df789708304f2e051d8292b8405f000f.jpg",
-        ),
-        title: Some(
-            "The Everlasting Love",
-        ),
-        url: Some(
-            "https://flixhq.to/tv/watch-null-98587",
-        ),
-        image: Some(
-            "https://img.flixhq.to/xxrz/250x400/379/a9/fa/a9faae56016d18d0202d1c29f46e1151/a9faae56016d18d0202d1c29f46e1151.jpg",
-        ),
-        release_date: Some(
-            "2023-06-08",
-        ),
-        media_type: Some(
-            TvSeries,
-        ),
+    FlixHQResult {
+        id: "tv/watch-summer-house-34273",
+        cover: "https://img.flixhq.to/xxrz/1200x600/379/3e/3b/3e3b9887b6ccc204fce5ac525461d674/3e3b9887b6ccc204fce5ac525461d674.jpg",
+        title: "Summer House",
+        url: "https://flixhq.to/tv/watch-summer-house-34273",
+        image: "https://img.flixhq.to/xxrz/250x400/379/1b/49/1b49f07d6b32574cc101e4f841f409f5/1b49f07d6b32574cc101e4f841f409f5.jpg",
+        release_date: "2017-01-13",
+        media_type: TvSeries,
+        genres: [
+            "Reality",
+        ],
+        description: "Take the beach town of Montauk, New York by storm while following a group of nine friends who make the exclusive enclave their go-to party spot between Memorial Day and Labor Day — that is, when they're not hustling at their day jobs. You could say they work hard and party way harder.",
+        rating: "6",
+        quality: "HD",
+        duration: "45 min",
+        country: [
+            "N/A",
+        ],
+        production: [
+            "N/A",
+        ],
+        casts: [
+            "Amanda Batula",
+            "Danielle Olivera",
+            "Kyle Cooke",
+            "Lindsay Hubbard",
+            "Carl Radke",
+        ],
+        tags: [
+            "Watch Summer House Online Free",
+            "Summer House Online Free",
+            "Where to watch Summer House",
+            "Summer House movie free online",
+            "Summer House free online",
+        ],
     },
-    IMovieResult {
-        id: Some(
-            "tv/watch-stay-with-me-98584",
-        ),
-        cover: Some(
-            "https://img.flixhq.to/xxrz/1200x600/379/14/06/140639f49f4da20d968e1d9e682f5210/140639f49f4da20d968e1d9e682f5210.jpg",
-        ),
-        title: Some(
-            "Stay With Me",
-        ),
-        url: Some(
-            "https://flixhq.to/tv/watch-stay-with-me-98584",
-        ),
-        image: Some(
-            "https://img.flixhq.to/xxrz/250x400/379/85/08/8508103d3eb891537a2b30a92636ef35/8508103d3eb891537a2b30a92636ef35.jpg",
-        ),
-        release_date: Some(
-            "2023-07-07",
-        ),
-        media_type: Some(
-            TvSeries,
-        ),
-    },
-    IMovieResult {
-        id: Some(
-            "tv/watch-hijack-97780",
-        ),
-        cover: Some(
-            "https://img.flixhq.to/xxrz/1200x600/379/35/bd/35bd068e760804a39144280edcca3aeb/35bd068e760804a39144280edcca3aeb.jpg",
-        ),
-        title: Some(
-            "Hijack",
-        ),
-        url: Some(
-            "https://flixhq.to/tv/watch-hijack-97780",
-        ),
-        image: Some(
-            "https://img.flixhq.to/xxrz/250x400/379/bb/b3/bbb3557a25a80ce3023d454218495652/bbb3557a25a80ce3023d454218495652.jpg",
-        ),
-        release_date: Some(
-            "2023-06-27",
-        ),
-        media_type: Some(
-            TvSeries,
-        ),
-    },
-    {...},
-    ...
+    {...}
 ]
 ```
 
@@ -541,81 +366,52 @@ let data = flixhq.trending_movies().await?;
 println!("{:#?}", data);
 ```
 
-returns a future which resolves into an vector of movies. (*[`impl Future<Output = Result<Vec<IMovieResult>>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L452-L462)*)\
+returns a future which resolves into an vector of movies. (*[`impl Future<Output = Result<Vec<FlixHQResult>>>`](https://github.com/eatmynerds/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L70-L88)*)\
 output:
 ```rust
 [
-    IMovieResult {
-        id: Some(
-            "movie/watch-the-little-mermaid-88243",
-        ),
-        cover: Some(
-            "https://img.flixhq.to/xxrz/1200x600/379/17/c1/17c19945d0546aa21c3ce84b4eef22f4/17c19945d0546aa21c3ce84b4eef22f4.jpg",
-        ),
-        title: Some(
-            "The Little Mermaid",
-        ),
-        url: Some(
-            "https://flixhq.to/movie/watch-the-little-mermaid-88243",
-        ),
-        image: Some(
-            "https://img.flixhq.to/xxrz/250x400/379/fc/7d/fc7de6b957d0dfb5f3b719c812093766/fc7de6b957d0dfb5f3b719c812093766.jpg",
-        ),
-        release_date: Some(
-            "2023-05-24",
-        ),
-        media_type: Some(
-            Movie,
-        ),
+    FlixHQResult {
+        id: "movie/watch-the-nun-ii-100063",
+        cover: "https://img.flixhq.to/xxrz/1200x600/379/85/09/8509eafa6b10694de8fe9027e415ecdf/8509eafa6b10694de8fe9027e415ecdf.jpg",
+        title: "The Nun II",
+        url: "https://flixhq.to/movie/watch-the-nun-ii-100063",
+        image: "https://img.flixhq.to/xxrz/250x400/379/82/9f/829fd2ab2816811c59f600deedb524ed/829fd2ab2816811c59f600deedb524ed.jpg",
+        release_date: "2023-09-06",
+        media_type: Movie,
+        genres: [
+            "Horror",
+            "Mystery",
+            "Thriller",
+        ],
+        description: "Set four years after the ending of the the nun, this follows Sister Irene as she investigates a murder at a boarding school in France. While investiga
+ting she is once again forced to face the demonic force Valak, the Nun.",
+        rating: "5.9",
+        quality: "HD",
+        duration: "110 min",
+        country: [
+            "United States of America",
+        ],
+        production: [
+            "New Line Cinema",
+            "Atomic Monster",
+            "The Safran Company",
+        ],
+        casts: [
+            "Taissa Farmiga",
+            "Jonas Bloquet",
+            "Bonnie Aarons",
+            "Storm Reid",
+            "Katelyn Rose Downey",
+        ],
+        tags: [
+            "Watch The Nun II Online Free",
+            "The Nun II Online Free",
+            "Where to watch The Nun II",
+            "The Nun II movie free online",
+            "The Nun II free online",
+        ],
     },
-    IMovieResult {
-        id: Some(
-            "movie/watch-barbie-693",
-        ),
-        cover: Some(
-            "https://img.flixhq.to/xxrz/1200x600/379/48/62/48627a6116659665a1c4dc208a80d218/48627a6116659665a1c4dc208a80d218.jpg",
-        ),
-        title: Some(
-            "Barbie",
-        ),
-        url: Some(
-            "https://flixhq.to/movie/watch-barbie-693",
-        ),
-        image: Some(
-            "https://img.flixhq.to/xxrz/250x400/379/b2/a2/b2a2078a74e2e3b53693554ce3fbdd64/b2a2078a74e2e3b53693554ce3fbdd64.jpg",
-        ),
-        release_date: Some(
-            "2023-07-19",
-        ),
-        media_type: Some(
-            Movie,
-        ),
-    },
-    IMovieResult {
-        id: Some(
-            "movie/watch-resident-evil-death-island-98491",
-        ),
-        cover: Some(
-            "https://img.flixhq.to/xxrz/1200x600/379/6e/09/6e092181babf80c690b2f8acb47038e6/6e092181babf80c690b2f8acb47038e6.jpg",
-        ),
-        title: Some(
-            "Resident Evil: Death Island",
-        ),
-        url: Some(
-            "https://flixhq.to/movie/watch-resident-evil-death-island-98491",
-        ),
-        image: Some(
-            "https://img.flixhq.to/xxrz/250x400/379/e2/02/e202f50399e893e25922555a4332d8ee/e202f50399e893e25922555a4332d8ee.jpg",
-        ),
-        release_date: Some(
-            "2023-06-22",
-        ),
-        media_type: Some(
-            Movie,
-        ),
-    },
-    {...},
-    ...
+    {...}
 ]
 ```
 
@@ -627,80 +423,49 @@ let data = flixhq.trending_shows().await?;
 println!("{:#?}", data);
 ```
 
-returns a future which resolves into an vector of tv shows. (*[`impl Future<Output = Result<Vec<IMovieResult>>>`](https://github.com/carrotshniper21/consumet-api-rs/blob/main/src/models/types.rs#L452-L462)*)\
+returns a future which resolves into an vector of tv shows. (*[`impl Future<Output = Result<Vec<FlixHQResult>>>`](https://github.com/eatmynerds/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L70-L88)*)\
 output:
 ```rust
 [
-    IMovieResult {
-        id: Some(
-            "tv/watch-null-98587",
-        ),
-        cover: Some(
-            "https://img.flixhq.to/xxrz/1200x600/379/df/78/df789708304f2e051d8292b8405f000f/df789708304f2e051d8292b8405f000f.jpg",
-        ),
-        title: Some(
-            "The Everlasting Love",
-        ),
-        url: Some(
-            "https://flixhq.to/tv/watch-null-98587",
-        ),
-        image: Some(
-            "https://img.flixhq.to/xxrz/250x400/379/a9/fa/a9faae56016d18d0202d1c29f46e1151/a9faae56016d18d0202d1c29f46e1151.jpg",
-        ),
-        release_date: Some(
-            "2023-06-08",
-        ),
-        media_type: Some(
-            TvSeries,
-        ),
+    FlixHQResult {
+        id: "tv/watch-avatar-the-last-airbender-106435",
+        cover: "https://img.flixhq.to/xxrz/1200x600/379/a4/e6/a4e6e9b6f934285f0fe97a0bc9544e87/a4e6e9b6f934285f0fe97a0bc9544e87.jpg",
+        title: "Avatar: The Last Airbender",
+        url: "https://flixhq.to/tv/watch-avatar-the-last-airbender-106435",
+        image: "https://img.flixhq.to/xxrz/250x400/379/f1/a8/f1a8e2f3b5eeae90eaa3864a64febff3/f1a8e2f3b5eeae90eaa3864a64febff3.jpg",
+        release_date: "2024-02-22",
+        media_type: TvSeries,
+        genres: [
+            "Sci-Fi & Fantasy",
+            "Action & Adventure",
+            "Drama",
+        ],
+        description: "A young boy known as the Avatar must master the four elemental powers to save a world at war — and fight a ruthless enemy bent on stopping him.",
+        rating: "7.5",
+        quality: "HD",
+        duration: "50 min",
+        country: [
+            "United States of America",
+        ],
+        production: [
+            "Nickelodeon Productions",
+            "Rideback",
+        ],
+        casts: [
+            "Kay Siu Lim",
+            "Dallas Liu",
+            "Ken Leung",
+            "Elizabeth Yu",
+            "Casey Camp-Horinek",
+        ],
+        tags: [
+            "Watch Avatar: The Last Airbender Online Free",
+            "Avatar: The Last Airbender Online Free",
+            "Where to watch Avatar: The Last Airbender",
+            "Avatar: The Last Airbender movie free online",
+            "Avatar: The Last Airbender free online",
+        ],
     },
-    IMovieResult {
-        id: Some(
-            "tv/watch-stay-with-me-98584",
-        ),
-        cover: Some(
-            "https://img.flixhq.to/xxrz/1200x600/379/14/06/140639f49f4da20d968e1d9e682f5210/140639f49f4da20d968e1d9e682f5210.jpg",
-        ),
-        title: Some(
-            "Stay With Me",
-        ),
-        url: Some(
-            "https://flixhq.to/tv/watch-stay-with-me-98584",
-        ),
-        image: Some(
-            "https://img.flixhq.to/xxrz/250x400/379/85/08/8508103d3eb891537a2b30a92636ef35/8508103d3eb891537a2b30a92636ef35.jpg",
-        ),
-        release_date: Some(
-            "2023-07-07",
-        ),
-        media_type: Some(
-            TvSeries,
-        ),
-    },
-    IMovieResult {
-        id: Some(
-            "tv/watch-hijack-97780",
-        ),
-        cover: Some(
-            "https://img.flixhq.to/xxrz/1200x600/379/35/bd/35bd068e760804a39144280edcca3aeb/35bd068e760804a39144280edcca3aeb.jpg",
-        ),
-        title: Some(
-            "Hijack",
-        ),
-        url: Some(
-            "https://flixhq.to/tv/watch-hijack-97780",
-        ),
-        image: Some(
-            "https://img.flixhq.to/xxrz/250x400/379/bb/b3/bbb3557a25a80ce3023d454218495652/bbb3557a25a80ce3023d454218495652.jpg",
-        ),
-        release_date: Some(
-            "2023-06-27",
-        ),
-        media_type: Some(
-            TvSeries,
-        ),
-    },
-    {...},
-    ...
+    {...}
 ]
 ```

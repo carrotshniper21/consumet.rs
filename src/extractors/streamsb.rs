@@ -8,8 +8,8 @@ pub struct StreamSB {
     pub sources: Vec<IVideo>,
 }
 
-const HOST: &str = "https://streamsss.net/sources50";
-const HOST2: &str = "https://watchsb.com/sources50";
+const _HOST: &str = "https://streamsss.net/sources50";
+const _HOST2: &str = "https://watchsb.com/sources50";
 
 impl VideoExtractor for StreamSB {
     type VideoSource = StreamSB;
