@@ -20,7 +20,7 @@ contribution is too small. We gladly accept contributions such as:
 
 - Documentation improvements: from small typo corrections to major document reworks
 - Helping others by answering questions in pull requests
-- Fixing [known bugs](https://github.com/eatmynerds/consumet.rs/issues?q=is%3Aissue+is%3Aopen+label%3ABug)
+- Fixing [known bugs](https://github.com/carrotshniper21/consumet.rs/issues?q=is%3Aissue+is%3Aopen+label%3ABug)
 
 ## Ground Rules & Expectations
 Before we begin, here are a few things we anticipate from you (and that you should expect from others):
@@ -28,7 +28,7 @@ Before we begin, here are a few things we anticipate from you (and that you shou
 * Be respectful and thoughtful in your conversations around this project. Each person has their own views and opinions about the project. Try to listen to each other and reach an agreement or compromise.
 
 ## How To Contribute
-If you'd like to contribute, start by searching through the [issues](https://github.com/eatmynerds/consumet.rs/issues) and [pull requests](https://github.com/consumet-rs/consumet.rs/pulls) to see whether someone else has raised a similar idea or question.
+If you'd like to contribute, start by searching through the [issues](https://github.com/carrotshniper21/consumet.rs/issues) and [pull requests](https://github.com/consumet-rs/consumet.rs/pulls) to see whether someone else has raised a similar idea or question.
 
 If you don't see your idea listed, and you think it fits into the goals of this guide, do one of the following:
 * **If your contribution is minor,** such as a typo fix or new provider, open a pull request.

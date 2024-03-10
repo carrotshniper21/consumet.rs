@@ -30,7 +30,7 @@ let data = flixhq.search("Vincenzo", None).await?;
 println!("{:#?}", data);
 ```
 
-returns a future which resolves into FlixHQSearchResults. (*[`impl Future<Output = Result<FlixHQSearchResults>>`](https://github.com/eatmynerds/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L60-L68)*)\
+returns a future which resolves into FlixHQSearchResults. (*[`impl Future<Output = Result<FlixHQSearchResults>>`](https://github.com/carrotshniper21/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L60-L68)*)\
             output:
 ```rust
 FlixHQSearchResults {
@@ -96,7 +96,7 @@ let data = flixhq.info("tv/watch-vincenzo-67955").await?;
 println!("{:#?}", data);
 ```
 
-returns a future which resolves into an enum containing extra media info (including the episodes). (*[`impl Future<Output = Result<FlixHQInfo>>`](https://github.com/eatmynerds/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L90-L94)*)\
+returns a future which resolves into an enum containing extra media info (including the episodes). (*[`impl Future<Output = Result<FlixHQInfo>>`](https://github.com/carrotshniper21/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L90-L94)*)\
 output:
 ```rust
 Tv(
@@ -168,7 +168,7 @@ Tv(
 let data = flixhq.servers("1167571", "tv/watch-vincenzo-67955").await?;
 println!("{:#?}", data);
 ```
-returns a future which resolves into FlixHQServers (*[`impl Future<Output = Result<FlixHQServers>>`](https://github.com/eatmynerds/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L36-L39)*)\
+returns a future which resolves into FlixHQServers (*[`impl Future<Output = Result<FlixHQServers>>`](https://github.com/carrotshniper21/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L36-L39)*)\
 output:
 ```rust
 FlixHQServers {
@@ -205,14 +205,14 @@ FlixHQServers {
 | ----------------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | episodeId         | `string`                                                                                                           | takes episode id as a parameter. (*episode id can be found in the media info object*)                                                                                |
 | mediaId           | `string`                                                                                                           | takes media id as a parameter. (*media id can be found in the media info object*)                                                                                    |
-| server (optional) | [`StreamingServers`](https://github.com/eatmynerds/consumet.rs/blob/master/src/models/types.rs#L185-L198) | takes server enum as a parameter. *default: [`StreamingServers::VidCloud`](https://github.com/consumet-rs/consumet.rs/blob/master/src/models/types.rs#L177)* |
+| server (optional) | [`StreamingServers`](https://github.com/carrotshniper21/consumet.rs/blob/master/src/models/types.rs#L185-L198) | takes server enum as a parameter. *default: [`StreamingServers::VidCloud`](https://github.com/consumet-rs/consumet.rs/blob/master/src/models/types.rs#L177)* |
 
 
 ```rust
 let data = flixhq.sources("1167571", "tv/watch-vincenzo-67955", None).await?;
 println!("{:#?}", data);
 ```
-returns a future which resolves into FlixHQSource. (*[`impl Future<Output = Result<FlixHQSource>>`](https://github.com/eatmynerds/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L29-L34)*)\
+returns a future which resolves into FlixHQSource. (*[`impl Future<Output = Result<FlixHQSource>>`](https://github.com/carrotshniper21/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L29-L34)*)\
 output:
 
 
@@ -243,7 +243,7 @@ FlixHQSource {
 
 
 
-<p align="end">(<a href="https://github.com/eatmynerds/consumet.rs/blob/master/docs/guides/movies.md#">back to movie providers list</a>)</p>
+<p align="end">(<a href="https://github.com/carrotshniper21/consumet.rs/blob/master/docs/guides/movies.md#">back to movie providers list</a>)</p>
 
 ### recent_movies
 
@@ -252,7 +252,7 @@ let data = flixhq.recent_movies().await?;
 println!("{:#?}", data)
 ```
 
-returns a future which resolves into an vector of movies. (*[`impl Future<Output = Result<Vec<FlixHQResult>>>`](https://github.com/eatmynerds/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L70-L88)*)\
+returns a future which resolves into an vector of movies. (*[`impl Future<Output = Result<Vec<FlixHQResult>>>`](https://github.com/carrotshniper21/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L70-L88)*)\
 output:
 ```rust
 [
@@ -314,7 +314,7 @@ let data = flixhq.recent_shows().await?;
 println!("{:#?}", data);
 ```
 
-returns a future which resolves into an vector of tv shows. (*[`impl Future<Output = Result<Vec<FlixHQResult>>>`](https://github.com/eatmynerds/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L70-L88)*)\
+returns a future which resolves into an vector of tv shows. (*[`impl Future<Output = Result<Vec<FlixHQResult>>>`](https://github.com/carrotshniper21/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L70-L88)*)\
 output:
 ```rust
 [
@@ -366,7 +366,7 @@ let data = flixhq.trending_movies().await?;
 println!("{:#?}", data);
 ```
 
-returns a future which resolves into an vector of movies. (*[`impl Future<Output = Result<Vec<FlixHQResult>>>`](https://github.com/eatmynerds/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L70-L88)*)\
+returns a future which resolves into an vector of movies. (*[`impl Future<Output = Result<Vec<FlixHQResult>>>`](https://github.com/carrotshniper21/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L70-L88)*)\
 output:
 ```rust
 [
@@ -423,7 +423,7 @@ let data = flixhq.trending_shows().await?;
 println!("{:#?}", data);
 ```
 
-returns a future which resolves into an vector of tv shows. (*[`impl Future<Output = Result<Vec<FlixHQResult>>>`](https://github.com/eatmynerds/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L70-L88)*)\
+returns a future which resolves into an vector of tv shows. (*[`impl Future<Output = Result<Vec<FlixHQResult>>>`](https://github.com/carrotshniper21/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L70-L88)*)\
 output:
 ```rust
 [
