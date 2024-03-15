@@ -58,7 +58,7 @@ async fn main() -> anyhow::Result<()> {
 }
 ```
 
-** Cargo.toml **
+**Cargo.toml**
 ```toml
 [package]
 name = "<your_package_name>"
