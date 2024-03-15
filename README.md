@@ -58,6 +58,19 @@ async fn main() -> anyhow::Result<()> {
 }
 ```
 
+** Cargo.toml **
+```toml
+[package]
+name = "<your_package_name>"
+version = "0.0.1"
+edition = "2021"
+
+[dependencies]
+consumet = "0.0.11"
+tokio = { version = "1.0", features = ["full"] }
+anyhow = "1.0.79"
+```
+
 Do you want to know more? Head to the [`Getting Started`](https://github.com/carrotshniper21/consumet.rs/tree/master/docs/guides/getting-started.md).
 
 ## Documentation
