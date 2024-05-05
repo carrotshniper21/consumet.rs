@@ -92,7 +92,7 @@ You can contact the maintainer of consumet.rs via [email](mailto:vipershniper07@
 # Contributors
 Checkout the original [`consumet.ts`](https://github.com/consumet/consumet.ts/)
 
-Credits to the beautiful people who wrote the original consumet.ts
+Credits to the beautiful people who wrote the original consumet.ts:
 
 [![](https://contrib.rocks/image?repo=consumet/consumet.ts)](https://github.com/consumet/consumet.ts/graphs/contributors)
 
