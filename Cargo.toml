@@ -4,9 +4,9 @@ version = "0.0.12"
 edition = "2021"
 description = "Consumet API RIIR"
 license-file = "LICENSE"
-repository = "https://github.com/eatmynerds/consumet.rs"
+repository = "https://github.com/carrotshniper21/consumet.rs"
 readme = "README.md"
-authors = ["eatmynerds <vipershniper08@gmail.com>"]
+authors = ["carrotshniper21 <vipershniper07@gmail.com>"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
