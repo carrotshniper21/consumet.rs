@@ -140,7 +140,7 @@ pub struct FlixHQServerInfo {
     link: String,
 }
 
-pub const BASE_URL: &'static str = "https://flixhq.to";
+pub(crate) const BASE_URL: &'static str = "https://flixhq.to";
 
 impl FlixHQ {
     /// Returns a future which resolves into FlixHQSearchResults. (*[`impl Future<Output = Result<FlixHQSearchResults>>`](https://github.com/eatmynerds/consumet.rs/blob/master/src/providers/movies/flixhq.rs#L60-L68)*)\
@@ -249,7 +249,7 @@ impl FlixHQ {
 
             let mut seasons_and_episodes = vec![];
 
-            for (i, episode) in season_ids.iter().enumerate() {
+            for episode in season_ids {
                 let episode_html = CLIENT
                     .get(format!("{}/ajax/v2/season/episodes/{}", BASE_URL, &episode))
                     .send()
@@ -257,7 +257,7 @@ impl FlixHQ {
                     .text()
                     .await?;
 
-                let episodes = self.info_episode(episode_html, i);
+                let episodes = self.info_episode(episode_html);
                 seasons_and_episodes.push(episodes.episodes);
             }
 
@@ -349,7 +349,7 @@ impl FlixHQ {
             .position(|s| s.name == server.to_string())
         {
             Some(index) => index,
-            None => 0,
+            None => panic!("Server not found!"),
         };
 
         let parts = &servers.servers[i].url;
@@ -436,26 +436,7 @@ impl FlixHQ {
                 })
             }
             _ => {
-                let mut vid_cloud = VidCloud {
-                    sources: vec![],
-                    subtitles: vec![],
-                };
-
-                vid_cloud
-                    .extract(
-                        server_info.link.clone(),
-                        ExtractConfig {
-                            is_alternative: Some(false),
-                            ..Default::default()
-                        },
-                    )
-                    .await?;
-
-                Ok(FlixHQSources {
-                    sources: FlixHQSourceType::VidCloud(vid_cloud.sources),
-                    subtitles: FlixHQSubtitles::VidCloud(vid_cloud.subtitles),
-                    headers: server_info.link,
-                })
+                panic!("Please try a different server.")
             }
         }
     }

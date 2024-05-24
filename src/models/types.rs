@@ -186,6 +186,7 @@ pub struct IVideo {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub enum StreamingServers {
     GogoCDN,
+    AsianLoad,
     StreamSB,
     MixDrop,
     UpCloud,
@@ -201,6 +202,7 @@ impl std::fmt::Display for StreamingServers {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let server_names = match self {
             Self::GogoCDN => "GogoCDN",
+            Self::AsianLoad => "AsianLoad",
             Self::StreamSB => "StreamSB",
             Self::MixDrop => "MixDrop",
             Self::UpCloud => "UpCloud",

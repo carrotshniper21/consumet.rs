@@ -13,47 +13,47 @@ pub trait FlixHQHTML {
     fn parse_search(&self, page_html: String) -> (Vec<Option<String>>, bool, usize);
     fn single_page(&self, media_html: String, id: &str, url: String) -> FlixHQResult;
     fn info_season(&self, season_html: String) -> Vec<String>;
-    fn info_episode(&self, episode_html: String, index: usize) -> Episodes;
+    fn info_episode(&self, episode_html: String) -> Episodes;
     fn info_server(&self, server_html: String, media_id: &str) -> Vec<FlixHQServer>;
 }
 
 impl FlixHQHTML for FlixHQ {
     fn parse_recent_shows(&self, recent_html: String) -> Vec<Option<String>> {
-        let fragment = create_html_fragment(&recent_html);
+        let elements = create_html_fragment(&recent_html);
 
-        let trending_parser = Recent { elements: fragment };
+        let trending_parser = Recent { elements };
 
         trending_parser.recent_shows()
     }
 
     fn parse_recent_movies(&self, recent_html: String) -> Vec<Option<String>> {
-        let fragment = create_html_fragment(&recent_html);
+        let elements = create_html_fragment(&recent_html);
 
-        let trending_parser = Recent { elements: fragment };
+        let trending_parser = Recent { elements };
 
         trending_parser.recent_movies()
     }
 
     fn parse_trending_movies(&self, trending_html: String) -> Vec<Option<String>> {
-        let fragment = create_html_fragment(&trending_html);
+        let elements = create_html_fragment(&trending_html);
 
-        let trending_parser = Trending { elements: fragment };
+        let trending_parser = Trending { elements };
 
         trending_parser.trending_movies()
     }
 
     fn parse_trending_shows(&self, trending_html: String) -> Vec<Option<String>> {
-        let fragment = create_html_fragment(&trending_html);
+        let elements = create_html_fragment(&trending_html);
 
-        let trending_parser = Trending { elements: fragment };
+        let trending_parser = Trending { elements };
 
         trending_parser.trending_shows()
     }
 
     fn parse_search(&self, page_html: String) -> (Vec<Option<String>>, bool, usize) {
-        let fragment = create_html_fragment(&page_html);
+        let elements = create_html_fragment(&page_html);
 
-        let page_parser = Page { elements: fragment };
+        let page_parser = Page { elements };
 
         (
             page_parser.page_ids(),
@@ -63,15 +63,15 @@ impl FlixHQHTML for FlixHQ {
     }
 
     fn single_page(&self, media_html: String, id: &str, url: String) -> FlixHQResult {
-        let fragment = create_html_fragment(&media_html);
+        let elements = create_html_fragment(&media_html);
 
         let search_parser = Search {
-            elements: &fragment,
+            elements: &elements,
             id,
         };
 
         let info_parser = Info {
-            elements: &fragment,
+            elements: &elements,
         };
 
         FlixHQResult {
@@ -95,9 +95,9 @@ impl FlixHQHTML for FlixHQ {
     }
 
     fn info_season(&self, season_html: String) -> Vec<String> {
-        let fragment = create_html_fragment(&season_html);
+        let elements = create_html_fragment(&season_html);
 
-        let season_parser = Seasons { elements: fragment };
+        let season_parser = Seasons { elements };
 
         season_parser
             .season_results()
@@ -106,18 +106,18 @@ impl FlixHQHTML for FlixHQ {
             .collect()
     }
 
-    fn info_episode(&self, episode_html: String, index: usize) -> Episodes {
-        let fragment = create_html_fragment(&episode_html);
+    fn info_episode(&self, episode_html: String) -> Episodes {
+        let elements = create_html_fragment(&episode_html);
 
-        Episodes::episode_results(fragment, BASE_URL, index)
+        Episodes::episode_results(elements)
     }
 
     fn info_server(&self, server_html: String, media_id: &str) -> Vec<FlixHQServer> {
-        let fragment = create_html_fragment(&server_html);
+        let elements = create_html_fragment(&server_html);
 
-        let server_parser = Server { element: fragment };
+        let server_parser = Server { elements };
 
-        server_parser.parse_server_html(BASE_URL, media_id)
+        server_parser.parse_server_html(media_id)
     }
 }
 
@@ -227,6 +227,7 @@ impl<'page, 'b> Info<'page, 'b> {
             .replace(label, "")
             .split(',')
             .map(|s| s.trim().to_owned())
+            .filter(|x| !x.is_empty())
             .collect()
     }
 
@@ -261,62 +262,43 @@ impl<'page, 'b> Info<'page, 'b> {
 
 pub struct Episodes {
     pub episodes: Vec<FlixHQEpisode>,
-    pub index: usize,
-}
-
-impl Iterator for Episodes {
-    type Item = FlixHQEpisode;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.index < self.episodes.len() {
-            let episode = self.episodes[self.index].clone();
-            self.index += 1;
-            Some(episode)
-        } else {
-            None
-        }
-    }
 }
 
 impl Episodes {
-    pub fn episode_title(fragment: &Elements<'_>) -> Vec<Option<String>> {
-        fragment.find("ul > li > a").map(|_, element| {
+    pub fn episode_title(elements: &Elements<'_>) -> Vec<Option<String>> {
+        elements.find("ul > li > a").map(|_, element| {
             element
                 .get_attribute("title")
                 .map(|value| value.to_string())
         })
     }
 
-    pub fn episode_id(fragment: &Elements<'_>) -> Vec<Option<String>> {
-        fragment.find("ul > li > a").map(|_, element| {
+    pub fn episode_id(elements: &Elements<'_>) -> Vec<Option<String>> {
+        elements.find("ul > li > a").map(|_, element| {
             element
                 .get_attribute("data-id")
                 .map(|value| value.to_string())
         })
     }
 
-    pub fn episode_results(fragment: Elements<'_>, base_url: &str, _i: usize) -> Self {
-        let episode_titles = Self::episode_title(&fragment);
-        let episode_ids = Self::episode_id(&fragment);
+    pub fn episode_results(elements: Elements<'_>) -> Self {
+        let episode_titles = Self::episode_title(&elements);
+        let episode_ids = Self::episode_id(&elements);
 
-        let episode: Vec<FlixHQEpisode> = episode_ids
-            .iter()
-            .zip(episode_titles.iter())
-            .flat_map(|(id, title)| id.as_ref().map(|id| (id, title)))
-            .map(|(id, title)| {
-                let url = format!("{}/ajax/v2/episode/servers/{}", base_url, id);
-                FlixHQEpisode {
+        let mut episodes: Vec<FlixHQEpisode> = vec![];
+
+        for (id, title) in episode_ids.iter().zip(episode_titles.iter()) {
+            if let Some(id) = id {
+                let url = format!("{}/ajax/v2/episode/servers/{}", BASE_URL, id);
+                episodes.push(FlixHQEpisode {
                     id: id.clone(),
-                    title: title.clone().unwrap_or(String::from("")),
+                    title: title.clone().unwrap_or(String::new()),
                     url,
-                }
-            })
-            .collect();
-
-        Self {
-            episodes: episode,
-            index: 0,
+                });
+            }
         }
+
+        Self { episodes }
     }
 }
 
@@ -335,12 +317,12 @@ impl<'a> Seasons<'a> {
 }
 
 pub struct Server<'a> {
-    pub element: Elements<'a>,
+    pub elements: Elements<'a>,
 }
 
 impl<'a> Server<'a> {
-    pub fn parse_server_html(&self, base_url: &str, media_id: &str) -> Vec<FlixHQServer> {
-        self.element.find("ul > li > a").map(|_, element| {
+    pub fn parse_server_html(&self, media_id: &str) -> Vec<FlixHQServer> {
+        self.elements.find("ul > li > a").map(|_, element| {
             let id = element
                 .get_attribute("id")
                 .map(|value| value.to_string().replace("watch-", ""))
@@ -350,7 +332,7 @@ impl<'a> Server<'a> {
                 .get_attribute("title")
                 .map(|value| value.to_string().trim_start_matches("Server ").to_owned());
 
-            let url = format!("{}/watch-{}.{}", base_url, media_id, id);
+            let url = format!("{}/watch-{}.{}", BASE_URL, media_id, id);
             let name = name.unwrap_or(String::from(""));
 
             FlixHQServer { name, url }
