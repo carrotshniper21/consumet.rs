@@ -81,7 +81,7 @@ pub struct DramaCoolInfo {
     pub genres: Vec<String>,
     pub country: Vec<String>,
     pub total_episodes: usize,
-    pub episodes: Vec<Vec<DramaCoolEpisode>>,
+    pub episodes: Vec<DramaCoolEpisode>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -185,14 +185,11 @@ impl DramaCool {
             format!("{}/{}", BASE_URL, media_id),
         );
 
-        let mut parsed_episodes = vec![];
-
         let episodes = self.info_episode(info_html.clone());
-        parsed_episodes.push(episodes.episodes);
 
         Ok(DramaCoolInfo {
-            total_episodes: parsed_episodes.len(),
-            episodes: parsed_episodes,
+            total_episodes: episodes.len(),
+            episodes,
             id: search_result.id,
             title: search_result.title,
             url: search_result.url,

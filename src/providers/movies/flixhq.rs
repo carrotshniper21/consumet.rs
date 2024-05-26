@@ -249,16 +249,16 @@ impl FlixHQ {
 
             let mut seasons_and_episodes = vec![];
 
-            for episode in season_ids {
+            for season in season_ids {
                 let episode_html = CLIENT
-                    .get(format!("{}/ajax/v2/season/episodes/{}", BASE_URL, &episode))
+                    .get(format!("{}/ajax/v2/season/episodes/{}", BASE_URL, &season))
                     .send()
                     .await?
                     .text()
                     .await?;
 
                 let episodes = self.info_episode(episode_html);
-                seasons_and_episodes.push(episodes.episodes);
+                seasons_and_episodes.push(episodes);
             }
 
             Ok(FlixHQInfo::Tv(FlixHQShow {

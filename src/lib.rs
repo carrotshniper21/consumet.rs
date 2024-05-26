@@ -1,5 +1,5 @@
 pub mod extractors;
-pub mod html;
+pub(crate) mod html;
 pub mod models;
 pub mod providers;
 pub mod utils;

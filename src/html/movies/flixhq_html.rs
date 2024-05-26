@@ -5,7 +5,7 @@ use crate::{
 
 use visdom::{types::Elements, Vis};
 
-pub trait FlixHQHTML {
+pub(crate) trait FlixHQHTML {
     fn parse_recent_shows(&self, recent_html: String) -> Vec<Option<String>>;
     fn parse_recent_movies(&self, recent_html: String) -> Vec<Option<String>>;
     fn parse_trending_movies(&self, trending_html: String) -> Vec<Option<String>>;
@@ -13,7 +13,7 @@ pub trait FlixHQHTML {
     fn parse_search(&self, page_html: String) -> (Vec<Option<String>>, bool, usize);
     fn single_page(&self, media_html: String, id: &str, url: String) -> FlixHQResult;
     fn info_season(&self, season_html: String) -> Vec<String>;
-    fn info_episode(&self, episode_html: String) -> Episodes;
+    fn info_episode(&self, episode_html: String) -> Vec<FlixHQEpisode>;
     fn info_server(&self, server_html: String, media_id: &str) -> Vec<FlixHQServer>;
 }
 
@@ -106,10 +106,12 @@ impl FlixHQHTML for FlixHQ {
             .collect()
     }
 
-    fn info_episode(&self, episode_html: String) -> Episodes {
+    fn info_episode(&self, episode_html: String) -> Vec<FlixHQEpisode> {
         let elements = create_html_fragment(&episode_html);
 
-        Episodes::episode_results(elements)
+        let episode_parser = Episodes { elements };
+
+        episode_parser.episode_results()
     }
 
     fn info_server(&self, server_html: String, media_id: &str) -> Vec<FlixHQServer> {
@@ -260,30 +262,30 @@ impl<'page, 'b> Info<'page, 'b> {
     }
 }
 
-pub struct Episodes {
-    pub episodes: Vec<FlixHQEpisode>,
+pub struct Episodes<'a> {
+    pub elements: Elements<'a>,
 }
 
-impl Episodes {
-    pub fn episode_title(elements: &Elements<'_>) -> Vec<Option<String>> {
-        elements.find("ul > li > a").map(|_, element| {
+impl<'a> Episodes<'a> {
+    pub fn episode_title(&self) -> Vec<Option<String>> {
+        self.elements.find("ul > li > a").map(|_, element| {
             element
                 .get_attribute("title")
                 .map(|value| value.to_string())
         })
     }
 
-    pub fn episode_id(elements: &Elements<'_>) -> Vec<Option<String>> {
-        elements.find("ul > li > a").map(|_, element| {
+    pub fn episode_id(&self) -> Vec<Option<String>> {
+        self.elements.find("ul > li > a").map(|_, element| {
             element
                 .get_attribute("data-id")
                 .map(|value| value.to_string())
         })
     }
 
-    pub fn episode_results(elements: Elements<'_>) -> Self {
-        let episode_titles = Self::episode_title(&elements);
-        let episode_ids = Self::episode_id(&elements);
+    pub fn episode_results(&self) -> Vec<FlixHQEpisode> {
+        let episode_titles = self.episode_title();
+        let episode_ids = self.episode_id();
 
         let mut episodes: Vec<FlixHQEpisode> = vec![];
 
@@ -298,7 +300,7 @@ impl Episodes {
             }
         }
 
-        Self { episodes }
+        episodes
     }
 }
 

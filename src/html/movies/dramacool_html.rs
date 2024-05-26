@@ -1,16 +1,13 @@
 use visdom::{types::Elements, Vis};
 
-use crate::{
-    models::StreamingServers,
-    providers::movies::dramacool::{
-        DramaCool, DramaCoolEpisode, DramaCoolResult, DramaCoolServer, BASE_URL,
-    },
+use crate::providers::movies::dramacool::{
+    DramaCool, DramaCoolEpisode, DramaCoolResult, DramaCoolServer, BASE_URL,
 };
 
-pub trait DramaCoolHTML {
+pub(crate) trait DramaCoolHTML {
     fn parse_search(&self, page_html: String) -> (Vec<Option<String>>, bool, usize);
     fn single_page(&self, media_html: String, id: &str, url: String) -> DramaCoolResult;
-    fn info_episode(&self, episode_html: String) -> Episodes;
+    fn info_episode(&self, episode_html: String) -> Vec<DramaCoolEpisode>;
     fn info_server(&self, server_html: String) -> Vec<DramaCoolServer>;
 }
 
@@ -53,10 +50,12 @@ impl DramaCoolHTML for DramaCool {
         }
     }
 
-    fn info_episode(&self, episode_html: String) -> Episodes {
+    fn info_episode(&self, episode_html: String) -> Vec<DramaCoolEpisode> {
         let elements = create_html_fragment(&episode_html);
 
-        Episodes::episode_results(elements)
+        let episode_parser = Episodes { elements };
+
+        episode_parser.episode_results()
     }
 
     fn info_server(&self, server_html: String) -> Vec<DramaCoolServer> {
@@ -197,13 +196,14 @@ impl<'page, 'b> Info<'page, 'b> {
     }
 }
 
-pub struct Episodes {
-    pub episodes: Vec<DramaCoolEpisode>,
+pub struct Episodes<'a> {
+    pub elements: Elements<'a>,
 }
 
-impl Episodes {
-    pub fn episode_id(elements: &Elements<'_>) -> Vec<String> {
-        let episode_ids: Vec<_> = elements
+impl<'a> Episodes<'a> {
+    pub fn episode_id(&self) -> Vec<String> {
+        let episode_ids: Vec<_> = self
+            .elements
             .find("div.content-left > div.block-tab > div > div > ul > li > a")
             .map(|_, element| {
                 element
@@ -218,26 +218,26 @@ impl Episodes {
         episode_ids
     }
 
-    pub fn episode_title(elements: &Elements<'_>) -> Vec<String> {
-        elements
+    pub fn episode_title(&self) -> Vec<String> {
+        self.elements
             .find("div.content-left > div.block-tab > div > div > ul > li > a > h3")
             .map(|_, element| element.text())
     }
 
-    pub fn episode_sub_type(elements: &Elements<'_>) -> Vec<String> {
-        elements
+    pub fn episode_sub_type(&self) -> Vec<String> {
+        self.elements
             .find("div.content-left > div.block-tab > div > div > ul > li > a > span.type")
             .map(|_, element| element.text())
     }
 
-    pub fn episode_release_date(elements: &Elements<'_>) -> Vec<String> {
-        elements
+    pub fn episode_release_date(&self) -> Vec<String> {
+        self.elements
             .find("div.content-left > div.block-tab > div > div > ul > li > a > span.time")
             .map(|_, element| element.text())
     }
 
-    pub fn episode_url(elements: &Elements<'_>) -> Vec<String> {
-        elements
+    pub fn episode_url(&self) -> Vec<String> {
+        self.elements
             .find("div.content-left > div.block-tab > div > div > ul > li > a")
             .map(|_, element| {
                 element
@@ -250,12 +250,12 @@ impl Episodes {
             })
     }
 
-    pub fn episode_results(elements: Elements<'_>) -> Self {
-        let episode_ids = Self::episode_id(&elements);
-        let episode_titles = Self::episode_title(&elements);
-        let episode_sub_types = Self::episode_sub_type(&elements);
-        let episode_release_dates = Self::episode_release_date(&elements);
-        let episode_urls = Self::episode_url(&elements);
+    pub fn episode_results(&self) -> Vec<DramaCoolEpisode> {
+        let episode_ids = self.episode_id();
+        let episode_titles = self.episode_title();
+        let episode_sub_types = self.episode_sub_type();
+        let episode_release_dates = self.episode_release_date();
+        let episode_urls = self.episode_url();
 
         let mut episodes: Vec<DramaCoolEpisode> = vec![];
 
@@ -269,7 +269,7 @@ impl Episodes {
             })
         }
 
-        Self { episodes }
+        episodes
     }
 }
 
@@ -293,7 +293,7 @@ impl<'a> Server<'a> {
                     .unwrap_or(String::from(""));
 
                 if name.contains("Standard") {
-                    name = StreamingServers::AsianLoad.to_string().to_lowercase()
+                    name = String::from("asianload")
                 }
 
                 if url.starts_with("//") {
