@@ -5,9 +5,9 @@ pub trait VideoExtractor {
 
     /// takes video link
     /// returns video sources (video links) available
-    fn extract(
+    async fn extract(
         &mut self,
         video_url: String,
         args: ExtractConfig,
-    ) -> impl std::future::Future<Output = anyhow::Result<Self::VideoSource>>;
+    ) -> anyhow::Result<Self::VideoSource>;
 }

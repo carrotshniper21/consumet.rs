@@ -1,6 +1,7 @@
 use crate::{
     extractors::{
-        MixDrop, MixDropSource, MixDropSubtitle, VidCloud, VidCloudSource, VidCloudSubtitle,
+        mixdrop::{MixDrop, MixDropSource, MixDropSubtitle},
+        vidcloud::{VidCloud, VidCloudSource, VidCloudSubtitle},
     },
     html::movies::flixhq_html::FlixHQHTML,
     models::{ExtractConfig, StreamingServers, TvType, VideoExtractor},
@@ -89,7 +90,7 @@ pub struct FlixHQResult {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub enum FlixHQInfo {
-    Tv(FlixHQShow),
+    TV(FlixHQShow),
     Movie(FlixHQMovie),
 }
 
@@ -261,7 +262,7 @@ impl FlixHQ {
                 seasons_and_episodes.push(episodes);
             }
 
-            Ok(FlixHQInfo::Tv(FlixHQShow {
+            Ok(FlixHQInfo::TV(FlixHQShow {
                 total_episodes: seasons_and_episodes.last().map(|x| x.len()).unwrap(),
                 seasons: FlixHQSeason {
                     total_seasons: seasons_and_episodes.len(),

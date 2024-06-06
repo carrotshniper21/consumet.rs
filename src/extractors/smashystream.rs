@@ -1,10 +1,23 @@
-use crate::models::{ExtractConfig, ISubtitle, IVideo, VideoExtractor};
+use crate::models::{ExtractConfig, VideoExtractor};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct SmashyStreamSources {
+    pub url: String,
+    pub quality: String,
+    pub is_m3u8: bool,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct SmashyStreamSubtitles {
+    pub url: String,
+    pub lang: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct SmashyStream {
-    sources: Vec<IVideo>,
-    subtitles: Vec<ISubtitle>,
+    pub sources: Vec<SmashyStreamSources>,
+    pub subtitles: Vec<SmashyStreamSubtitles>,
 }
 
 const _HOST: &str = "https://embed.smashystream.com";
@@ -25,19 +38,15 @@ impl VideoExtractor for SmashyStream {
             user_agent: _,
         } = args;
 
-        self.sources.push(IVideo {
-            url: None,
-            quality: None,
-            is_m3u8: None,
-            is_dash: None,
-            size: None,
-            other: None,
+        self.sources.push(SmashyStreamSources {
+            url: String::new(),
+            quality: String::new(),
+            is_m3u8: false,
         });
 
-        self.subtitles.push(ISubtitle {
-            id: None,
-            url: None,
-            lang: None,
+        self.subtitles.push(SmashyStreamSubtitles {
+            url: String::new(),
+            lang: String::new(),
         });
 
         Ok(Self {

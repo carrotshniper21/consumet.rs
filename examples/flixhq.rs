@@ -3,71 +3,68 @@ use consumet::{
     providers::movies,
     providers::movies::flixhq::{FlixHQInfo, FlixHQSourceType},
 };
-use std::process::Command;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let flixhq = movies::FlixHQ;
 
-    let data = flixhq.search("Vincenzo", None).await?;
+    let search_results = flixhq.search("Vincenzo", None).await?;
 
-    let movie_id = &data.results[0].id;
+    let media_id = &search_results.results[0].id;
 
-    let movie_info = flixhq.info(&movie_id).await?;
+    let media_info = flixhq.info(media_id).await?;
 
-    match movie_info {
-        FlixHQInfo::Tv(show) => {
-            let media_id = show.id;
+    match media_info {
+        FlixHQInfo::TV(show) => {
+            let media_id = &show.id;
 
             let episode_id = &show.seasons.episodes[0][0].id;
 
-            let servers = flixhq.servers(&episode_id, &media_id).await?;
+            let servers = flixhq.servers(episode_id, media_id).await?;
 
-            let chosen_server = match servers.servers[0].name.as_str() {
+            let server_name = &servers.servers[0].name;
+
+            let server = match server_name.as_str() {
                 "UpCloud" => StreamingServers::UpCloud,
                 "VidCloud" => StreamingServers::VidCloud,
-                _ => todo!(),
+                _ => panic!("Server not found!"),
             };
 
-            let sources = flixhq
-                .sources(&episode_id, &media_id, Some(chosen_server))
-                .await?;
+            let sources = flixhq.sources(episode_id, media_id, Some(server)).await?;
 
             match sources.sources {
-                FlixHQSourceType::VidCloud(embed_links) => {
-                    let _ = Command::new("mpv")
-                        .arg(&embed_links[0].url)
-                        .spawn()
-                        .unwrap();
+                FlixHQSourceType::VidCloud(sources) => {
+                    println!("{:#?}", sources);
                 }
-                FlixHQSourceType::MixDrop(_) => {}
+                FlixHQSourceType::MixDrop(sources) => {
+                    println!("{:#?}", sources);
+                }
             }
         }
         FlixHQInfo::Movie(movie) => {
-            let media_id = movie.id;
+            let media_id = &movie.id;
 
-            let episode_id = media_id.rsplit("-").collect::<Vec<&str>>()[0];
+            let episode_id = &media_id.rsplit("-").collect::<Vec<&str>>()[0];
 
-            let servers = flixhq.servers(episode_id, &media_id).await?;
+            let servers = flixhq.servers(episode_id, media_id).await?;
 
-            let chosen_server = match servers.servers[0].name.as_str() {
+            let server_name = &servers.servers[0].name;
+
+            let server = match server_name.as_str() {
                 "UpCloud" => StreamingServers::UpCloud,
                 "VidCloud" => StreamingServers::VidCloud,
-                _ => todo!(),
+                _ => panic!("Server not found!"),
             };
 
-            let sources = flixhq
-                .sources(episode_id, &media_id, Some(chosen_server))
-                .await?;
+            let sources = flixhq.sources(episode_id, media_id, Some(server)).await?;
 
             match sources.sources {
-                FlixHQSourceType::VidCloud(embed_links) => {
-                    let _ = Command::new("mpv")
-                        .arg(&embed_links[0].url)
-                        .spawn()
-                        .unwrap();
+                FlixHQSourceType::VidCloud(sources) => {
+                    println!("{:#?}", sources);
                 }
-                FlixHQSourceType::MixDrop(_) => {}
+                FlixHQSourceType::MixDrop(sources) => {
+                    println!("{:#?}", sources);
+                }
             }
         }
     }

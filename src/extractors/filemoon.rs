@@ -1,4 +1,4 @@
-use crate::models::{ExtractConfig, IVideo, VideoExtractor};
+ use crate::models::{ExtractConfig, IVideo, VideoExtractor};
 
 use serde::{Deserialize, Serialize};
 

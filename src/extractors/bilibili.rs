@@ -1,10 +1,17 @@
-use crate::models::{ExtractConfig, IVideo, VideoExtractor};
+use crate::models::{ExtractConfig, VideoExtractor};
 
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
+pub struct BilibiliSources {
+    pub url: String,
+    pub is_m3u8: bool,
+    pub is_dash: bool,
+}
+
+#[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct Bilibili {
-    pub sources: Vec<IVideo>,
+    pub sources: Vec<BilibiliSources>,
 }
 
 impl VideoExtractor for Bilibili {
@@ -23,13 +30,10 @@ impl VideoExtractor for Bilibili {
             user_agent: _,
         } = args;
 
-        self.sources.push(IVideo {
-            url: None,
-            quality: None,
-            is_m3u8: None,
-            is_dash: None,
-            size: None,
-            other: None,
+        self.sources.push(BilibiliSources {
+            url: String::new(),
+            is_m3u8: false,
+            is_dash: false,
         });
 
         Ok(Self {

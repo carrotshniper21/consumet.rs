@@ -1,11 +1,24 @@
-use crate::models::{ExtractConfig, ISubtitle, IVideo, VideoExtractor};
+use crate::models::{ExtractConfig, VideoExtractor};
 
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct RapidCloudSources {
+    pub url: String,
+    pub quality: String,
+    pub is_m3u8: bool,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct RapidCloudSubtitles {
+    pub url: String,
+    pub lang: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct RapidCloud {
-    sources: Vec<IVideo>,
-    subtitles: Vec<ISubtitle>,
+    pub sources: Vec<RapidCloudSources>,
+    pub subtitles: Vec<RapidCloudSubtitles>,
 }
 
 const _HOST: &str = "https://rapid-cloud.co";
@@ -26,19 +39,15 @@ impl VideoExtractor for RapidCloud {
             user_agent: _,
         } = args;
 
-        self.sources.push(IVideo {
-            url: None,
-            quality: None,
-            is_m3u8: None,
-            is_dash: None,
-            size: None,
-            other: None,
+        self.sources.push(RapidCloudSources {
+            url: String::new(),
+            quality: String::new(),
+            is_m3u8: false,
         });
 
-        self.subtitles.push(ISubtitle {
-            id: None,
-            url: None,
-            lang: None,
+        self.subtitles.push(RapidCloudSubtitles {
+            url: String::new(),
+            lang: String::new(),
         });
 
         Ok(Self {

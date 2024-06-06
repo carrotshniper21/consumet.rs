@@ -1,9 +1,16 @@
-use crate::models::{ExtractConfig, IVideo, VideoExtractor};
+use crate::models::{ExtractConfig, VideoExtractor};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Mp4UploadSources {
+    pub quality: String,
+    pub url: String,
+    pub is_m3u8: bool,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Mp4Upload {
-    sources: Vec<IVideo>,
+    pub sources: Vec<Mp4UploadSources>,
 }
 
 impl VideoExtractor for Mp4Upload {
@@ -22,13 +29,10 @@ impl VideoExtractor for Mp4Upload {
             user_agent: _,
         } = args;
 
-        self.sources.push(IVideo {
-            url: None,
-            quality: None,
-            is_m3u8: None,
-            is_dash: None,
-            size: None,
-            other: None,
+        self.sources.push(Mp4UploadSources {
+            url: String::new(),
+            quality: String::new(),
+            is_m3u8: false,
         });
 
         Ok(Self {

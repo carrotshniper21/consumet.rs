@@ -2,20 +2,19 @@ use crate::models::{ExtractConfig, VideoExtractor};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct KwikSources {
+pub struct VoeSources {
     pub url: String,
+    pub quality: String,
     pub is_m3u8: bool,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct Kwik {
-    pub sources: Vec<KwikSources>,
+pub struct Voe {
+    pub sources: Vec<VoeSources>,
 }
 
-const _HOST: &str = "https://animepage.com";
-
-impl VideoExtractor for Kwik {
-    type VideoSource = Kwik;
+impl VideoExtractor for Voe {
+    type VideoSource = Voe;
 
     // NOTE: Only needs video_url param
     async fn extract(
@@ -30,8 +29,9 @@ impl VideoExtractor for Kwik {
             user_agent: _,
         } = args;
 
-        self.sources.push(KwikSources {
+        self.sources.push(VoeSources {
             url: String::new(),
+            quality: String::new(),
             is_m3u8: false,
         });
 

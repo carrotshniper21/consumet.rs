@@ -2,20 +2,26 @@ use crate::models::{ExtractConfig, VideoExtractor};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct KwikSources {
+pub struct MegaCloudSources {
     pub url: String,
+    pub r#type: String,
     pub is_m3u8: bool,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct Kwik {
-    pub sources: Vec<KwikSources>,
+pub struct MegaCloudSubtitles {
+    pub url: String,
+    pub lang: String,
 }
 
-const _HOST: &str = "https://animepage.com";
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct MegaCloud {
+    pub sources: Vec<MegaCloudSources>,
+    pub subtitles: Vec<MegaCloudSubtitles>,
+}
 
-impl VideoExtractor for Kwik {
-    type VideoSource = Kwik;
+impl VideoExtractor for MegaCloud {
+    type VideoSource = MegaCloud;
 
     // NOTE: Only needs video_url param
     async fn extract(
@@ -30,13 +36,20 @@ impl VideoExtractor for Kwik {
             user_agent: _,
         } = args;
 
-        self.sources.push(KwikSources {
+        self.sources.push(MegaCloudSources {
             url: String::new(),
+            r#type: String::new(),
             is_m3u8: false,
+        });
+
+        self.subtitles.push(MegaCloudSubtitles {
+            url: String::new(),
+            lang: String::new(),
         });
 
         Ok(Self {
             sources: self.sources.clone(),
+            subtitles: self.subtitles.clone(),
         })
     }
 }

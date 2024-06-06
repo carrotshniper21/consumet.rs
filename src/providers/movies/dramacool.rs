@@ -1,10 +1,12 @@
 use crate::{
     extractors::{
-        mixdrop::{MixDropSource, MixDropSubtitle},
-        AsianLoad, MixDrop, StreamSB, StreamTape,
+        asianload::{AsianLoad, AsianLoadSource, AsianLoadSubtitle},
+        mixdrop::{MixDrop, MixDropSource, MixDropSubtitle},
+        streamsb::{StreamSB, StreamSBSources},
+        streamtape::{StreamTape, StreamTapeSources},
     },
     html::movies::dramacool_html::DramaCoolHTML,
-    models::{ExtractConfig, ISubtitle, IVideo, StreamingServers, VideoExtractor},
+    models::{ExtractConfig, StreamingServers, VideoExtractor},
     CLIENT,
 };
 
@@ -17,15 +19,15 @@ pub struct DramaCool;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub enum DramaCoolSourceType {
-    AsianLoad(Vec<IVideo>),
+    AsianLoad(Vec<AsianLoadSource>),
     MixDrop(Vec<MixDropSource>),
-    StreamTape(Vec<IVideo>),
-    StreamSB(Vec<IVideo>),
+    StreamTape(Vec<StreamTapeSources>),
+    StreamSB(Vec<StreamSBSources>),
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 pub enum DramaCoolSubtitles {
-    AsianLoad(Vec<ISubtitle>),
+    AsianLoad(Vec<AsianLoadSubtitle>),
     MixDrop(Vec<MixDropSubtitle>),
 }
 

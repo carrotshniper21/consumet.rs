@@ -1,9 +1,16 @@
-use crate::models::{ExtractConfig, IVideo, VideoExtractor};
+use crate::models::{ExtractConfig, VideoExtractor};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct GogoCDNSources {
+    pub url: String,
+    pub quality: String,
+    pub is_m3u8: bool,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct GogoCDN {
-    pub sources: Vec<IVideo>,
+    pub sources: Vec<GogoCDNSources>,
 }
 
 impl VideoExtractor for GogoCDN {
@@ -22,13 +29,10 @@ impl VideoExtractor for GogoCDN {
             user_agent: _,
         } = args;
 
-        self.sources.push(IVideo {
-            url: None,
-            quality: None,
-            is_m3u8: None,
-            is_dash: None,
-            size: None,
-            other: None,
+        self.sources.push(GogoCDNSources {
+            url: String::new(),
+            quality: String::new(),
+            is_m3u8: false,
         });
 
         Ok(Self {

@@ -1,9 +1,16 @@
-use crate::models::{ExtractConfig, IVideo, VideoExtractor};
+use crate::models::{ExtractConfig, VideoExtractor};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct StreamWishSources {
+    pub url: String,
+    pub quality: String,
+    pub is_m3u8: bool,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct StreamWish {
-    sources: Vec<IVideo>,
+    pub sources: Vec<StreamWishSources>,
 }
 
 impl VideoExtractor for StreamWish {
@@ -22,13 +29,10 @@ impl VideoExtractor for StreamWish {
             user_agent: _,
         } = args;
 
-        self.sources.push(IVideo {
-            url: None,
-            quality: None,
-            is_m3u8: None,
-            is_dash: None,
-            size: None,
-            other: None,
+        self.sources.push(StreamWishSources {
+            url: String::new(),
+            quality: String::new(),
+            is_m3u8: false,
         });
 
         Ok(Self {

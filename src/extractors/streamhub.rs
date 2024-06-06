@@ -1,10 +1,16 @@
-use crate::models::{ExtractConfig, ISubtitle, IVideo, VideoExtractor};
+use crate::models::{ExtractConfig, VideoExtractor};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct StreamHubSources {
+    pub url: String,
+    pub quality: String,
+    pub is_m3u8: bool,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct StreamHub {
-    pub sources: Vec<IVideo>,
-    pub subtitles: Vec<ISubtitle>,
+    pub sources: Vec<StreamHubSources>,
 }
 
 impl VideoExtractor for StreamHub {
@@ -23,24 +29,14 @@ impl VideoExtractor for StreamHub {
             user_agent: _,
         } = args;
 
-        self.sources.push(IVideo {
-            url: None,
-            quality: None,
-            is_m3u8: None,
-            is_dash: None,
-            size: None,
-            other: None,
-        });
-
-        self.subtitles.push(ISubtitle {
-            id: None,
-            url: None,
-            lang: None,
+        self.sources.push(StreamHubSources {
+            url: String::new(),
+            quality: String::new(),
+            is_m3u8: false,
         });
 
         Ok(Self {
             sources: self.sources.clone(),
-            subtitles: self.subtitles.clone(),
         })
     }
 }

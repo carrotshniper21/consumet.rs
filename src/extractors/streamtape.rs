@@ -1,10 +1,16 @@
-use crate::models::{ExtractConfig, IVideo, VideoExtractor};
+use crate::models::{ExtractConfig, VideoExtractor};
 use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct StreamTapeSources {
+    pub url: String,
+    pub is_m3u8: bool,
+}
 
 /// Contains the Decrypted Sources
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct StreamTape {
-    pub sources: Vec<IVideo>,
+    pub sources: Vec<StreamTapeSources>,
 }
 
 impl VideoExtractor for StreamTape {
@@ -23,13 +29,9 @@ impl VideoExtractor for StreamTape {
             user_agent: _,
         } = args;
 
-        self.sources.push(IVideo {
-            url: None,
-            quality: None,
-            is_m3u8: None,
-            is_dash: None,
-            size: None,
-            other: None,
+        self.sources.push(StreamTapeSources {
+            url: String::new(),
+            is_m3u8: false,
         });
 
         Ok(Self {

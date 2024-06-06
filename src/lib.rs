@@ -1,3 +1,4 @@
+#![allow(async_fn_in_trait)]
 pub mod extractors;
 pub(crate) mod html;
 pub mod models;

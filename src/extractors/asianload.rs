@@ -1,11 +1,23 @@
-use crate::models::{ExtractConfig, ISubtitle, IVideo, VideoExtractor};
+use crate::models::{ExtractConfig, VideoExtractor};
 use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Deserialize, Clone, Serialize)]
+pub struct AsianLoadSource {
+    pub url: String,
+    pub is_m3u8: bool,
+}
+
+#[derive(Debug, Deserialize, Clone, Serialize)]
+pub struct AsianLoadSubtitle {
+    pub url: String,
+    pub lang: String,
+}
 
 /// Contains both the Decrypted Sources and Subtitles
 #[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct AsianLoad {
-    pub sources: Vec<IVideo>,
-    pub subtitles: Vec<ISubtitle>,
+    pub sources: Vec<AsianLoadSource>,
+    pub subtitles: Vec<AsianLoadSubtitle>,
 }
 
 impl VideoExtractor for AsianLoad {
@@ -24,19 +36,14 @@ impl VideoExtractor for AsianLoad {
             user_agent: _,
         } = args;
 
-        self.sources.push(IVideo {
-            url: None,
-            quality: None,
-            is_m3u8: None,
-            is_dash: None,
-            size: None,
-            other: None,
+        self.sources.push(AsianLoadSource {
+            url: String::new(),
+            is_m3u8: false,
         });
 
-        self.subtitles.push(ISubtitle {
-            id: None,
-            url: None,
-            lang: None,
+        self.subtitles.push(AsianLoadSubtitle {
+            url: String::new(),
+            lang: String::new(),
         });
 
         Ok(Self {
